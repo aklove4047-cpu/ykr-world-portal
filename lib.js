@@ -57,9 +57,63 @@ function refreshInvoice(invoiceId) {
   db.prepare('UPDATE invoices SET status=? WHERE invoice_id=?').run(status, invoiceId);
   return { ...inv, status };
 }
-// Delivery of OTP: replace with your SMS / email provider.
-function sendOtp(identifier, code) {
-  console.log(`[OTP] ${identifier}: ${code}`);
+
+// Delivery of OTP: Email via Nodemailer (Gmail/SMTP)
+let nodemailer = null;
+try { nodemailer = require('nodemailer'); } catch (_) {}
+
+let mailTransporter = null;
+function getTransporter() {
+  if (!nodemailer) return null;
+  const user = process.env.SMTP_USER;
+  const pass = process.env.SMTP_PASS;
+  if (!user || !pass) return null;
+
+  if (!mailTransporter) {
+    mailTransporter = nodemailer.createTransport({
+      host: process.env.SMTP_HOST || 'smtp.gmail.com',
+      port: Number(process.env.SMTP_PORT) || 465,
+      secure: (process.env.SMTP_PORT || '465') === '465',
+      auth: { user, pass }
+    });
+  }
+  return mailTransporter;
 }
+
+async function sendOtp(identifier, code, user) {
+  console.log(`[OTP] ${identifier}: ${code}`);
+  const targetEmail = String(identifier).includes('@') ? identifier : (user?.email || null);
+
+  if (targetEmail) {
+    const transporter = getTransporter();
+    if (transporter) {
+      try {
+        await transporter.sendMail({
+          from: process.env.SMTP_FROM || `"YKR World" <${process.env.SMTP_USER}>`,
+          to: targetEmail,
+          subject: `Your YKR World Login OTP: ${code}`,
+          html: `
+            <div style="font-family: Arial, sans-serif; max-width: 500px; margin: auto; padding: 24px; border: 1px solid #e2e8f0; border-radius: 12px; background: #ffffff;">
+              <h2 style="color: #0f172a; margin-top: 0; font-size: 20px;">YKR World Verification Code</h2>
+              <p style="color: #475569; font-size: 15px; line-height: 1.5;">Use the following code to sign in to your YKR World account:</p>
+              <div style="font-size: 32px; font-weight: bold; letter-spacing: 6px; color: #2563eb; background: #f8fafc; padding: 16px; text-align: center; border-radius: 8px; margin: 20px 0; border: 1px dashed #cbd5e1;">
+                ${code}
+              </div>
+              <p style="color: #64748b; font-size: 13px;">This code expires in 5 minutes. If you did not request this code, please ignore this email.</p>
+              <hr style="border: none; border-top: 1px solid #f1f5f9; margin: 20px 0;" />
+              <p style="color: #94a3b8; font-size: 12px; text-align: center; margin: 0;">YKR World Portal — Secure Authentication</p>
+            </div>
+          `
+        });
+        console.log(`[OTP] Email delivered successfully to ${targetEmail}`);
+      } catch (err) {
+        console.error(`[OTP Error] Failed to send email to ${targetEmail}:`, err.message);
+      }
+    } else {
+      console.warn(`[OTP] Note: SMTP_USER and SMTP_PASS not set in .env. OTP printed to console.`);
+    }
+  }
+}
+
 module.exports = { db, STAFF, sha, now, normMobile, audit, notify, rolesOf, has, sign, auth, need, companyIds, studentOf,
   candidateOf, employeeOf, canSeeInvoice, paidSum, refreshInvoice, sendOtp };

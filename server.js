@@ -53,7 +53,7 @@ app.post('/api/auth/request-otp', authLimiter, (req, res) => {
       const code = String(crypto.randomInt(100000, 1000000));
       db.prepare('UPDATE otp_codes SET used=1 WHERE identifier=?').run(identifier);
       db.prepare('INSERT INTO otp_codes(identifier,code_hash,expires_at) VALUES(?,?,?)').run(identifier, L.sha(code + ':' + identifier), Date.now() + 5 * 60 * 1000);
-      L.sendOtp(identifier, code);
+      L.sendOtp(identifier, code, u);
       if (!PROD && process.env.DEV_SHOW_OTP === 'true') out.dev_otp = code; // development convenience only
     }
   }
