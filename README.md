@@ -9,7 +9,7 @@ cp .env.example .env      # edit JWT_SECRET
 npm start                 # http://localhost:3000
 npm test                  # 36 end-to-end acceptance checks
 ```
-First start seeds an admin from ADMIN_EMAIL / ADMIN_MOBILE. Log in with that email, then the OTP (shown on screen while DEV_SHOW_OTP=true, and printed in the server console).
+First start seeds an admin from ADMIN_EMAIL / ADMIN_MOBILE / ADMIN_PASSWORD (default: `Admin@123`). Log in with that email/mobile and password. Users can change their password from the Profile & Password section inside the portal.
 
 ## Go live checklist
 1. `NODE_ENV=production`, a long random `JWT_SECRET`, `DEV_SHOW_OTP=false`, `MOCK_PAYMENTS=false`.

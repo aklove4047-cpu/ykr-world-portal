@@ -60,7 +60,7 @@ async function payNow(inv) {
 // ---------- Forms ----------
 const f = (n, l, type = 'text', extra = {}) => ({ n, l, type, ...extra });
 const FORMS = {
-  user: { t: 'Create user', p: '/admin/users', fields: [f('name', 'Full name'), f('email', 'Email', 'email'), f('mobile', 'Mobile (10 digits)'), f('roles', 'Roles (comma separated)', 'text', { ph: 'student, business_client, employer, job_seeker, digital_client, faculty, employee, manager, hr, accounts' }), f('company_id', 'Company ID (customers)', 'number'), f('department', 'Department (staff)'), f('designation', 'Designation (staff)'), f('manager_user_id', 'Manager user ID (staff)', 'number')] },
+  user: { t: 'Create user', p: '/admin/users', fields: [f('name', 'Full name'), f('email', 'Email', 'email'), f('mobile', 'Mobile (10 digits)'), f('password', 'Initial Password (default: User@123)', 'password'), f('roles', 'Roles (comma separated)', 'text', { ph: 'student, business_client, employer, job_seeker, digital_client, faculty, employee, manager, hr, accounts' }), f('company_id', 'Company ID (customers)', 'number'), f('department', 'Department (staff)'), f('designation', 'Designation (staff)'), f('manager_user_id', 'Manager user ID (staff)', 'number')] },
   userStatus: { t: 'Activate / deactivate user', p: v => `/admin/users/${v.user_id}/status`, fields: [f('user_id', 'User ID', 'number'), f('status', 'Status', 'select', { opts: ['active', 'inactive'] })] },
   company: { t: 'Add company', p: '/admin/companies', fields: [f('name', 'Company name'), f('industry', 'Industry'), f('address', 'Address'), f('size', 'Team size')] },
   link: { t: 'Link user to company', p: v => `/admin/companies/${v.company_id}/users`, fields: [f('company_id', 'Company ID', 'number'), f('user_id', 'User ID', 'number')] },
@@ -178,6 +178,7 @@ const menuFor = (roles) => {
   const order = ['admin', 'hr', 'accounts', 'manager', 'faculty', 'employee', 'student', 'business_client', 'employer', 'job_seeker', 'digital_client'];
   const eff = roles.includes('admin') ? ['admin', 'hr', 'accounts', 'manager', 'faculty'] : roles;
   order.filter(r => eff.includes(r)).forEach(r => (MENUS[r] || []).forEach(m => { const k = m.l; if (!seen.has(k)) { seen.add(k); out.push(m); } }));
+  out.push({ l: 'Profile & Password', custom: profileView });
   return out;
 };
 
@@ -198,11 +199,105 @@ async function show(item) {
   $app.querySelectorAll('.side button').forEach(b => b.classList.toggle('on', b.dataset.l === item.l));
 }
 
+// ---------- Profile & Change Password ----------
+async function profileView(container) {
+  container.replaceChildren(h('div', { class: 'empty' }, 'Loading profile…'));
+  try {
+    const u = await api('/me');
+    state.user = u;
+
+    // Profile Details Card
+    const infoCard = h('div', { class: 'glass form', style: 'margin-bottom: 24px;' },
+      h('h3', {}, 'User Account Details'),
+      h('div', { class: 'tablewrap' },
+        h('table', {},
+          h('tr', {}, h('th', {}, 'User ID'), h('td', {}, '#' + u.user_id)),
+          h('tr', {}, h('th', {}, 'Name'), h('td', {}, u.name || '–')),
+          h('tr', {}, h('th', {}, 'Email ID'), h('td', {}, u.email || '–')),
+          h('tr', {}, h('th', {}, 'Mobile Number'), h('td', {}, u.mobile || '–')),
+          h('tr', {}, h('th', {}, 'Assigned Roles'), h('td', {}, (u.roles || []).join(', ') || '–')),
+          h('tr', {}, h('th', {}, 'Account Status'), h('td', {}, h('span', { class: 'pill active' }, u.status || 'active')))
+        )
+      )
+    );
+
+    // Edit Name & Mobile Form
+    const editRes = h('div');
+    const nameInput = h('input', { type: 'text', value: u.name || '' });
+    const mobInput = h('input', { type: 'text', value: u.mobile || '', placeholder: '10 digit mobile' });
+    const editBtn = h('button', { class: 'btn sm', type: 'submit' }, 'Save Profile Changes');
+    const editForm = h('form', { class: 'glass form', style: 'margin-bottom: 24px;' },
+      h('h3', {}, 'Update Contact Details'),
+      h('label', {}, 'Full Name'), nameInput,
+      h('label', {}, 'Mobile Number'), mobInput,
+      h('div', { class: 'row', style: 'margin-top:12px;' }, editBtn),
+      editRes
+    );
+    editForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      editBtn.disabled = true;
+      try {
+        const r = await api('/me/profile', 'POST', { name: nameInput.value, mobile: mobInput.value });
+        msg(editRes, r.message || 'Profile updated!', true);
+        if (r.user) state.user = { ...state.user, ...r.user };
+      } catch (x) {
+        msg(editRes, x.message, false);
+      } finally {
+        editBtn.disabled = false;
+      }
+    });
+
+    // Change Password Form
+    const passRes = h('div');
+    const curPass = h('input', { type: 'password', placeholder: 'Enter current password', required: true, autocomplete: 'current-password' });
+    const newPass = h('input', { type: 'password', placeholder: 'Enter new password (min 6 characters)', required: true, autocomplete: 'new-password' });
+    const confPass = h('input', { type: 'password', placeholder: 'Confirm new password', required: true, autocomplete: 'new-password' });
+    const passBtn = h('button', { class: 'btn primary', type: 'submit' }, 'Update Password');
+
+    const passForm = h('form', { class: 'glass form' },
+      h('h3', {}, 'Change Password'),
+      h('p', { style: 'font-size:13px; color:#64748b; margin-top:-6px;' }, 'Set a new password for your account.'),
+      h('label', {}, 'Current Password'), curPass,
+      h('label', {}, 'New Password'), newPass,
+      h('label', {}, 'Confirm New Password'), confPass,
+      h('div', { class: 'row', style: 'margin-top:14px;' }, passBtn),
+      passRes
+    );
+
+    passForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (newPass.value !== confPass.value) {
+        return msg(passRes, 'New password and confirm password do not match!', false);
+      }
+      passBtn.disabled = true;
+      try {
+        const r = await api('/me/change-password', 'POST', {
+          current_password: curPass.value,
+          new_password: newPass.value,
+          confirm_password: confPass.value
+        });
+        msg(passRes, r.message || 'Password changed successfully!', true);
+        passForm.reset();
+      } catch (x) {
+        msg(passRes, x.message, false);
+      } finally {
+        passBtn.disabled = false;
+      }
+    });
+
+    container.replaceChildren(infoCard, editForm, passForm);
+  } catch (err) {
+    container.replaceChildren(h('div', { class: 'msg err' }, err.message));
+  }
+}
+
 // ---------- Views ----------
 function nav() {
   return h('div', { class: 'glass nav' }, h('div', { class: 'brand', onclick: () => go('home') }, 'YKR WORLD'),
-    h('div', { class: 'row' }, state.user ? [h('span', {}, state.user.name), h('button', { class: 'btn', onclick: async () => { await api('/auth/logout', 'POST').catch(() => {}); state.user = null; go('home'); } }, 'Log out')]
-      : h('button', { class: 'btn primary', onclick: () => go('login') }, 'Login')));
+    h('div', { class: 'row' }, state.user ? [
+      h('button', { class: 'btn sm', onclick: () => { if (state.view !== 'app') go('app'); show({ l: 'Profile & Password', custom: profileView }); } }, '👤 ' + state.user.name),
+      h('button', { class: 'btn sm', onclick: async () => { await api('/auth/logout', 'POST').catch(() => {}); state.user = null; go('home'); } }, 'Log out')
+    ] : h('button', { class: 'btn primary', onclick: () => go('login') }, 'Login')));
 }
 function simpleForm(title, fields, endpoint, okText, extra = {}) {
   const res = h('div'); const inputs = {};
@@ -223,21 +318,39 @@ function home() {
     h('div', { class: 'grid' }, V.map(([t, d]) => h('div', { class: 'glass card' }, h('h3', {}, t), h('p', {}, d)))),
     h('div', { class: 'grid' },
       simpleForm('Send an enquiry', [{ n: 'vertical', l: 'Service', type: 'select', opts: V.map(x => x[0]) }, { n: 'name', l: 'Your name' }, { n: 'mobile', l: 'Mobile' }, { n: 'email', l: 'Email', type: 'email' }, { n: 'message', l: 'How can we help?', type: 'textarea' }], '/public/enquiry', 'Thank you! We will contact you soon.'),
-      simpleForm('Job seeker registration', [{ n: 'name', l: 'Full name' }, { n: 'mobile', l: 'Mobile' }, { n: 'email', l: 'Email', type: 'email' }], '/public/register-candidate', 'Registered. Log in with OTP to complete your profile.', { consent: 'I agree that YKR World may store my details and share my profile with employers only after I give consent for each job.' })),
+      simpleForm('Job seeker registration', [{ n: 'name', l: 'Full name' }, { n: 'mobile', l: 'Mobile' }, { n: 'email', l: 'Email', type: 'email' }, { n: 'password', l: 'Create Password', type: 'password' }], '/public/register-candidate', 'Registered successfully! You can now log in using your ID and password.', { consent: 'I agree that YKR World may store my details and share my profile with employers only after I give consent for each job.' })),
     h('footer', {}, '© YKR World · Privacy · Terms'))];
 }
 function login() {
-  const res = h('div'); let step = 1, ident = '';
-  const idEl = h('input', { type: 'text', placeholder: 'Registered mobile or email', autocomplete: 'username' });
-  const codeEl = h('input', { type: 'text', inputmode: 'numeric', placeholder: '6-digit code', autocomplete: 'one-time-code', maxlength: 6 });
-  const codeBox = h('div', { class: 'hide' }); const btn = h('button', { class: 'btn primary', type: 'submit' }, 'Send OTP');
-  codeBox.hidden = true; codeBox.append(h('label', {}, 'Enter OTP'), codeEl);
-  const form = h('form', { class: 'glass form' }, h('h3', {}, 'Login'), h('label', {}, 'Mobile or email'), idEl, codeBox, h('div', { class: 'row' }, btn), res);
-  form.addEventListener('submit', async (e) => { e.preventDefault();
+  const res = h('div');
+  const idEl = h('input', { type: 'text', placeholder: 'Registered Mobile or Email', autocomplete: 'username', required: true });
+  const passEl = h('input', { type: 'password', placeholder: 'Enter your password', autocomplete: 'current-password', required: true });
+  const btn = h('button', { class: 'btn primary', type: 'submit' }, 'Login');
+  
+  const form = h('form', { class: 'glass form' },
+    h('h3', {}, 'Portal Login'),
+    h('p', { style: 'font-size:13px; color:#64748b; margin-top:-6px;' }, 'Sign in with your registered Email or Mobile and Password.'),
+    h('label', {}, 'User ID (Email or Mobile)'), idEl,
+    h('label', {}, 'Password'), passEl,
+    h('div', { class: 'row', style: 'margin-top:16px;' }, btn),
+    res
+  );
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    btn.disabled = true;
+    btn.textContent = 'Logging in…';
     try {
-      if (step === 1) { ident = idEl.value; const r = await api('/auth/request-otp', 'POST', { identifier: ident }); step = 2; codeBox.hidden = false; btn.textContent = 'Verify & login'; msg(res, r.message + (r.dev_otp ? ` (dev OTP: ${r.dev_otp})` : ''), true); }
-      else { const r = await api('/auth/verify-otp', 'POST', { identifier: ident, code: codeEl.value }); state.user = r.user; go('app'); }
-    } catch (x) { msg(res, x.message, false); } });
+      const r = await api('/auth/login', 'POST', { identifier: idEl.value, password: passEl.value });
+      state.user = r.user;
+      go('app');
+    } catch (x) {
+      btn.disabled = false;
+      btn.textContent = 'Login';
+      msg(res, x.message || 'Login failed', false);
+    }
+  });
+
   return [nav(), h('div', { class: 'wrap' }, form)];
 }
 async function dash() {

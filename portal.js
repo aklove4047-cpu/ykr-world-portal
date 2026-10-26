@@ -10,7 +10,47 @@ const one = (sql, ...p) => db.prepare(sql).get(...p);
 const inList = (a) => a.map(() => '?').join(',') || 'NULL';
 r.use(L.auth);
 
-r.get('/me', (req, res) => res.json(req.user));
+r.get('/me', (req, res) => {
+  const fullUser = db.prepare('SELECT user_id, name, email, mobile, status, created_at FROM users WHERE user_id=?').get(req.user.user_id);
+  res.json({ ...fullUser, roles: req.user.roles });
+});
+
+r.post('/me/change-password', (req, res) => {
+  const { current_password, new_password, confirm_password } = req.body || {};
+  if (!current_password || !new_password) {
+    return res.status(400).json({ error: 'Current password and new password are required' });
+  }
+  if (confirm_password && new_password !== confirm_password) {
+    return res.status(400).json({ error: 'New password and confirm password do not match' });
+  }
+  if (String(new_password).length < 6) {
+    return res.status(400).json({ error: 'New password must be at least 6 characters long' });
+  }
+  const u = db.prepare('SELECT user_id, password_hash FROM users WHERE user_id=?').get(req.user.user_id);
+  if (!u) return res.status(404).json({ error: 'User not found' });
+  if (u.password_hash && !L.verifyPassword(current_password, u.password_hash)) {
+    return res.status(400).json({ error: 'Current password is incorrect' });
+  }
+  const newHash = L.hashPassword(new_password);
+  db.prepare('UPDATE users SET password_hash=? WHERE user_id=?').run(newHash, req.user.user_id);
+  L.audit(req.user.user_id, 'password_change', 'user', req.user.user_id);
+  res.json({ ok: true, message: 'Password updated successfully!' });
+});
+
+r.post('/me/profile', (req, res) => {
+  const { name, mobile } = req.body || {};
+  const normMob = mobile ? L.normMobile(mobile) : null;
+  if (!name && !normMob) return res.status(400).json({ error: 'Nothing to update' });
+  try {
+    if (name) db.prepare('UPDATE users SET name=? WHERE user_id=?').run(String(name).slice(0, 100), req.user.user_id);
+    if (normMob) db.prepare('UPDATE users SET mobile=? WHERE user_id=?').run(normMob, req.user.user_id);
+    L.audit(req.user.user_id, 'profile_update', 'user', req.user.user_id);
+    const updated = db.prepare('SELECT user_id, name, email, mobile, status, created_at FROM users WHERE user_id=?').get(req.user.user_id);
+    res.json({ ok: true, message: 'Profile updated successfully!', user: { ...updated, roles: req.user.roles } });
+  } catch (err) {
+    res.status(400).json({ error: 'Could not update profile (mobile number may already be in use)' });
+  }
+});
 
 // ---------- Student ----------
 r.get('/student/courses', L.need('student'), (req, res) => {

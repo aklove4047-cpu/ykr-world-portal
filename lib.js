@@ -20,6 +20,24 @@ function notify(userId, type, message) {
 const rolesOf = (uid) => db.prepare('SELECT role_code FROM user_roles WHERE user_id=?').all(uid).map(r => r.role_code);
 const has = (u, ...codes) => u.roles.includes('admin') || codes.some(c => u.roles.includes(c));
 
+function hashPassword(password) {
+  const salt = crypto.randomBytes(16).toString('hex');
+  const derivedKey = crypto.scryptSync(String(password), salt, 64);
+  return `${salt}:${derivedKey.toString('hex')}`;
+}
+
+function verifyPassword(password, storedHash) {
+  if (!storedHash || typeof storedHash !== 'string' || !storedHash.includes(':')) return false;
+  try {
+    const [salt, key] = storedHash.split(':');
+    const derivedKey = crypto.scryptSync(String(password), salt, 64);
+    const keyBuf = Buffer.from(key, 'hex');
+    return keyBuf.length === derivedKey.length && crypto.timingSafeEqual(keyBuf, derivedKey);
+  } catch (_) {
+    return false;
+  }
+}
+
 function sign(user) {
   return jwt.sign({ uid: user.user_id }, SECRET, { expiresIn: '8h' });
 }
@@ -116,4 +134,4 @@ async function sendOtp(identifier, code, user) {
 }
 
 module.exports = { db, STAFF, sha, now, normMobile, audit, notify, rolesOf, has, sign, auth, need, companyIds, studentOf,
-  candidateOf, employeeOf, canSeeInvoice, paidSum, refreshInvoice, sendOtp };
+  candidateOf, employeeOf, canSeeInvoice, paidSum, refreshInvoice, sendOtp, hashPassword, verifyPassword };

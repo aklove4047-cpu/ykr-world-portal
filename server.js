@@ -42,6 +42,21 @@ const findUser = (identifier) => {
   return db.prepare(`SELECT * FROM users WHERE status='active' AND ${k.email ? 'email=?' : 'mobile=?'}`).get(k.email || k.mobile);
 };
 
+// Password Login: accepts email or 10-digit mobile + password
+app.post('/api/auth/login', authLimiter, (req, res) => {
+  const identifier = String(req.body?.identifier || '').trim().toLowerCase();
+  const password = String(req.body?.password || '');
+  if (!identifier || !password) return res.status(400).json({ error: 'Please enter both ID (Email or Mobile) and Password' });
+  const u = findUser(identifier);
+  if (!u) return res.status(401).json({ error: 'Invalid User ID or Password' });
+  if (!u.password_hash || !L.verifyPassword(password, u.password_hash)) {
+    return res.status(401).json({ error: 'Invalid User ID or Password' });
+  }
+  res.cookie('token', L.sign(u), { httpOnly: true, sameSite: 'lax', secure: PROD, maxAge: 8 * 3600 * 1000 });
+  L.audit(u.user_id, 'login', 'user', u.user_id);
+  res.json({ ok: true, user: { user_id: u.user_id, name: u.name, email: u.email, mobile: u.mobile, roles: L.rolesOf(u.user_id) } });
+});
+
 // Same response whether or not the account exists.
 app.post('/api/auth/request-otp', authLimiter, (req, res) => {
   const identifier = String(req.body?.identifier || '').trim().toLowerCase();
@@ -71,7 +86,7 @@ app.post('/api/auth/verify-otp', authLimiter, (req, res) => {
   db.prepare('UPDATE otp_codes SET used=1 WHERE id=?').run(row.id);
   res.cookie('token', L.sign(u), { httpOnly: true, sameSite: 'lax', secure: PROD, maxAge: 8 * 3600 * 1000 });
   L.audit(u.user_id, 'login', 'user', u.user_id);
-  res.json({ ok: true, user: { name: u.name, roles: L.rolesOf(u.user_id) } });
+  res.json({ ok: true, user: { user_id: u.user_id, name: u.name, email: u.email, mobile: u.mobile, roles: L.rolesOf(u.user_id) } });
 });
 app.post('/api/auth/logout', (req, res) => { res.clearCookie('token'); res.json({ ok: true }); });
 
@@ -85,14 +100,16 @@ app.post('/api/public/enquiry', authLimiter, (req, res) => {
 app.post('/api/public/register-candidate', authLimiter, (req, res) => {
   const b = req.body || {}; const mobile = L.normMobile(b.mobile), email = String(b.email || '').trim().toLowerCase() || null;
   if (!b.name || (!mobile && !email) || b.consent !== true) return res.status(400).json({ error: 'Name, contact and consent are required' });
+  const userPassword = b.password || 'User@123';
+  const passHash = L.hashPassword(userPassword);
   try {
     db.transaction(() => {
-      const id = db.prepare('INSERT INTO users(name,email,mobile) VALUES(?,?,?)').run(String(b.name).slice(0, 100), email, mobile).lastInsertRowid;
+      const id = db.prepare('INSERT INTO users(name,email,mobile,password_hash) VALUES(?,?,?,?)').run(String(b.name).slice(0, 100), email, mobile, passHash).lastInsertRowid;
       db.prepare("INSERT INTO user_roles(user_id,role_code) VALUES(?, 'job_seeker')").run(id);
       db.prepare('INSERT INTO candidate_profiles(user_id,consent_at) VALUES(?,?)').run(id, L.now());
     })();
   } catch { /* already registered: same response, no information leaked */ }
-  res.json({ ok: true, message: 'Registration received. You can log in with OTP.' });
+  res.json({ ok: true, message: 'Registration received. You can now log in with your ID and password.' });
 });
 
 app.use('/api', require('./portal'), pay.router);
@@ -104,12 +121,29 @@ app.use((err, req, res, next) => {
   console.error(err); res.status(500).json({ error: 'Something went wrong' });
 });
 
-// Seed first admin
+// Seed admin user and ensure password_hash exists
+const defaultAdminPass = process.env.ADMIN_PASSWORD || 'Admin@123';
+const adminEmail = (process.env.ADMIN_EMAIL || 'admin@ykrworld.in').toLowerCase();
+const adminMobile = L.normMobile(process.env.ADMIN_MOBILE || '9999999999');
+
 if (!db.prepare('SELECT 1 FROM users LIMIT 1').get()) {
-  const id = db.prepare('INSERT INTO users(name,email,mobile) VALUES(?,?,?)').run(process.env.ADMIN_NAME || 'YKR Admin',
-    (process.env.ADMIN_EMAIL || 'admin@ykrworld.in').toLowerCase(), L.normMobile(process.env.ADMIN_MOBILE || '9999999999')).lastInsertRowid;
+  const id = db.prepare('INSERT INTO users(name,email,mobile,password_hash) VALUES(?,?,?,?)').run(
+    process.env.ADMIN_NAME || 'YKR Admin',
+    adminEmail,
+    adminMobile,
+    L.hashPassword(defaultAdminPass)
+  ).lastInsertRowid;
   db.prepare("INSERT INTO user_roles(user_id,role_code) VALUES(?, 'admin')").run(id);
-  console.log('Seeded admin user:', process.env.ADMIN_EMAIL || 'admin@ykrworld.in');
+  console.log('Seeded admin user:', adminEmail, `(password: ${defaultAdminPass})`);
+} else {
+  // Update any existing admin or users missing password_hash
+  try {
+    const adminUser = db.prepare("SELECT * FROM users WHERE email=? OR mobile=?").get(adminEmail, adminMobile);
+    if (adminUser && !adminUser.password_hash) {
+      db.prepare('UPDATE users SET password_hash=? WHERE user_id=?').run(L.hashPassword(defaultAdminPass), adminUser.user_id);
+    }
+    db.prepare('UPDATE users SET password_hash=? WHERE password_hash IS NULL').run(L.hashPassword('User@123'));
+  } catch (_) {}
 }
 const port = process.env.PORT || 3000;
 if (require.main === module) app.listen(port, () => console.log(`YKR World portal on http://localhost:${port}`));

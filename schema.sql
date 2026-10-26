@@ -1,6 +1,7 @@
 CREATE TABLE IF NOT EXISTS users(
   user_id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL,
   email TEXT UNIQUE, mobile TEXT UNIQUE,
+  password_hash TEXT,
   status TEXT NOT NULL DEFAULT 'active' CHECK(status IN('active','inactive')),
   created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP);
 CREATE TABLE IF NOT EXISTS user_roles(

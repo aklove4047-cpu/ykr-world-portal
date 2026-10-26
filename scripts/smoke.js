@@ -12,9 +12,20 @@ const srv = app.listen(0, async () => {
     const sc = r.headers.getSetCookie?.()[0]; if (sc) jar.c = sc.split(';')[0];
     return { s: r.status, j: await r.json().catch(() => ({})) };
   };
-  const login = async (id) => { const j = {}; const a = await call(j, 'POST', '/auth/request-otp', { identifier: id }); const b = await call(j, 'POST', '/auth/verify-otp', { identifier: id, code: a.j.dev_otp }); ok(b.s === 200, 'login ' + id); return j; };
+  const login = async (id, password) => {
+    const p = password || (id === 'admin@ykrworld.in' ? 'Admin@123' : 'User@123');
+    const j = {};
+    const b = await call(j, 'POST', '/auth/login', { identifier: id, password: p });
+    ok(b.s === 200, 'login ' + id);
+    return j;
+  };
   try {
     const admin = await login('admin@ykrworld.in');
+    const badLogin = await call({}, 'POST', '/auth/login', { identifier: 'admin@ykrworld.in', password: 'wrong' });
+    ok(badLogin.s === 401, 'wrong password rejected');
+    const chRes = await call(admin, 'POST', '/me/change-password', { current_password: 'Admin@123', new_password: 'NewAdmin@456', confirm_password: 'NewAdmin@456' });
+    ok(chRes.s === 200, 'password changed successfully');
+    await call(admin, 'POST', '/me/change-password', { current_password: 'NewAdmin@456', new_password: 'Admin@123', confirm_password: 'Admin@123' });
     const mk = async (b) => (await call(admin, 'POST', '/admin/users', b)).j.user_id;
     const comp = (await call(admin, 'POST', '/admin/companies', { name: 'Acme' })).j.company_id;
     const comp2 = (await call(admin, 'POST', '/admin/companies', { name: 'Other Co' })).j.company_id;

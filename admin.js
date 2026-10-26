@@ -22,9 +22,11 @@ r.post('/users', L.need('hr'), (req, res) => {
   if (!b.name || (!b.email && !b.mobile) || !roles.length) return bad(res, 'Name, email/mobile and at least one role required');
   if (roles.some(x => !ALLROLES.includes(x))) return bad(res, 'Unknown role');
   if (!L.has(req.user, 'admin') && roles.some(x => ['admin', 'accounts', 'hr', 'manager'].includes(x))) return res.status(403).json({ error: 'Only admin can grant that role' });
+  const userPassword = b.password || 'User@123';
+  const passHash = L.hashPassword(userPassword);
   try {
     const uid = db.transaction(() => {
-      const id = db.prepare('INSERT INTO users(name,email,mobile) VALUES(?,?,?)').run(b.name, (b.email || '').trim().toLowerCase() || null, L.normMobile(b.mobile)).lastInsertRowid;
+      const id = db.prepare('INSERT INTO users(name,email,mobile,password_hash) VALUES(?,?,?,?)').run(b.name, (b.email || '').trim().toLowerCase() || null, L.normMobile(b.mobile), passHash).lastInsertRowid;
       for (const x of roles) db.prepare('INSERT INTO user_roles(user_id,role_code,assigned_by) VALUES(?,?,?)').run(id, x, req.user.user_id);
       if (roles.includes('student')) db.prepare('INSERT INTO student_profiles(user_id,joining_date) VALUES(?,date(\'now\'))').run(id);
       if (roles.includes('job_seeker')) db.prepare('INSERT INTO candidate_profiles(user_id) VALUES(?)').run(id);

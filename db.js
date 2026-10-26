@@ -95,5 +95,6 @@ const db = new SQLiteWrapper(dbPath);
 db.pragma('journal_mode = WAL');
 db.pragma('foreign_keys = ON');
 db.exec(fs.readFileSync(path.join(__dirname, 'schema.sql'), 'utf8'));
+try { db.exec('ALTER TABLE users ADD COLUMN password_hash TEXT;'); } catch (_) {}
 
 module.exports = db;
