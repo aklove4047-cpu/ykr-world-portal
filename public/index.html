@@ -721,41 +721,131 @@
 <!-- Unified Sign-in & Portal Section -->
 <section id="signin">
   <h2>One Portal For Every Client &amp; Team Member</h2>
-  <p class="sub">Single sign-in gateway with instant mobile OTP verification across 11 roles.</p>
+  <p class="sub">Instant password login for existing users, quick registration for new members, and OTP-based password reset.</p>
 
   <!-- Login Card -->
-  <div class="card" id="auth-card" style="max-width: 600px; margin: auto; border-top-color: var(--gold);">
-    <h3>Sign In To YKR Portal</h3>
-    <div class="note">
-      <b>Fast Mobile OTP:</b> Enter your 10-digit mobile number and role to receive an instant verification code.
-      <br><small style="color:var(--mut)">(In Demo/Testing mode, you can verify using OTP: <b>123456</b>)</small>
+  <div class="card" id="auth-card" style="max-width: 620px; margin: auto; border-top-color: var(--gold);">
+    
+    <!-- Auth Mode Switcher Tabs -->
+    <div style="display: flex; gap: 6px; border-bottom: 2px solid var(--border); padding-bottom: 10px; margin-bottom: 16px; overflow-x: auto;">
+      <button class="btn sm" id="tab-btn-login" style="background:var(--blue); color:#fff;">🔑 Sign In (Password)</button>
+      <button class="btn sm ghost" id="tab-btn-register" style="color:var(--navy); border-color:var(--border);">✨ Register New</button>
+      <button class="btn sm ghost" id="tab-btn-forgot" style="color:var(--navy); border-color:var(--border);">❓ Forgot Password</button>
+      <button class="btn sm ghost" id="tab-btn-otp" style="color:var(--navy); border-color:var(--border);">📲 Sign In (OTP)</button>
     </div>
 
-    <div class="role-group-title">1. Select Your Role (Customers)</div>
-    <div class="roles" id="roles-customers"></div>
+    <!-- 1. SIGN IN WITH PASSWORD VIEW -->
+    <div id="view-login">
+      <div class="note" style="margin-top:0;">
+        <b>Fast Login:</b> Apna role aur 10-digit mobile number + password daal kar turant 1 second mein login karein.
+        <br><small style="color:var(--mut);">Admin Default: Mobile <b>7218550652</b> / Password: <b>Admin@123</b></small>
+      </div>
 
-    <div class="role-group-title">2. Staff &amp; Management</div>
-    <div class="roles" id="roles-staff"></div>
+      <div class="role-group-title">1. Select Your Role (Customers)</div>
+      <div class="roles" id="roles-customers-login"></div>
 
-    <label>Mobile Number (+91)</label>
-    <div style="display: flex; gap: 8px;">
-      <input id="mob" placeholder="10-digit mobile (e.g. 7218550652)" inputmode="numeric" maxlength="10">
-      <button class="btn blue" id="send-otp" style="white-space: nowrap;">Send OTP</button>
+      <div class="role-group-title">2. Staff &amp; Management</div>
+      <div class="roles" id="roles-staff-login"></div>
+
+      <label>10-Digit Mobile Number</label>
+      <input id="login-mob" placeholder="e.g. 7218550652" inputmode="numeric" maxlength="10">
+
+      <label>Password</label>
+      <input id="login-pass" type="password" placeholder="Enter your password">
+
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+        <a href="javascript:void(0)" id="link-to-forgot" style="font-size:0.85rem; font-weight:600; color:var(--blue);">Forgot Password? Reset via OTP</a>
+        <a href="javascript:void(0)" id="link-to-register" style="font-size:0.85rem; font-weight:600; color:var(--green);">New user? Register here</a>
+      </div>
+
+      <button class="btn blue" id="submit-login" style="width:100%; font-size:1.05rem; padding:12px;">Sign In Now →</button>
     </div>
 
-    <div id="otpbox" hidden style="margin-top: 14px; padding-top: 14px; border-top: 1px dashed var(--border);">
-      <label>Enter 6-Digit OTP</label>
+    <!-- 2. REGISTER NEW ACCOUNT VIEW -->
+    <div id="view-register" hidden>
+      <div class="note" style="margin-top:0;">
+        <b>New Member Registration:</b> Apna naam, mobile number, role aur pasandeeda password set karein.
+      </div>
+
+      <label>Your Full Name *</label>
+      <input id="reg-name" placeholder="e.g. Rahul Sharma">
+
+      <div class="role-group-title">Select Your Role (Customers)</div>
+      <div class="roles" id="roles-customers-reg"></div>
+
+      <div class="role-group-title">Staff &amp; Management</div>
+      <div class="roles" id="roles-staff-reg"></div>
+
+      <label>10-Digit Mobile Number *</label>
+      <input id="reg-mob" placeholder="e.g. 9876543210" inputmode="numeric" maxlength="10">
+
+      <label>Create A Password (Min. 4 characters) *</label>
+      <input id="reg-pass" type="password" placeholder="Create a secure password">
+
+      <div style="margin-bottom:12px;">
+        <a href="javascript:void(0)" id="link-reg-to-login" style="font-size:0.85rem; font-weight:600; color:var(--blue);">Already have an account? Sign In</a>
+      </div>
+
+      <button class="btn green" id="submit-register" style="width:100%; font-size:1.05rem; padding:12px;">Create Account &amp; Sign In →</button>
+    </div>
+
+    <!-- 3. FORGOT PASSWORD (RESET VIA OTP) VIEW -->
+    <div id="view-forgot" hidden>
+      <div class="note" style="margin-top:0;">
+        <b>Forgot Password?:</b> Apna role aur registered mobile number enter karein. Hum ek verification code generate karenge jisse aap naya password set kar sakte hain.
+      </div>
+
+      <div class="role-group-title">Select Your Registered Role</div>
+      <div class="roles" id="roles-all-forgot"></div>
+
+      <label>Registered 10-Digit Mobile Number</label>
+      <div style="display:flex; gap:8px;">
+        <input id="forgot-mob" placeholder="10-digit mobile" inputmode="numeric" maxlength="10" style="margin:0;">
+        <button class="btn blue" id="forgot-send-otp" style="white-space:nowrap;">Send Reset OTP</button>
+      </div>
+
+      <!-- Step 2: OTP Verification & New Password Setting -->
+      <div id="forgot-step2" hidden style="margin-top:16px; padding-top:16px; border-top:1.5px dashed var(--border);">
+        <label>Enter Verification Code (OTP)</label>
+        <input id="forgot-otp" placeholder="Enter code" inputmode="numeric">
+
+        <label>Enter New Password (Min. 4 characters)</label>
+        <input id="forgot-new-pass" type="password" placeholder="Enter your new password">
+
+        <button class="btn" id="submit-reset-pass" style="width:100%; font-size:1rem; padding:12px; margin-top:8px;">✓ Reset Password &amp; Sign In</button>
+      </div>
+
+      <div style="margin-top:14px; text-align:center;">
+        <a href="javascript:void(0)" id="link-forgot-to-login" style="font-size:0.85rem; font-weight:600; color:var(--blue);">Remembered your password? Back to Sign In</a>
+      </div>
+    </div>
+
+    <!-- 4. SIGN IN WITH OTP VIEW (ALTERNATIVE) -->
+    <div id="view-otp" hidden>
+      <div class="note" style="margin-top:0;">
+        <b>Direct OTP Login:</b> Mobile number enter karke verification code ke zariye direct sign in karein.
+      </div>
+
+      <div class="role-group-title">Select Your Role</div>
+      <div class="roles" id="roles-all-otp"></div>
+
+      <label>10-Digit Mobile Number</label>
       <div style="display: flex; gap: 8px;">
-        <input id="otp" placeholder="6-digit code" inputmode="numeric" maxlength="6">
-        <button class="btn" id="verify-otp" style="white-space: nowrap;">Verify &amp; Sign In</button>
+        <input id="mob" placeholder="10-digit mobile" inputmode="numeric" maxlength="10" style="margin:0;">
+        <button class="btn blue" id="send-otp" style="white-space: nowrap;">Send OTP</button>
+      </div>
+
+      <div id="otpbox" hidden style="margin-top: 14px; padding-top: 14px; border-top: 1px dashed var(--border);">
+        <label>Enter 6-Digit OTP</label>
+        <div style="display: flex; gap: 8px;">
+          <input id="otp" placeholder="6-digit code" inputmode="numeric" maxlength="6" style="margin:0;">
+          <button class="btn" id="verify-otp" style="white-space: nowrap;">Verify &amp; Sign In</button>
+        </div>
       </div>
     </div>
 
     <p class="err" id="aerr"></p>
     <p class="succ" id="asucc"></p>
-    <p style="font-size: 0.82rem; color: var(--mut); margin-top: 16px;">
-      🔒 <b>Lost access or forgotten role?</b> No worries — we verify securely via OTP and never reveal account details publicly.
-    </p>
   </div>
 
   <!-- Authenticated Portal / Dashboard -->
@@ -766,9 +856,24 @@
         <div style="font-size: 1.25rem; font-weight: 800;" id="user-greeting">Welcome</div>
         <div style="font-size: 0.85rem; opacity: 0.85;" id="user-phone"></div>
       </div>
-      <div style="display: flex; gap: 8px; align-items: center;">
+      <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
         <span class="pill gold" id="user-role-badge">Role</span>
+        <button class="btn ghost sm" id="change-pass-open-btn">Change Password</button>
         <button class="btn ghost sm" id="signout-btn">Sign Out</button>
+      </div>
+    </div>
+
+    <!-- Change Password Modal / Inline Box -->
+    <div id="change-pass-box" hidden style="background:#fff; border:1px solid var(--border); border-radius:14px; padding:18px; margin-bottom:18px; box-shadow:0 4px 14px rgba(0,0,0,0.06);">
+      <h4 style="margin:0 0 10px; color:var(--navy);">Change Your Account Password</h4>
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:10px;">
+        <div><label>Current Password</label><input id="cp-current" type="password" placeholder="Current password"></div>
+        <div><label>New Password (Min. 4 chars)</label><input id="cp-new" type="password" placeholder="New password"></div>
+      </div>
+      <div style="margin-top:8px;">
+        <button class="btn blue sm" id="cp-save-btn">Update Password</button>
+        <button class="btn ghost sm" style="color:var(--ink);" id="cp-cancel-btn">Cancel</button>
+        <span id="cp-msg" style="margin-left:10px; font-weight:600; font-size:0.9rem;"></span>
       </div>
     </div>
 
@@ -904,10 +1009,11 @@
                   <th>Mobile</th>
                   <th>Role</th>
                   <th>Created</th>
+                  <th>Action</th>
                 </tr>
               </thead>
               <tbody id="users-tbody">
-                <tr><td colspan="5" style="text-align:center;">Loading users...</td></tr>
+                <tr><td colspan="6" style="text-align:center;">Loading users...</td></tr>
               </tbody>
             </table>
           </div>
@@ -995,30 +1101,76 @@
 
 <script>
   const $ = id => document.getElementById(id);
-  let selectedRole = 'Student';
+  let selectedLoginRole = 'Admin';
+  let selectedRegRole = 'Student';
+  let selectedForgotRole = 'Student';
+  let selectedOtpRole = 'Student';
+
   let authToken = localStorage.getItem('ykr_token');
   let currentAuthUser = null;
 
   const CUSTOMER_ROLES = ['Student', 'Business client', 'Employer / recruiter', 'Job seeker', 'Digital / IT client'];
   const STAFF_ROLES = ['Admin', 'Manager', 'Faculty', 'Employee', 'HR', 'Accounts'];
+  const ALL_ROLES = [...CUSTOMER_ROLES, ...STAFF_ROLES];
 
-  // Initialize Role Buttons
-  function setupRoles(container, list) {
-    list.forEach(r => {
+  // Helper to setup role selector button groups
+  function setupRoleGroup(container, roles, defaultRole, onSelect) {
+    if (!container) return;
+    container.innerHTML = '';
+    roles.forEach(r => {
       const btn = document.createElement('button');
       btn.textContent = r;
       btn.type = 'button';
+      if (r === defaultRole) btn.classList.add('on');
       btn.onclick = () => {
-        selectedRole = r;
-        document.querySelectorAll('.roles button').forEach(b => b.classList.remove('on'));
+        container.querySelectorAll('button').forEach(b => b.classList.remove('on'));
         btn.classList.add('on');
+        onSelect(r);
       };
-      if (r === selectedRole) btn.classList.add('on');
       container.appendChild(btn);
     });
   }
-  setupRoles($('roles-customers'), CUSTOMER_ROLES);
-  setupRoles($('roles-staff'), STAFF_ROLES);
+
+  // Initialize roles across all views
+  setupRoleGroup($('roles-customers-login'), CUSTOMER_ROLES, 'Student', r => selectedLoginRole = r);
+  setupRoleGroup($('roles-staff-login'), STAFF_ROLES, 'Admin', r => selectedLoginRole = r);
+  setupRoleGroup($('roles-customers-reg'), CUSTOMER_ROLES, 'Student', r => selectedRegRole = r);
+  setupRoleGroup($('roles-staff-reg'), STAFF_ROLES, 'Employee', r => selectedRegRole = r);
+  setupRoleGroup($('roles-all-forgot'), ALL_ROLES, 'Student', r => selectedForgotRole = r);
+  setupRoleGroup($('roles-all-otp'), ALL_ROLES, 'Student', r => selectedOtpRole = r);
+
+  // Auth View Switcher
+  const authViews = ['view-login', 'view-register', 'view-forgot', 'view-otp'];
+  const tabBtns = ['tab-btn-login', 'tab-btn-register', 'tab-btn-forgot', 'tab-btn-otp'];
+
+  function switchAuthTab(activeViewId, activeBtnId) {
+    authViews.forEach(v => {
+      if ($(v)) $(v).hidden = (v !== activeViewId);
+    });
+    tabBtns.forEach(b => {
+      if ($(b)) {
+        if (b === activeBtnId) {
+          $(b).style.background = 'var(--blue)';
+          $(b).style.color = '#fff';
+        } else {
+          $(b).style.background = 'transparent';
+          $(b).style.color = 'var(--navy)';
+        }
+      }
+    });
+    $('aerr').textContent = '';
+    $('asucc').textContent = '';
+  }
+
+  $('tab-btn-login').onclick = () => switchAuthTab('view-login', 'tab-btn-login');
+  $('tab-btn-register').onclick = () => switchAuthTab('view-register', 'tab-btn-register');
+  $('tab-btn-forgot').onclick = () => switchAuthTab('view-forgot', 'tab-btn-forgot');
+  $('tab-btn-otp').onclick = () => switchAuthTab('view-otp', 'tab-btn-otp');
+
+  $('link-to-forgot').onclick = () => switchAuthTab('view-forgot', 'tab-btn-forgot');
+  $('link-to-register').onclick = () => switchAuthTab('view-register', 'tab-btn-register');
+  $('link-reg-to-login').onclick = () => switchAuthTab('view-login', 'tab-btn-login');
+  $('link-forgot-to-login').onclick = () => switchAuthTab('view-login', 'tab-btn-login');
 
   // Mobile Menu Toggle
   $('menu').onclick = () => $('nav').classList.toggle('open');
@@ -1099,7 +1251,140 @@
     }
   };
 
-  // OTP Send
+  // 1. Password Login Submission (Instant 1-Second Login)
+  $('submit-login').onclick = async () => {
+    $('aerr').textContent = '';
+    $('asucc').textContent = '';
+    const mobile = $('login-mob').value.replace(/\D/g, '').slice(-10);
+    const password = $('login-pass').value;
+
+    if (mobile.length !== 10) {
+      $('aerr').textContent = 'Please enter a valid 10-digit mobile number.';
+      return;
+    }
+    if (!password) {
+      $('aerr').textContent = 'Please enter your password.';
+      return;
+    }
+
+    $('submit-login').textContent = 'Signing in...';
+    $('submit-login').disabled = true;
+
+    const res = await api('/api/auth/login', 'POST', { mobile, role: selectedLoginRole, password });
+    $('submit-login').textContent = 'Sign In Now →';
+    $('submit-login').disabled = false;
+
+    if (res.ok && res.data.token) {
+      authToken = res.data.token;
+      localStorage.setItem('ykr_token', authToken);
+      initSession();
+    } else {
+      $('aerr').textContent = res.data?.error || 'Login failed. Please check credentials.';
+    }
+  };
+
+  // 2. New User Registration Submission
+  $('submit-register').onclick = async () => {
+    $('aerr').textContent = '';
+    $('asucc').textContent = '';
+    const name = $('reg-name').value.trim();
+    const mobile = $('reg-mob').value.replace(/\D/g, '').slice(-10);
+    const password = $('reg-pass').value;
+
+    if (!name) {
+      $('aerr').textContent = 'Please enter your full name.';
+      return;
+    }
+    if (mobile.length !== 10) {
+      $('aerr').textContent = 'Please enter a valid 10-digit mobile number.';
+      return;
+    }
+    if (!password || password.length < 4) {
+      $('aerr').textContent = 'Password must be at least 4 characters long.';
+      return;
+    }
+
+    $('submit-register').textContent = 'Creating account...';
+    $('submit-register').disabled = true;
+
+    const res = await api('/api/auth/register', 'POST', { name, mobile, role: selectedRegRole, password });
+    $('submit-register').textContent = 'Create Account & Sign In →';
+    $('submit-register').disabled = false;
+
+    if (res.ok && res.data.token) {
+      authToken = res.data.token;
+      localStorage.setItem('ykr_token', authToken);
+      alert('Registration successful! Welcome to YKR World.');
+      initSession();
+    } else {
+      $('aerr').textContent = res.data?.error || 'Registration failed.';
+    }
+  };
+
+  // 3. Forgot Password - Send OTP
+  $('forgot-send-otp').onclick = async () => {
+    $('aerr').textContent = '';
+    $('asucc').textContent = '';
+    const mobile = $('forgot-mob').value.replace(/\D/g, '').slice(-10);
+
+    if (mobile.length !== 10) {
+      $('aerr').textContent = 'Please enter a valid 10-digit mobile number.';
+      return;
+    }
+
+    $('forgot-send-otp').textContent = 'Sending...';
+    $('forgot-send-otp').disabled = true;
+
+    const res = await api('/api/auth/forgot-password/send-otp', 'POST', { mobile, role: selectedForgotRole });
+    $('forgot-send-otp').textContent = 'Send Reset OTP';
+    $('forgot-send-otp').disabled = false;
+
+    if (res.ok) {
+      $('forgot-step2').hidden = false;
+      $('asucc').textContent = res.data.message || 'OTP generated for password reset.';
+      if (res.data.demoOtp) $('forgot-otp').value = res.data.demoOtp;
+      $('forgot-otp').focus();
+    } else {
+      $('aerr').textContent = res.data?.error || 'Could not send reset OTP.';
+    }
+  };
+
+  // 3. Forgot Password - Verify OTP & Set New Password
+  $('submit-reset-pass').onclick = async () => {
+    $('aerr').textContent = '';
+    $('asucc').textContent = '';
+    const mobile = $('forgot-mob').value.replace(/\D/g, '').slice(-10);
+    const code = $('forgot-otp').value.trim();
+    const newPassword = $('forgot-new-pass').value;
+
+    if (code.length < 4) {
+      $('aerr').textContent = 'Please enter the verification code.';
+      return;
+    }
+    if (!newPassword || newPassword.length < 4) {
+      $('aerr').textContent = 'New password must be at least 4 characters.';
+      return;
+    }
+
+    $('submit-reset-pass').textContent = 'Updating password...';
+    $('submit-reset-pass').disabled = true;
+
+    const res = await api('/api/auth/forgot-password/verify-reset', 'POST', { mobile, role: selectedForgotRole, code, newPassword });
+    $('submit-reset-pass').textContent = '✓ Reset Password & Sign In';
+    $('submit-reset-pass').disabled = false;
+
+    if (res.ok) {
+      alert('Password reset successful! You can now log in.');
+      switchAuthTab('view-login', 'tab-btn-login');
+      $('login-mob').value = mobile;
+      $('login-pass').value = newPassword;
+      $('asucc').textContent = 'Password reset! Click "Sign In Now" to enter.';
+    } else {
+      $('aerr').textContent = res.data?.error || 'Password reset failed.';
+    }
+  };
+
+  // 4. Direct OTP Login Handlers
   $('send-otp').onclick = async () => {
     $('aerr').textContent = '';
     $('asucc').textContent = '';
@@ -1113,23 +1398,20 @@
     $('send-otp').textContent = 'Sending...';
     $('send-otp').disabled = true;
 
-    const res = await api('/api/otp/send', 'POST', { mobile, role: selectedRole });
+    const res = await api('/api/otp/send', 'POST', { mobile, role: selectedOtpRole });
     $('send-otp').textContent = 'Send OTP';
     $('send-otp').disabled = false;
 
     if (res.ok) {
       $('otpbox').hidden = false;
       $('asucc').textContent = res.data.message || 'OTP sent successfully.';
-      if (res.data.demoOtp) {
-        $('otp').value = res.data.demoOtp;
-      }
+      if (res.data.demoOtp) $('otp').value = res.data.demoOtp;
       $('otp').focus();
     } else {
       $('aerr').textContent = res.data?.error || 'Failed to send OTP.';
     }
   };
 
-  // OTP Verify
   $('verify-otp').onclick = async () => {
     $('aerr').textContent = '';
     $('asucc').textContent = '';
@@ -1144,7 +1426,7 @@
     $('verify-otp').textContent = 'Verifying...';
     $('verify-otp').disabled = true;
 
-    const res = await api('/api/otp/verify', 'POST', { mobile, role: selectedRole, code });
+    const res = await api('/api/otp/verify', 'POST', { mobile, role: selectedOtpRole, code });
     $('verify-otp').textContent = 'Verify & Sign In';
     $('verify-otp').disabled = false;
 
@@ -1154,6 +1436,48 @@
       initSession();
     } else {
       $('aerr').textContent = res.data?.error || 'Verification failed.';
+    }
+  };
+
+  // Change Password Box in Dashboard
+  $('change-pass-open-btn').onclick = () => $('change-pass-box').hidden = !$('change-pass-box').hidden;
+  $('cp-cancel-btn').onclick = () => $('change-pass-box').hidden = true;
+  $('cp-save-btn').onclick = async () => {
+    const currentPassword = $('cp-current').value;
+    const newPassword = $('cp-new').value;
+    const msg = $('cp-msg');
+
+    if (!newPassword || newPassword.length < 4) {
+      msg.textContent = 'New password must be at least 4 characters.';
+      msg.style.color = 'var(--red)';
+      return;
+    }
+
+    msg.textContent = 'Updating...';
+    msg.style.color = 'var(--blue)';
+
+    const res = await api('/api/auth/change-password', 'POST', { currentPassword, newPassword });
+    if (res.ok) {
+      msg.textContent = '✓ Password changed successfully!';
+      msg.style.color = 'var(--green)';
+      $('cp-current').value = '';
+      $('cp-new').value = '';
+      setTimeout(() => $('change-pass-box').hidden = true, 1800);
+    } else {
+      msg.textContent = res.data?.error || 'Failed to change password.';
+      msg.style.color = 'var(--red)';
+    }
+  };
+
+  // Admin Reset User Password
+  window.adminResetUserPass = async (userId, userName) => {
+    const newPass = prompt(`Enter new password for ${userName}:`, 'User@123');
+    if (!newPass) return;
+    const res = await api(`/api/users/${userId}/reset-password`, 'POST', { newPassword: newPass });
+    if (res.ok) {
+      alert(res.data.message || 'Password reset successfully!');
+    } else {
+      alert(res.data?.error || 'Could not reset password.');
     }
   };
 
@@ -1360,6 +1684,9 @@
         <td>+91 ${esc(u.mobile)}</td>
         <td><span class="pill gold">${esc(u.role)}</span></td>
         <td style="font-size:0.8rem; color:var(--mut);">${esc((u.created || '').slice(0, 16))}</td>
+        <td>
+          <button class="btn ghost sm" style="color:var(--blue); border-color:var(--border);" onclick="adminResetUserPass(${u.id}, '${esc(u.name)}')">🔑 Reset Pass</button>
+        </td>
       </tr>
     `).join('');
   }

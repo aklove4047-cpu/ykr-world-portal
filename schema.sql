@@ -5,6 +5,7 @@ CREATE TABLE IF NOT EXISTS users (
   mobile TEXT NOT NULL,
   role TEXT NOT NULL,
   name TEXT DEFAULT 'Member',
+  password_hash TEXT,
   created TEXT DEFAULT CURRENT_TIMESTAMP,
   UNIQUE(mobile, role)
 );
@@ -48,7 +49,6 @@ INSERT OR IGNORE INTO candidates(id, name, qualification, experience, area, skil
 (4, 'Vikram J.', 'MBA', '4 yrs', 'Chinchwad', 'Sales, Team Management', 1),
 (5, 'Pooja T.', 'BCA', 'Fresher', 'Talwade', 'Web Development, SEO', 1);
 
--- Seed initial admin user (+91 7218550652)
-INSERT OR IGNORE INTO users(id, mobile, role, name) VALUES
-(1, '7218550652', 'Admin', 'YKR Super Admin');
-
+-- Seed initial admin user (+91 7218550652) with default password Admin@123
+INSERT OR IGNORE INTO users(id, mobile, role, name, password_hash) VALUES
+(1, '7218550652', 'Admin', 'YKR Super Admin', 'a1b2c3d4e5f60718293a4b5c6d7e8f90:26772a011c894bad86026e5547ed5ca5bc8a4117ae9564b880d11c9cbd47ff57');
