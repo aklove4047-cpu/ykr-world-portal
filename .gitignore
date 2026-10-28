@@ -1,8 +1,8 @@
-node_modules
+node_modules/
+ykr.db
+ykr.db-journal
+.wrangler/
+.dev.vars
 .env
-data/*.db*
-data/*.db
-storage/*
-backups/*
-*.zip
-.wrangler
+dist/
+.DS_Store

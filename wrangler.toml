@@ -1,0 +1,19 @@
+name = "ykr-world"
+main = "src/worker.js"
+compatibility_date = "2026-10-01"
+
+[assets]
+directory = "./public"
+binding = "ASSETS"
+run_worker_first = ["/api/*"]
+
+[vars]
+DEMO_OTP = "123456"   # Fallback OTP for testing. Real SMS API kicks in when FAST2SMS_API_KEY, TWOFACTOR_API_KEY or SMS_GATEWAY_URL is provided
+FAST2SMS_API_KEY = ""
+TWOFACTOR_API_KEY = ""
+SMS_GATEWAY_URL = ""
+
+[[d1_databases]]
+binding = "DB"
+database_name = "ykr-db"
+database_id = "f2360ca7-0b1a-4bd0-9be2-80956886ad71"

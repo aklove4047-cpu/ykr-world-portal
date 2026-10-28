@@ -1,16 +1,1387 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>YKR World — Training, Consultancy, Recruitment &amp; Digital</title>
-<meta name="description" content="Individual training, business consultancy, HR recruitment and digital marketing &amp; IT services.">
-<link rel="stylesheet" href="/style.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>YKR World – Transforming businesses, empowering people</title>
+  <meta name="description" content="YKR World: Individual Training, Business Consultancy, HR Placement, and Digital IT Services. HQ Talwade IT Park, Pune.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --navy: #0b2447;
+      --navy-light: #123363;
+      --blue: #1d5fc4;
+      --blue-hover: #164ca0;
+      --gold: #f5b02e;
+      --gold-dark: #d4951e;
+      --bg: #eef2f9;
+      --card-bg: #ffffff;
+      --ink: #10213f;
+      --mut: #51607a;
+      --border: #d2dcf0;
+      --green: #1e8e6b;
+      --red: #d32f2f;
+      --purple: #6b4fc8;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: var(--blue); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* Sticky Header */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 20px;
+      background: var(--navy);
+      color: #fff;
+      box-shadow: 0 4px 18px rgba(11, 36, 71, 0.25);
+    }
+    .logo {
+      font-weight: 800;
+      font-size: 1.25rem;
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .logo-badge {
+      background: var(--gold);
+      color: var(--navy);
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      font-size: 1.15rem;
+    }
+    .logo b { color: var(--gold); }
+    .header-actions { display: flex; align-items: center; gap: 10px; }
+
+    /* Navigation */
+    nav {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: var(--navy-light);
+      padding: 12px 20px;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.25);
+    }
+    nav.open { display: block; }
+    nav a {
+      display: block;
+      color: #fff;
+      padding: 10px 14px;
+      text-decoration: none;
+      font-weight: 600;
+      border-radius: 8px;
+      transition: background 0.2s;
+    }
+    nav a:hover { background: rgba(255, 255, 255, 0.12); text-decoration: none; }
+
+    @media (min-width: 900px) {
+      nav {
+        display: flex !important;
+        position: static;
+        background: transparent;
+        padding: 0;
+        box-shadow: none;
+        gap: 6px;
+      }
+      nav a { padding: 8px 14px; font-size: 0.92rem; }
+      #menu { display: none; }
+    }
+
+    /* Buttons */
+    .btn {
+      border: 0;
+      border-radius: 10px;
+      padding: 10px 18px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      cursor: pointer;
+      background: var(--gold);
+      color: #1a1a1a;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    .btn:hover { background: var(--gold-dark); text-decoration: none; transform: translateY(-1px); }
+    .btn.ghost {
+      background: rgba(255,255,255,0.08);
+      color: #fff;
+      border: 1.5px solid rgba(255,255,255,0.4);
+      box-shadow: none;
+    }
+    .btn.ghost:hover { background: rgba(255,255,255,0.2); }
+    .btn.blue { background: var(--blue); color: #fff; }
+    .btn.blue:hover { background: var(--blue-hover); }
+    .btn.green { background: var(--green); color: #fff; }
+    .btn.green:hover { background: #177356; }
+    .btn.red { background: var(--red); color: #fff; }
+    .btn.red:hover { background: #ab2424; }
+    .btn.sm { padding: 6px 12px; font-size: 0.82rem; border-radius: 8px; }
+
+    /* Hero Section */
+    .hero {
+      background: radial-gradient(circle at 85% 15%, #2a69dc, transparent 50%),
+                  radial-gradient(circle at 10% 80%, #153c7a, transparent 40%),
+                  linear-gradient(150deg, #0b2447, #133975);
+      color: #fff;
+      padding: 44px 20px 52px;
+      position: relative;
+    }
+    .hero-content { max-width: 960px; margin: auto; }
+    .hero h1 {
+      font-size: 2.35rem;
+      line-height: 1.2;
+      margin: 0 0 14px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+    }
+    .hero p {
+      font-size: 1.1rem;
+      color: #e0e9f8;
+      max-width: 780px;
+      margin: 0 0 20px;
+      line-height: 1.6;
+    }
+    .hero .row { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 20px; }
+    .glass {
+      background: rgba(255, 255, 255, 0.12);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      border-radius: 16px;
+      padding: 20px;
+      margin-top: 24px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+    }
+    .glass h4 { margin: 0 0 6px; color: var(--gold); font-size: 1.05rem; }
+
+    /* Stats strip */
+    .stats-container { max-width: 960px; margin: auto; padding: 0 20px; }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      background: #fff;
+      border-radius: 18px;
+      box-shadow: 0 12px 36px rgba(11, 36, 71, 0.12);
+      margin-top: -26px;
+      position: relative;
+      z-index: 2;
+      border: 1px solid var(--border);
+    }
+    @media (min-width: 640px) {
+      .stats { grid-template-columns: repeat(4, 1fr); }
+    }
+    .stats div { padding: 18px 12px; text-align: center; border-right: 1px solid #f0f3fa; }
+    .stats div:last-child { border-right: 0; }
+    .stats b { display: block; font-size: 1.9rem; color: var(--blue); font-weight: 800; line-height: 1.1; }
+    .stats span { font-size: 0.82rem; color: var(--mut); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+
+    /* Sections */
+    section { padding: 36px 20px; max-width: 960px; margin: auto; }
+    h2 { font-size: 1.85rem; font-weight: 800; color: var(--navy); margin: 0 0 8px; letter-spacing: -0.3px; }
+    p.sub { color: var(--mut); margin: 0 0 20px; font-size: 1.02rem; }
+
+    /* Cards */
+    .card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 22px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 18px rgba(11, 36, 71, 0.07);
+      border: 1px solid #e2eaf6;
+      border-top: 4px solid var(--c, var(--blue));
+    }
+    .card h3 { margin: 0 0 10px; font-size: 1.25rem; color: var(--navy); font-weight: 700; }
+    .card ul { padding-left: 20px; margin: 10px 0; }
+    .card ul li { margin-bottom: 6px; }
+
+    /* Pills & badges */
+    .pill {
+      display: inline-block;
+      background: #e6eefc;
+      color: var(--blue);
+      padding: 4px 12px;
+      border-radius: 99px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      margin: 3px 4px 3px 0;
+    }
+    .pill.green { background: #e3f7ed; color: var(--green); }
+    .pill.gold { background: #fef4df; color: #a66a00; }
+    .pill.purple { background: #efeafb; color: var(--purple); }
+
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      background: #eaf1fd;
+      border-radius: 16px;
+      padding: 16px;
+      margin: 16px 0;
+    }
+    .step-item {
+      background: #fff;
+      padding: 14px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      border-left: 3px solid var(--blue);
+    }
+    .step-item b { color: var(--blue); display: block; font-size: 0.95rem; margin-bottom: 4px; }
+
+    /* Forms */
+    label { display: block; font-weight: 600; font-size: 0.88rem; color: var(--ink); margin: 8px 0 4px; }
+    input, select, textarea {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      font: inherit;
+      font-size: 0.95rem;
+      margin: 4px 0 12px;
+      background: #fff;
+      transition: border 0.2s;
+    }
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(29, 95, 196, 0.15);
+    }
+
+    /* Roles Selection */
+    .role-group-title { font-size: 0.8rem; font-weight: 700; color: var(--mut); text-transform: uppercase; letter-spacing: 0.8px; margin: 12px 0 6px; }
+    .roles { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 8px; margin-bottom: 14px; }
+    .roles button {
+      text-align: left;
+      padding: 10px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      background: #fff;
+      font: inherit;
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--ink);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .roles button:hover { border-color: var(--blue); background: #f3f7fd; }
+    .roles button.on {
+      border-color: var(--blue);
+      background: #eaf1fd;
+      color: var(--blue);
+      box-shadow: inset 0 0 0 1px var(--blue);
+    }
+
+    .note {
+      background: #eaf1fd;
+      border-radius: 12px;
+      padding: 12px 16px;
+      font-size: 0.92rem;
+      color: #1e3a66;
+      border-left: 4px solid var(--blue);
+      margin: 10px 0;
+    }
+    .err { color: var(--red); font-size: 0.9rem; font-weight: 600; margin-top: 6px; }
+    .succ { color: var(--green); font-size: 0.9rem; font-weight: 600; margin-top: 6px; }
+
+    /* Admin Panel Tabs & Tables */
+    .admin-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      background: #112d59;
+      color: #fff;
+      padding: 14px 18px;
+      border-radius: 14px;
+      margin-bottom: 18px;
+    }
+    .admin-tabs {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 8px;
+      margin-bottom: 16px;
+      border-bottom: 2px solid #e0e9f8;
+    }
+    .admin-tab {
+      background: transparent;
+      border: none;
+      padding: 10px 18px;
+      font-weight: 700;
+      font-size: 0.92rem;
+      color: var(--mut);
+      cursor: pointer;
+      border-radius: 8px 8px 0 0;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+    .admin-tab:hover { color: var(--blue); background: #eaf1fd; }
+    .admin-tab.active {
+      color: var(--blue);
+      background: #fff;
+      box-shadow: 0 -2px 0 var(--blue) inset;
+    }
+    .data-table-container {
+      overflow-x: auto;
+      background: #fff;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+    }
+    table.data-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.9rem;
+    }
+    table.data-table th {
+      background: #f4f7fc;
+      padding: 12px 14px;
+      font-weight: 700;
+      color: var(--navy);
+      border-bottom: 1.5px solid var(--border);
+      white-space: nowrap;
+    }
+    table.data-table td {
+      padding: 12px 14px;
+      border-bottom: 1px solid #edf2f9;
+      vertical-align: middle;
+    }
+    table.data-table tr:hover td { background: #f9fbfe; }
+
+    /* Quick Action links */
+    .act-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-decoration: none;
+    }
+    .act-btn.wa { background: #25d366; color: #fff; }
+    .act-btn.call { background: var(--blue); color: #fff; }
+    .act-btn.del { background: #fee8e8; color: var(--red); border: 1px solid #f9c2c2; cursor: pointer; }
+
+    /* Footer */
+    footer {
+      background: var(--navy);
+      color: #fff;
+      padding: 40px 20px 30px;
+      margin-top: 40px;
+    }
+    .footer-content {
+      max-width: 960px;
+      margin: auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 28px;
+    }
+    footer h5 {
+      margin: 0 0 12px;
+      color: var(--gold);
+      font-size: 1.05rem;
+      font-weight: 700;
+    }
+    footer p, footer address {
+      font-style: normal;
+      font-size: 0.92rem;
+      color: #d1ddf0;
+      line-height: 1.7;
+      margin: 0;
+    }
+    .footer-bottom {
+      max-width: 960px;
+      margin: 28px auto 0;
+      padding-top: 20px;
+      border-top: 1px solid rgba(255,255,255,0.12);
+      font-size: 0.82rem;
+      color: #8c9eb9;
+      text-align: center;
+    }
+
+    /* Candidate grid */
+    .cand-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 14px;
+      margin-top: 14px;
+    }
+    .cand-card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 16px;
+      border: 1px solid var(--border);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+    }
+    .cand-card h4 { margin: 0 0 4px; color: var(--navy); font-size: 1.05rem; }
+    .cand-meta { font-size: 0.85rem; color: var(--mut); margin-bottom: 8px; }
+  </style>
 </head>
 <body>
-<div class="bg"></div>
-<div id="app"></div>
-<noscript>Please enable JavaScript to use the YKR World portal.</noscript>
-<script src="/app.js"></script>
+
+<!-- Header -->
+<header>
+  <div class="logo">
+    <span class="logo-badge">Y</span>
+    <span><b>YKR</b> WORLD</span>
+  </div>
+  <nav id="nav">
+    <a href="#home">Home</a>
+    <a href="#training">Training</a>
+    <a href="#consult">Consultancy</a>
+    <a href="#hr">HR Placement</a>
+    <a href="#digital">Digital &amp; IT</a>
+    <a href="#contact">Contact</a>
+  </nav>
+  <div class="header-actions">
+    <a class="btn sm" href="#signin">Portal Login</a>
+    <button class="btn ghost sm" id="menu" aria-label="Toggle Navigation">☰</button>
+  </div>
+</header>
+
+<!-- Hero Section -->
+<div class="hero" id="home">
+  <div class="hero-content">
+    <h1>Transforming businesses, empowering people.</h1>
+    <p>Practical corporate training, business consultancy, recruitment with pre-joining bootcamps, and digital growth systems — all backed by a single secure portal to track sessions, candidate pipelines, projects, and reports.</p>
+    <div class="row">
+      <a class="btn" href="#training">Explore Courses</a>
+      <a class="btn ghost" href="#hr">Hire or Get Placed</a>
+      <a class="btn ghost" href="#signin">Client &amp; Staff Login</a>
+    </div>
+    <div class="glass">
+      <h4>Our Mission</h4>
+      <p style="margin:0 0 8px; color:#fff">Empower individuals and organisations for a better life through practical capability building and systematic execution.</p>
+      <h4 style="margin-top:12px">For Every Student &amp; Job Seeker</h4>
+      <p style="margin:0; color:#fff">Empowering students for a bright career: <b>Train, Practise, Get Certified, Get Placed.</b></p>
+    </div>
+  </div>
+</div>
+
+<!-- Floating Stats Counter -->
+<div class="stats-container">
+  <div class="stats" id="stats">
+    <div><b>4</b><span>Business Verticals</span></div>
+    <div><b>6</b><span>PCMC Branches</span></div>
+    <div><b>11</b><span>Login Roles</span></div>
+    <div><b>6+ yrs</b><span>Proven Impact</span></div>
+  </div>
+</div>
+
+<!-- 4 Verticals Summary -->
+<section>
+  <h2>Four Verticals, One Team</h2>
+  <p class="sub">Every service runs on the same promise: practical, measurable results you can count on.</p>
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px;">
+    <div class="card" style="--c:var(--blue)">
+      <h3>Individual Training</h3>
+      <p>Spoken English, Public Speaking, Soft Skills, Interview Coaching &amp; Political Leadership.</p>
+      <a class="pill" href="#training">View Programmes →</a>
+    </div>
+    <div class="card" style="--c:var(--gold)">
+      <h3>Business Training &amp; Consultancy</h3>
+      <p>Diagnose root causes, build SOPs, train teams, and drive sales with the SPANCO method.</p>
+      <a class="pill gold" href="#consult">See The Method →</a>
+    </div>
+    <div class="card" style="--c:var(--green)">
+      <h3>HR Recruitment &amp; Placement</h3>
+      <p>Precision talent matching backed by our intensive pre-joining bootcamps.</p>
+      <a class="pill green" href="#hr">Placement Cell →</a>
+    </div>
+    <div class="card" style="--c:var(--purple)">
+      <h3>Digital Marketing &amp; IT</h3>
+      <p>High-converting websites, targeted SEO, and social brand acceleration.</p>
+      <a class="pill purple" href="#digital">View Services →</a>
+    </div>
+  </div>
+</section>
+
+<!-- Vertical 1: Individual Training -->
+<section id="training">
+  <h2>Individual Training</h2>
+  <p class="sub">Confidence, communication, and leadership for professionals, students, job seekers, and public leaders.</p>
+
+  <div class="card" style="--c:var(--gold); border-left: 4px solid var(--gold)">
+    <span class="pill gold">NEW FLAGSHIP</span>
+    <h3>Political Leadership Development Programme</h3>
+    <p>Specially curated for aspiring and serving leaders, party workers, and youth representatives who need to speak, organise, and lead with credibility and influence.</p>
+    <ul>
+      <li>Public speaking for rallies, town halls, assemblies, and press interactions</li>
+      <li>Constituency communication, voter sentiment mapping &amp; PR</li>
+      <li>Media handling, debate techniques &amp; crisis communication</li>
+      <li>Policy messaging, impactful storytelling &amp; social media presence</li>
+      <li>Democratic ethics, governance fundamentals &amp; public administration</li>
+    </ul>
+  </div>
+
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px;">
+    <div class="card">
+      <h3>Spoken English</h3>
+      <ul>
+        <li>Fluency building &amp; grammar essentials</li>
+        <li>Corporate vocabulary &amp; email phrasing</li>
+        <li>Accent neutralisation &amp; clear pronunciation</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Public Speaking</h3>
+      <ul>
+        <li>Overcoming stage fright &amp; hesitation</li>
+        <li>Structuring speeches with impact</li>
+        <li>Body language, eye contact &amp; voice modulation</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Soft Skills &amp; Etiquette</h3>
+      <ul>
+        <li>Executive grooming &amp; presentation skills</li>
+        <li>Workplace conflict resolution</li>
+        <li>Business meetings &amp; networking etiquette</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Career &amp; Interviews</h3>
+      <ul>
+        <li>ATS-friendly resume crafting &amp; LinkedIn profile</li>
+        <li>Live mock interview drills &amp; feedback</li>
+        <li>Salary negotiation techniques</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- Vertical 2: Business Consultancy -->
+<section id="consult">
+  <h2>Business Training &amp; Consultancy</h2>
+  <p class="sub">Transition from managing daily fire drills to leading through repeatable systems and empowered teams.</p>
+
+  <div class="steps">
+    <div class="step-item"><b>1. Diagnose</b>Capture root causes, operational bottlenecks &amp; team gaps with real data.</div>
+    <div class="step-item"><b>2. Plan</b>Design SOPs, KPI scorecards, target sales funnels &amp; execution roadmap.</div>
+    <div class="step-item"><b>3. Deliver</b>Conduct high-impact training workshops &amp; hands-on implementation.</div>
+    <div class="step-item"><b>4. Review</b>Measure revenue growth, team productivity &amp; milestone outcomes.</div>
+  </div>
+
+  <div class="card" style="margin-top: 16px;">
+    <h3>SPANCO Sales Pipeline Architecture</h3>
+    <p>We train business owners and sales teams to convert suspects into lifelong orders with predictable discipline:</p>
+    <span class="pill">1. Suspect</span>
+    <span class="pill">2. Prospect</span>
+    <span class="pill">3. Approach</span>
+    <span class="pill">4. Negotiate</span>
+    <span class="pill">5. Close</span>
+    <span class="pill green">6. Order</span>
+  </div>
+
+  <div class="card">
+    <h3>Eliminate Inefficiencies &amp; Scale</h3>
+    <p>Cut time-wasters, eliminate unproductive meetings, and instill corporate ownership through hackathons, role-play sales simulations, and outdoor team workshops.</p>
+    <a class="btn blue" href="#signin">Company Client Portal →</a>
+  </div>
+</section>
+
+<!-- Vertical 3: HR Recruitment & Placement -->
+<section id="hr">
+  <h2>HR Recruitment &amp; Placement</h2>
+  <p class="sub">YKR Placement Cell: We source, we train, and we place skilled talent.</p>
+
+  <div style="display:flex; gap:12px; flex-wrap:wrap; margin-bottom: 20px;">
+    <a class="btn" href="#signin">Register as Candidate</a>
+    <a class="btn blue" href="#signin">Hire From Us / Company Login</a>
+  </div>
+
+  <div class="steps">
+    <div class="step-item"><b>Precision Sourcing</b>Skill and culture-fit screening tailored to employer requirements.</div>
+    <div class="step-item"><b>Pre-joining Bootcamp</b>15-day intensive workplace skills &amp; process readiness training.</div>
+    <div class="step-item"><b>Seamless Integration</b>First 90-day onboarding check-ins and performance support.</div>
+  </div>
+
+  <h3 style="margin-top: 28px;">Available Candidates Pool</h3>
+  <p class="sub">Public preview displays skill qualifications. Complete verified resumes and contact details unlock upon employer login.</p>
+
+  <div style="display: flex; gap: 12px; align-items: center; max-width: 400px; margin-bottom: 12px;">
+    <label style="margin: 0; white-space: nowrap;">Filter by Skill:</label>
+    <select id="skill" style="margin: 0;">
+      <option value="">All Skills</option>
+      <option value="Sales">Sales</option>
+      <option value="Communication">Communication</option>
+      <option value="Digital Marketing">Digital Marketing</option>
+      <option value="Customer Support">Customer Support</option>
+      <option value="Web Development">Web Development</option>
+    </select>
+  </div>
+
+  <div id="cands" class="cand-grid">Loading candidates...</div>
+
+  <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 20px;">
+    <div class="card">
+      <h3>Placed Candidates</h3>
+      <p style="color:var(--mut); font-size:0.9rem">Over 450+ candidates placed across Pune &amp; PCMC IT/Industrial hubs.</p>
+      <span class="pill green">Talwade IT Hub</span>
+      <span class="pill green">Chakan MIDC</span>
+      <span class="pill green">Bhosari Industrial</span>
+    </div>
+    <div class="card">
+      <h3>Hiring Partners</h3>
+      <p style="color:var(--mut); font-size:0.9rem">Associated with 80+ companies across IT, Manufacturing, Retail &amp; Logistics.</p>
+      <span class="pill blue">Pune Tech</span>
+      <span class="pill blue">Auto Hub</span>
+      <span class="pill blue">Services</span>
+    </div>
+  </div>
+</section>
+
+<!-- Vertical 4: Digital Marketing & IT -->
+<section id="digital">
+  <h2>Digital Marketing &amp; IT Services</h2>
+  <p class="sub">Measurable business growth backed by transparent analytics and targeted campaigns.</p>
+
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px;">
+    <div class="card">
+      <h3>Websites &amp; Software</h3>
+      <ul>
+        <li>High-converting landing pages</li>
+        <li>Modern corporate web portals</li>
+        <li>Fast, mobile-responsive UI/UX</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Social Media &amp; Brand Growth</h3>
+      <ul>
+        <li>Personal and corporate brand positioning</li>
+        <li>Short-form video content (Reels/Shorts)</li>
+        <li>Monthly analytics &amp; ROI reports</li>
+      </ul>
+      <a class="btn blue sm" href="#signin">Client Login →</a>
+    </div>
+  </div>
+
+  <!-- Enquiry Form -->
+  <div class="card" style="margin-top: 24px; border-top-color: var(--blue);">
+    <h3>Send An Enquiry / Request Callback</h3>
+    <p class="sub">Fill out your details below and our team will get in touch within 2 working hours.</p>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px;">
+      <div>
+        <label>Your Name *</label>
+        <input id="ln" placeholder="e.g. Rahul Sharma" required>
+      </div>
+      <div>
+        <label>Mobile Number (10 Digits) *</label>
+        <input id="lm" placeholder="e.g. 9876543210" inputmode="numeric" maxlength="10" required>
+      </div>
+      <div>
+        <label>Vertical of Interest</label>
+        <select id="lv">
+          <option>Individual Training</option>
+          <option>Business Consultancy</option>
+          <option>HR Placement</option>
+          <option>Digital &amp; IT</option>
+          <option>Political Leadership Programme</option>
+        </select>
+      </div>
+    </div>
+    <div>
+      <label>Your Message / Specific Requirements</label>
+      <textarea id="lt" rows="3" placeholder="Tell us about your learning goals or business requirement..."></textarea>
+    </div>
+    <button class="btn blue" id="lsend">Submit Enquiry</button>
+    <span id="lmsg" style="margin-left: 12px; font-weight: 600;"></span>
+  </div>
+</section>
+
+<!-- Unified Sign-in & Portal Section -->
+<section id="signin">
+  <h2>One Portal For Every Client &amp; Team Member</h2>
+  <p class="sub">Single sign-in gateway with instant mobile OTP verification across 11 roles.</p>
+
+  <!-- Login Card -->
+  <div class="card" id="auth-card" style="max-width: 600px; margin: auto; border-top-color: var(--gold);">
+    <h3>Sign In To YKR Portal</h3>
+    <div class="note">
+      <b>Fast Mobile OTP:</b> Enter your 10-digit mobile number and role to receive an instant verification code.
+      <br><small style="color:var(--mut)">(In Demo/Testing mode, you can verify using OTP: <b>123456</b>)</small>
+    </div>
+
+    <div class="role-group-title">1. Select Your Role (Customers)</div>
+    <div class="roles" id="roles-customers"></div>
+
+    <div class="role-group-title">2. Staff &amp; Management</div>
+    <div class="roles" id="roles-staff"></div>
+
+    <label>Mobile Number (+91)</label>
+    <div style="display: flex; gap: 8px;">
+      <input id="mob" placeholder="10-digit mobile (e.g. 7218550652)" inputmode="numeric" maxlength="10">
+      <button class="btn blue" id="send-otp" style="white-space: nowrap;">Send OTP</button>
+    </div>
+
+    <div id="otpbox" hidden style="margin-top: 14px; padding-top: 14px; border-top: 1px dashed var(--border);">
+      <label>Enter 6-Digit OTP</label>
+      <div style="display: flex; gap: 8px;">
+        <input id="otp" placeholder="6-digit code" inputmode="numeric" maxlength="6">
+        <button class="btn" id="verify-otp" style="white-space: nowrap;">Verify &amp; Sign In</button>
+      </div>
+    </div>
+
+    <p class="err" id="aerr"></p>
+    <p class="succ" id="asucc"></p>
+    <p style="font-size: 0.82rem; color: var(--mut); margin-top: 16px;">
+      🔒 <b>Lost access or forgotten role?</b> No worries — we verify securely via OTP and never reveal account details publicly.
+    </p>
+  </div>
+
+  <!-- Authenticated Portal / Dashboard -->
+  <div id="dash" hidden>
+    <div class="admin-bar">
+      <div>
+        <span style="font-size:0.85rem; text-transform:uppercase; letter-spacing:0.5px; opacity:0.85">Logged in as</span>
+        <div style="font-size: 1.25rem; font-weight: 800;" id="user-greeting">Welcome</div>
+        <div style="font-size: 0.85rem; opacity: 0.85;" id="user-phone"></div>
+      </div>
+      <div style="display: flex; gap: 8px; align-items: center;">
+        <span class="pill gold" id="user-role-badge">Role</span>
+        <button class="btn ghost sm" id="signout-btn">Sign Out</button>
+      </div>
+    </div>
+
+    <!-- ADMIN PANEL VIEW (Only visible when role is Admin, HR, or Manager) -->
+    <div id="admin-panel" hidden>
+      <!-- Quick Metric Cards -->
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 20px;">
+        <div class="card" style="margin: 0; padding: 16px; border-top-color: var(--blue);">
+          <small style="color:var(--mut); font-weight:700">TOTAL LEADS</small>
+          <b style="font-size: 1.8rem; color: var(--blue); display:block;" id="stat-total-leads">0</b>
+          <span style="font-size: 0.8rem; color: var(--green);" id="stat-new-leads">0 new enquiries</span>
+        </div>
+        <div class="card" style="margin: 0; padding: 16px; border-top-color: var(--green);">
+          <small style="color:var(--mut); font-weight:700">CANDIDATES POOL</small>
+          <b style="font-size: 1.8rem; color: var(--green); display:block;" id="stat-total-cands">0</b>
+          <span style="font-size: 0.8rem; color: var(--mut);">Available for placement</span>
+        </div>
+        <div class="card" style="margin: 0; padding: 16px; border-top-color: var(--purple);">
+          <small style="color:var(--mut); font-weight:700">PORTAL USERS</small>
+          <b style="font-size: 1.8rem; color: var(--purple); display:block;" id="stat-total-users">0</b>
+          <span style="font-size: 0.8rem; color: var(--mut);">Across 11 roles</span>
+        </div>
+        <div class="card" style="margin: 0; padding: 16px; border-top-color: var(--gold);">
+          <small style="color:var(--mut); font-weight:700">PCMC BRANCHES</small>
+          <b style="font-size: 1.8rem; color: var(--gold-dark); display:block;">6</b>
+          <span style="font-size: 0.8rem; color: var(--mut);">Talwade, Bhosari, Chinchwad...</span>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <div class="admin-tabs">
+        <button class="admin-tab active" data-tab="tab-leads">📋 Leads CRM</button>
+        <button class="admin-tab" data-tab="tab-cands">👥 Candidate Management</button>
+        <button class="admin-tab" data-tab="tab-users">👤 User Directory</button>
+        <button class="admin-tab" data-tab="tab-sms">📲 Fast OTP &amp; SMS Gateway</button>
+      </div>
+
+      <!-- Tab 1: Leads CRM -->
+      <div id="tab-leads" class="admin-view">
+        <div class="card" style="padding: 18px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom: 12px;">
+            <h3 style="margin:0;">Enquiries &amp; Leads Management</h3>
+            <div style="display:flex; gap:8px;">
+              <select id="lead-filter-vert" style="margin:0; width:auto; padding:6px 12px;">
+                <option value="">All Verticals</option>
+                <option>Individual Training</option>
+                <option>Business Consultancy</option>
+                <option>HR Placement</option>
+                <option>Digital &amp; IT</option>
+                <option>Political Leadership Programme</option>
+              </select>
+              <button class="btn blue sm" id="refresh-leads">↻ Refresh</button>
+            </div>
+          </div>
+          <div class="data-table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Name</th>
+                  <th>Mobile</th>
+                  <th>Vertical</th>
+                  <th>Message</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="leads-tbody">
+                <tr><td colspan="7" style="text-align:center;">Loading leads...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 2: Candidate Directory & Approvals -->
+      <div id="tab-cands" class="admin-view" hidden>
+        <div class="card" style="padding: 18px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom: 14px;">
+            <h3 style="margin:0;">Candidate Directory &amp; Approvals</h3>
+            <button class="btn sm" id="show-add-cand-btn">+ Add Candidate</button>
+          </div>
+
+          <!-- Add Candidate Form (Collapsible) -->
+          <div id="add-cand-box" hidden style="background:#f4f7fc; padding:16px; border-radius:12px; margin-bottom:16px; border:1px solid var(--border);">
+            <h4 style="margin:0 0 10px;">Add New Candidate Profile</h4>
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:10px;">
+              <div><label>Name</label><input id="cn-name" placeholder="Candidate Name"></div>
+              <div><label>Qualification</label><input id="cn-qual" placeholder="e.g. B.Com, MBA"></div>
+              <div><label>Experience</label><input id="cn-exp" placeholder="e.g. Fresher, 2 yrs"></div>
+              <div><label>Area / Location</label><input id="cn-area" placeholder="e.g. Pune, PCMC"></div>
+            </div>
+            <div><label>Skills (comma separated)</label><input id="cn-skills" placeholder="Sales, Communication, Digital Marketing"></div>
+            <button class="btn blue sm" id="save-cand-btn">Save Candidate</button>
+            <button class="btn ghost sm" style="color:var(--ink)" id="cancel-cand-btn">Cancel</button>
+          </div>
+
+          <div class="data-table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Name</th>
+                  <th>Qualification</th>
+                  <th>Experience</th>
+                  <th>Area</th>
+                  <th>Skills</th>
+                  <th>Public Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="admin-cands-tbody">
+                <tr><td colspan="8" style="text-align:center;">Loading candidates...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 3: User Directory -->
+      <div id="tab-users" class="admin-view" hidden>
+        <div class="card" style="padding: 18px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom: 12px;">
+            <h3 style="margin:0;">Registered Members &amp; Roles</h3>
+            <button class="btn blue sm" id="refresh-users">↻ Refresh</button>
+          </div>
+          <div class="data-table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Name</th>
+                  <th>Mobile</th>
+                  <th>Role</th>
+                  <th>Created</th>
+                </tr>
+              </thead>
+              <tbody id="users-tbody">
+                <tr><td colspan="5" style="text-align:center;">Loading users...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 4: Fast OTP & SMS Gateway -->
+      <div id="tab-sms" class="admin-view" hidden>
+        <div class="card" style="padding: 18px;">
+          <h3>Fast SMS OTP Gateway Status</h3>
+          <p class="sub">YKR World is configured with direct high-speed SMS delivery for Indian mobile numbers (+91).</p>
+          <div class="steps">
+            <div class="step-item"><b>1. Fast2SMS</b>Instant Quick OTP route across all Indian operators.</div>
+            <div class="step-item"><b>2. 2Factor.in</b>High-priority transactional SMS gateway for critical OTPs.</div>
+            <div class="step-item"><b>3. Demo Mode Fallback</b>Supports code 123456 for instant local and test access.</div>
+          </div>
+
+          <div style="background:#eaf1fd; padding:16px; border-radius:12px; margin-top:16px;">
+            <h4 style="margin:0 0 8px; color:var(--navy)">Direct SMS Tester</h4>
+            <p style="font-size:0.88rem; color:var(--mut); margin:0 0 12px;">Send an instant test OTP to any phone number to verify real-time operator connectivity:</p>
+            <div style="display:flex; gap:10px; max-width:440px;">
+              <input id="test-sms-num" placeholder="Enter 10-digit mobile" maxlength="10" style="margin:0;">
+              <button class="btn blue" id="send-test-sms" style="white-space:nowrap;">Send Test OTP</button>
+            </div>
+            <p id="test-sms-res" style="font-weight:600; font-size:0.9rem; margin-top:8px;"></p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- GENERAL ROLE PORTAL MODULES (For Students, Clients, Staff) -->
+    <div class="card" style="padding: 20px;">
+      <h3 style="margin-top:0;">Your Role Modules &amp; Services</h3>
+      <p class="sub">Quick access to all tools and resources assigned to your account:</p>
+      <div id="role-modules-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;"></div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer id="contact">
+  <div class="footer-content">
+    <div>
+      <div class="logo" style="margin-bottom: 12px;">
+        <span class="logo-badge">Y</span>
+        <span><b>YKR</b> WORLD</span>
+      </div>
+      <p>Transforming businesses, empowering people.<br>Four verticals, one unified high-performance platform.</p>
+    </div>
+    <div>
+      <h5>Direct Contact</h5>
+      <p>
+        📞 <a href="tel:+917218550652" style="color:#fff">+91 7218550652</a><br>
+        💬 <a href="https://wa.me/917218550652" target="_blank" style="color:#25d366">Chat on WhatsApp</a><br>
+        ✉️ <a href="mailto:ykrtraininginstitute@gmail.com" style="color:#fff">ykrtraininginstitute@gmail.com</a>
+      </p>
+    </div>
+    <div>
+      <h5>Headquarters &amp; Branches</h5>
+      <address>
+        <b>HQ:</b> Talwade IT Park, Pune<br>
+        <b>PCMC Branches:</b> Dehugaon, Talwade, Chikhali, Sane Chowk, Chinchwad, Bhosari.
+      </address>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    &copy; 2026 YKR World. All Rights Reserved. Built for speed, mobile accessibility, and continuous growth.
+  </div>
+</footer>
+
+<script>
+  const $ = id => document.getElementById(id);
+  let selectedRole = 'Student';
+  let authToken = localStorage.getItem('ykr_token');
+  let currentAuthUser = null;
+
+  const CUSTOMER_ROLES = ['Student', 'Business client', 'Employer / recruiter', 'Job seeker', 'Digital / IT client'];
+  const STAFF_ROLES = ['Admin', 'Manager', 'Faculty', 'Employee', 'HR', 'Accounts'];
+
+  // Initialize Role Buttons
+  function setupRoles(container, list) {
+    list.forEach(r => {
+      const btn = document.createElement('button');
+      btn.textContent = r;
+      btn.type = 'button';
+      btn.onclick = () => {
+        selectedRole = r;
+        document.querySelectorAll('.roles button').forEach(b => b.classList.remove('on'));
+        btn.classList.add('on');
+      };
+      if (r === selectedRole) btn.classList.add('on');
+      container.appendChild(btn);
+    });
+  }
+  setupRoles($('roles-customers'), CUSTOMER_ROLES);
+  setupRoles($('roles-staff'), STAFF_ROLES);
+
+  // Mobile Menu Toggle
+  $('menu').onclick = () => $('nav').classList.toggle('open');
+  document.querySelectorAll('nav a').forEach(a => a.onclick = () => $('nav').classList.remove('open'));
+
+  // Utility Fetch Helper
+  const api = async (url, method = 'GET', body = null) => {
+    const opts = {
+      method,
+      headers: {
+        'Content-Type': 'application/json',
+        ...(authToken ? { 'Authorization': 'Bearer ' + authToken } : {})
+      }
+    };
+    if (body) opts.body = JSON.stringify(body);
+    try {
+      const res = await fetch(url, opts);
+      const data = await res.json().catch(() => ({}));
+      return { ok: res.ok, status: res.status, data };
+    } catch (e) {
+      return { ok: false, error: e.message };
+    }
+  };
+
+  const esc = s => String(s || '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+  // Load Public Candidates Pool
+  async function loadCandidates() {
+    const skill = $('skill').value;
+    const res = await api('/api/candidates?skill=' + encodeURIComponent(skill));
+    if (!res.ok) {
+      $('cands').innerHTML = '<p class="err">Could not load candidates.</p>';
+      return;
+    }
+    const cands = res.data || [];
+    if (!cands.length) {
+      $('cands').innerHTML = '<p style="color:var(--mut);">No candidates found matching this skill.</p>';
+      return;
+    }
+    $('cands').innerHTML = cands.map(c => `
+      <div class="cand-card">
+        <h4>${esc(c.name)}</h4>
+        <div class="cand-meta">🎓 ${esc(c.qualification)} | 💼 ${esc(c.experience)} | 📍 ${esc(c.area)}</div>
+        <div>${(c.skills || '').split(',').map(s => `<span class="pill">${esc(s.trim())}</span>`).join('')}</div>
+      </div>
+    `).join('');
+  }
+  $('skill').onchange = loadCandidates;
+  loadCandidates();
+
+  // Public Lead Form Submission
+  $('lsend').onclick = async () => {
+    const name = $('ln').value.trim();
+    const mobile = $('lm').value.replace(/\D/g, '').slice(-10);
+    const vertical = $('lv').value;
+    const message = $('lt').value.trim();
+    const lmsg = $('lmsg');
+
+    if (!name || mobile.length !== 10) {
+      lmsg.textContent = 'Please enter your name and valid 10-digit mobile number.';
+      lmsg.style.color = 'var(--red)';
+      return;
+    }
+
+    lmsg.textContent = 'Submitting...';
+    lmsg.style.color = 'var(--blue)';
+
+    const res = await api('/api/leads', 'POST', { name, mobile, vertical, message });
+    if (res.ok) {
+      lmsg.textContent = '✓ Thank you! We will contact you shortly.';
+      lmsg.style.color = 'var(--green)';
+      $('ln').value = '';
+      $('lm').value = '';
+      $('lt').value = '';
+    } else {
+      lmsg.textContent = res.data?.error || 'Submission failed. Please try again.';
+      lmsg.style.color = 'var(--red)';
+    }
+  };
+
+  // OTP Send
+  $('send-otp').onclick = async () => {
+    $('aerr').textContent = '';
+    $('asucc').textContent = '';
+    const mobile = $('mob').value.replace(/\D/g, '').slice(-10);
+
+    if (mobile.length !== 10) {
+      $('aerr').textContent = 'Please enter a valid 10-digit mobile number.';
+      return;
+    }
+
+    $('send-otp').textContent = 'Sending...';
+    $('send-otp').disabled = true;
+
+    const res = await api('/api/otp/send', 'POST', { mobile, role: selectedRole });
+    $('send-otp').textContent = 'Send OTP';
+    $('send-otp').disabled = false;
+
+    if (res.ok) {
+      $('otpbox').hidden = false;
+      $('asucc').textContent = res.data.message || 'OTP sent successfully.';
+      if (res.data.demoOtp) {
+        $('otp').value = res.data.demoOtp;
+      }
+      $('otp').focus();
+    } else {
+      $('aerr').textContent = res.data?.error || 'Failed to send OTP.';
+    }
+  };
+
+  // OTP Verify
+  $('verify-otp').onclick = async () => {
+    $('aerr').textContent = '';
+    $('asucc').textContent = '';
+    const mobile = $('mob').value.replace(/\D/g, '').slice(-10);
+    const code = $('otp').value.trim();
+
+    if (code.length < 4) {
+      $('aerr').textContent = 'Please enter the verification code.';
+      return;
+    }
+
+    $('verify-otp').textContent = 'Verifying...';
+    $('verify-otp').disabled = true;
+
+    const res = await api('/api/otp/verify', 'POST', { mobile, role: selectedRole, code });
+    $('verify-otp').textContent = 'Verify & Sign In';
+    $('verify-otp').disabled = false;
+
+    if (res.ok && res.data.token) {
+      authToken = res.data.token;
+      localStorage.setItem('ykr_token', authToken);
+      initSession();
+    } else {
+      $('aerr').textContent = res.data?.error || 'Verification failed.';
+    }
+  };
+
+  // Initialize Session
+  async function initSession() {
+    if (!authToken) {
+      $('auth-card').hidden = false;
+      $('dash').hidden = true;
+      return;
+    }
+
+    const res = await api('/api/me');
+    if (!res.ok) {
+      localStorage.removeItem('ykr_token');
+      authToken = null;
+      $('auth-card').hidden = false;
+      $('dash').hidden = true;
+      return;
+    }
+
+    currentAuthUser = res.data.user;
+    $('auth-card').hidden = true;
+    $('dash').hidden = false;
+    $('user-greeting').textContent = `Welcome, ${currentAuthUser.name || 'Member'}`;
+    $('user-phone').textContent = `+91 ${currentAuthUser.mobile} • Role: ${currentAuthUser.role}`;
+    $('user-role-badge').textContent = currentAuthUser.role;
+
+    // Render Role Modules
+    const mods = res.data.modules || [];
+    $('role-modules-grid').innerHTML = mods.map(m => `
+      <div style="background:#f4f7fc; border:1px solid var(--border); border-radius:12px; padding:14px; text-align:center;">
+        <b style="color:var(--navy); font-size:0.95rem;">${esc(m)}</b>
+        <div style="margin-top:6px;"><span class="pill">Active</span></div>
+      </div>
+    `).join('');
+
+    // Check if user has Admin/HR capabilities
+    const isAdmin = currentAuthUser.role === 'Admin';
+    const isHrOrMgr = currentAuthUser.role === 'HR' || currentAuthUser.role === 'Manager';
+
+    if (isAdmin || isHrOrMgr) {
+      $('admin-panel').hidden = false;
+      setupAdminTabs();
+      loadAdminDashboard(res.data.adminStats);
+      loadAdminLeads();
+      loadAdminCandidates();
+      if (isAdmin) loadAdminUsers();
+    } else {
+      $('admin-panel').hidden = true;
+    }
+  }
+
+  // Admin Tab Switching
+  function setupAdminTabs() {
+    document.querySelectorAll('.admin-tab').forEach(tab => {
+      tab.onclick = () => {
+        document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.admin-view').forEach(v => v.hidden = true);
+        tab.classList.add('active');
+        const viewId = tab.getAttribute('data-tab');
+        if ($(viewId)) $(viewId).hidden = false;
+      };
+    });
+  }
+
+  function loadAdminDashboard(stats) {
+    if (!stats) return;
+    $('stat-total-leads').textContent = stats.totalLeads || 0;
+    $('stat-new-leads').textContent = `${stats.newLeads || 0} new enquiries`;
+    $('stat-total-cands').textContent = stats.totalCandidates || 0;
+    $('stat-total-users').textContent = stats.totalUsers || 0;
+  }
+
+  // Load Admin Leads
+  async function loadAdminLeads() {
+    const res = await api('/api/leads');
+    if (!res.ok) return;
+    const leads = res.data || [];
+    const filterVert = $('lead-filter-vert').value;
+    const filtered = filterVert ? leads.filter(l => l.vertical === filterVert) : leads;
+
+    if (!filtered.length) {
+      $('leads-tbody').innerHTML = `<tr><td colspan="7" style="text-align:center; color:var(--mut);">No leads found.</td></tr>`;
+      return;
+    }
+
+    $('leads-tbody').innerHTML = filtered.map(l => {
+      const cleanMob = String(l.mobile || '').replace(/\D/g, '').slice(-10);
+      const waMsg = encodeURIComponent(`Hello ${l.name}, thank you for your enquiry with YKR World regarding ${l.vertical || 'our services'}. How can we assist you today?`);
+      const statusPill = l.status === 'new' ? '<span class="pill gold">New</span>' : (l.status === 'contacted' ? '<span class="pill">Contacted</span>' : '<span class="pill green">Converted</span>');
+
+      return `
+        <tr>
+          <td style="font-size:0.8rem; color:var(--mut);">${esc((l.created || '').slice(0, 16))}</td>
+          <td><b>${esc(l.name)}</b></td>
+          <td>+91 ${esc(cleanMob)}</td>
+          <td><span class="pill">${esc(l.vertical || 'General')}</span></td>
+          <td style="max-width:200px; font-size:0.85rem;">${esc(l.message || '-')}</td>
+          <td>${statusPill}</td>
+          <td>
+            <div style="display:flex; gap:6px;">
+              <a class="act-btn wa" href="https://wa.me/91${cleanMob}?text=${waMsg}" target="_blank" title="Chat on WhatsApp">💬 WA</a>
+              <a class="act-btn call" href="tel:+91${cleanMob}" title="Call Mobile">📞 Call</a>
+              <button class="act-btn del" onclick="updateLeadStatus(${l.id}, '${l.status === 'new' ? 'contacted' : 'converted'}')">✓ Status</button>
+            </div>
+          </td>
+        </tr>
+      `;
+    }).join('');
+  }
+  $('refresh-leads').onclick = loadAdminLeads;
+  $('lead-filter-vert').onchange = loadAdminLeads;
+
+  window.updateLeadStatus = async (id, status) => {
+    await api('/api/leads/' + id, 'PATCH', { status });
+    loadAdminLeads();
+  };
+
+  // Load Admin Candidates
+  async function loadAdminCandidates() {
+    const res = await api('/api/candidates?all=true');
+    if (!res.ok) return;
+    const cands = res.data || [];
+
+    if (!cands.length) {
+      $('admin-cands-tbody').innerHTML = `<tr><td colspan="8" style="text-align:center; color:var(--mut);">No candidates registered.</td></tr>`;
+      return;
+    }
+
+    $('admin-cands-tbody').innerHTML = cands.map(c => `
+      <tr>
+        <td>#${c.id}</td>
+        <td><b>${esc(c.name)}</b></td>
+        <td>${esc(c.qualification || '-')}</td>
+        <td>${esc(c.experience || '-')}</td>
+        <td>${esc(c.area || '-')}</td>
+        <td>${(c.skills || '').split(',').map(s => `<span class="pill">${esc(s.trim())}</span>`).join('')}</td>
+        <td>${c.approved ? '<span class="pill green">Approved</span>' : '<span class="pill gold">Pending</span>'}</td>
+        <td>
+          <div style="display:flex; gap:6px;">
+            <button class="btn sm ${c.approved ? 'ghost' : 'green'}" style="${c.approved ? 'color:var(--ink); border:1px solid #c0cce2;' : ''}" onclick="toggleCandApproval(${c.id})">
+              ${c.approved ? 'Hide' : 'Approve'}
+            </button>
+            <button class="act-btn del" onclick="deleteCand(${c.id})">Delete</button>
+          </div>
+        </td>
+      </tr>
+    `).join('');
+  }
+
+  window.toggleCandApproval = async (id) => {
+    await api('/api/candidates/' + id + '/approve', 'PATCH');
+    loadAdminCandidates();
+    loadCandidates(); // Refresh public directory too
+  };
+
+  window.deleteCand = async (id) => {
+    if (!confirm('Are you sure you want to remove this candidate?')) return;
+    await api('/api/candidates/' + id, 'DELETE');
+    loadAdminCandidates();
+    loadCandidates();
+  };
+
+  // Add Candidate Box
+  $('show-add-cand-btn').onclick = () => $('add-cand-box').hidden = false;
+  $('cancel-cand-btn').onclick = () => $('add-cand-box').hidden = true;
+
+  $('save-cand-btn').onclick = async () => {
+    const name = $('cn-name').value.trim();
+    const qualification = $('cn-qual').value.trim();
+    const experience = $('cn-exp').value.trim();
+    const area = $('cn-area').value.trim();
+    const skills = $('cn-skills').value.trim();
+
+    if (!name || !skills) {
+      alert('Please fill candidate name and skills.');
+      return;
+    }
+
+    const res = await api('/api/candidates', 'POST', { name, qualification, experience, area, skills, approved: 1 });
+    if (res.ok) {
+      $('add-cand-box').hidden = true;
+      $('cn-name').value = '';
+      $('cn-qual').value = '';
+      $('cn-exp').value = '';
+      $('cn-area').value = '';
+      $('cn-skills').value = '';
+      loadAdminCandidates();
+      loadCandidates();
+    } else {
+      alert(res.data?.error || 'Could not save candidate');
+    }
+  };
+
+  // Load Admin Users
+  async function loadAdminUsers() {
+    const res = await api('/api/users');
+    if (!res.ok) return;
+    const users = res.data || [];
+    $('users-tbody').innerHTML = users.map(u => `
+      <tr>
+        <td>#${u.id}</td>
+        <td><b>${esc(u.name || 'Member')}</b></td>
+        <td>+91 ${esc(u.mobile)}</td>
+        <td><span class="pill gold">${esc(u.role)}</span></td>
+        <td style="font-size:0.8rem; color:var(--mut);">${esc((u.created || '').slice(0, 16))}</td>
+      </tr>
+    `).join('');
+  }
+  $('refresh-users').onclick = loadAdminUsers;
+
+  // Direct SMS Tester
+  $('send-test-sms').onclick = async () => {
+    const mobile = $('test-sms-num').value.replace(/\D/g, '').slice(-10);
+    const resEl = $('test-sms-res');
+    if (mobile.length !== 10) {
+      resEl.textContent = 'Please enter a valid 10-digit mobile number.';
+      resEl.style.color = 'var(--red)';
+      return;
+    }
+    resEl.textContent = 'Sending test OTP...';
+    resEl.style.color = 'var(--blue)';
+
+    const res = await api('/api/test-sms', 'POST', { mobile });
+    if (res.ok) {
+      resEl.textContent = `✓ Test OTP (${res.data.code}) dispatched via ${res.data.result?.providerUsed || 'SMS'}.`;
+      resEl.style.color = 'var(--green)';
+    } else {
+      resEl.textContent = res.data?.error || 'Failed to dispatch test SMS.';
+      resEl.style.color = 'var(--red)';
+    }
+  };
+
+  // Sign out
+  $('signout-btn').onclick = () => {
+    localStorage.removeItem('ykr_token');
+    authToken = null;
+    currentAuthUser = null;
+    location.reload();
+  };
+
+  // Check existing session on boot
+  initSession();
+</script>
 </body>
 </html>
