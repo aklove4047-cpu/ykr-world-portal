@@ -761,32 +761,43 @@
       <button class="btn blue" id="submit-login" style="width:100%; font-size:1.05rem; padding:12px;">Sign In Now →</button>
     </div>
 
-    <!-- 2. REGISTER NEW ACCOUNT VIEW -->
+    <!-- 2. REGISTER NEW ACCOUNT VIEW (OTP-GATED) -->
     <div id="view-register" hidden>
       <div class="note" style="margin-top:0;">
-        <b>New Member Registration:</b> Apna naam, mobile number, role aur pasandeeda password set karein.
+        <b>OTP-Verified Registration:</b> Pehle apna naam, mobile aur password enter karke OTP mangwayein. Jab tak OTP verify nahi hoga, account create nahi hoga.
       </div>
 
-      <label>Your Full Name *</label>
-      <input id="reg-name" placeholder="e.g. Rahul Sharma">
+      <div id="reg-step1">
+        <label>Your Full Name *</label>
+        <input id="reg-name" placeholder="e.g. Rahul Sharma">
 
-      <div class="role-group-title">Select Your Role (Customers)</div>
-      <div class="roles" id="roles-customers-reg"></div>
+        <div class="role-group-title">Select Your Role (Customers)</div>
+        <div class="roles" id="roles-customers-reg"></div>
 
-      <div class="role-group-title">Staff &amp; Management</div>
-      <div class="roles" id="roles-staff-reg"></div>
+        <div class="role-group-title">Staff &amp; Management</div>
+        <div class="roles" id="roles-staff-reg"></div>
 
-      <label>10-Digit Mobile Number *</label>
-      <input id="reg-mob" placeholder="e.g. 9876543210" inputmode="numeric" maxlength="10">
+        <label>10-Digit Mobile Number *</label>
+        <input id="reg-mob" placeholder="e.g. 9876543210" inputmode="numeric" maxlength="10">
 
-      <label>Create A Password (Min. 4 characters) *</label>
-      <input id="reg-pass" type="password" placeholder="Create a secure password">
+        <label>Set A Password (Min. 4 characters) *</label>
+        <input id="reg-pass" type="password" placeholder="Create a secure password">
 
-      <div style="margin-bottom:12px;">
+        <button class="btn blue" id="btn-reg-send-otp" style="width:100%; font-size:1.05rem; padding:12px; margin-top:8px;">📲 Step 1: Send Verification OTP →</button>
+      </div>
+
+      <!-- Step 2: Enter OTP & Actually Create Account -->
+      <div id="reg-step2" hidden style="margin-top:16px; padding:16px; background:#eef7f2; border:1.5px solid var(--green); border-radius:12px;">
+        <h4 style="margin:0 0 8px; color:var(--green);">Step 2: Enter OTP to Create Account</h4>
+        <p style="font-size:0.88rem; color:var(--mut); margin:0 0 10px;" id="reg-otp-notice">OTP sent to your mobile. Enter the code below:</p>
+        <label style="margin:0 0 4px;">6-Digit Verification Code</label>
+        <input id="reg-otp-code" placeholder="Enter OTP code" inputmode="numeric" maxlength="6" style="margin-bottom:12px;">
+        <button class="btn green" id="btn-reg-verify-create" style="width:100%; font-size:1.05rem; padding:12px;">✓ Verify OTP &amp; Create Account →</button>
+      </div>
+
+      <div style="margin-top:14px; text-align:center;">
         <a href="javascript:void(0)" id="link-reg-to-login" style="font-size:0.85rem; font-weight:600; color:var(--blue);">Already have an account? Sign In</a>
       </div>
-
-      <button class="btn green" id="submit-register" style="width:100%; font-size:1.05rem; padding:12px;">Create Account &amp; Sign In →</button>
     </div>
 
     <!-- 3. FORGOT PASSWORD (RESET VIA OTP) VIEW -->
@@ -1304,20 +1315,52 @@
       return;
     }
 
-    $('submit-register').textContent = 'Creating account...';
-    $('submit-register').disabled = true;
+    $('btn-reg-send-otp').textContent = 'Sending OTP...';
+    $('btn-reg-send-otp').disabled = true;
 
-    const res = await api('/api/auth/register', 'POST', { name, mobile, role: selectedRegRole, password });
-    $('submit-register').textContent = 'Create Account & Sign In →';
-    $('submit-register').disabled = false;
+    const res = await api('/api/auth/register-send-otp', 'POST', { name, mobile, role: selectedRegRole });
+    $('btn-reg-send-otp').textContent = '📲 Step 1: Send Verification OTP →';
+    $('btn-reg-send-otp').disabled = false;
+
+    if (res.ok) {
+      $('reg-step2').hidden = false;
+      $('asucc').textContent = res.data.message || 'Verification OTP sent to your phone.';
+      $('reg-otp-notice').textContent = `OTP sent to +91 ${mobile}. Enter the code below:`;
+      if (res.data.demoOtp) $('reg-otp-code').value = res.data.demoOtp;
+      $('reg-otp-code').focus();
+    } else {
+      $('aerr').textContent = res.data?.error || 'Could not send verification OTP.';
+    }
+  };
+
+  // Step 2: Verify OTP & Actually Create Account
+  $('btn-reg-verify-create').onclick = async () => {
+    $('aerr').textContent = '';
+    $('asucc').textContent = '';
+    const name = $('reg-name').value.trim();
+    const mobile = $('reg-mob').value.replace(/\D/g, '').slice(-10);
+    const password = $('reg-pass').value;
+    const code = $('reg-otp-code').value.trim();
+
+    if (code.length < 4) {
+      $('aerr').textContent = 'Please enter the 6-digit verification OTP received on your mobile.';
+      return;
+    }
+
+    $('btn-reg-verify-create').textContent = 'Verifying & Creating...';
+    $('btn-reg-verify-create').disabled = true;
+
+    const res = await api('/api/auth/register-verify-create', 'POST', { name, mobile, role: selectedRegRole, password, code });
+    $('btn-reg-verify-create').textContent = '✓ Verify OTP & Create Account →';
+    $('btn-reg-verify-create').disabled = false;
 
     if (res.ok && res.data.token) {
       authToken = res.data.token;
       localStorage.setItem('ykr_token', authToken);
-      alert('Registration successful! Welcome to YKR World.');
+      alert('✓ Verification successful! Account created and signed in.');
       initSession();
     } else {
-      $('aerr').textContent = res.data?.error || 'Registration failed.';
+      $('aerr').textContent = res.data?.error || 'OTP verification failed. Account was NOT created.';
     }
   };
 

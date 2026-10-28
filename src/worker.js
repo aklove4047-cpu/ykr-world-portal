@@ -63,7 +63,7 @@ const verifyToken = async (secret, token) => {
   }
 };
 
-// Password Hashing via Web Crypto API (PBKDF2/SHA-256)
+// Password Hashing via Web Crypto API (SHA-256 + salt)
 const hashPassword = async (password, salt = null) => {
   if (!salt) {
     const saltBytes = new Uint8Array(16);
@@ -177,7 +177,7 @@ export default {
     };
 
     try {
-      // 1. STATS API
+      // 1. STATS
       if (url.pathname === '/api/stats') {
         const leadCount = (await db.prepare('SELECT COUNT(*) as c FROM leads').first())?.c || 0;
         const candCount = (await db.prepare('SELECT COUNT(*) as c FROM candidates WHERE approved=1').first())?.c || 0;
@@ -193,11 +193,9 @@ export default {
         });
       }
 
-      // ==========================================
-      // AUTHENTICATION: LOGIN, REGISTER, FORGOT PASSWORD
-      // ==========================================
-
-      // 2. PASSWORD LOGIN (Instant Fast Login)
+      // ====================================================
+      // 2. PASSWORD LOGIN (Instant Fast Login for verified users)
+      // ====================================================
       if (url.pathname === '/api/auth/login' && req.method === 'POST') {
         const { mobile, role, password } = await body();
         const cleanMobile = String(mobile || '').replace(/\D/g, '').slice(-10);
@@ -211,16 +209,14 @@ export default {
 
         const user = await db.prepare('SELECT * FROM users WHERE mobile=? AND role=?').bind(cleanMobile, role).first();
         if (!user) {
-          return json({ error: 'No account found for this mobile & role. Please click "Register New Account".' }, 401);
+          return json({ error: 'No account found for this mobile & role. Please click "Register New" to verify with OTP.' }, 401);
         }
 
-        // If user has no password yet (legacy account), allow setting it or default Admin check
         let isMatch = false;
         if (!user.password_hash) {
           if (role === 'Admin' && (password === 'Admin@123' || password === 'admin123')) {
             isMatch = true;
           } else {
-            // First time login: set this password as user's password
             const newHash = await hashPassword(password);
             await db.prepare('UPDATE users SET password_hash=? WHERE id=?').bind(newHash, user.id).run();
             isMatch = true;
@@ -230,7 +226,7 @@ export default {
         }
 
         if (!isMatch) {
-          return json({ error: 'Incorrect password entered. Click "Forgot Password?" to reset.' }, 401);
+          return json({ error: 'Incorrect password entered. Click "Forgot Password" to reset via OTP.' }, 401);
         }
 
         const token = await signToken(secret, { id: user.id, role: user.role, exp: Date.now() + 8 * 3600 * 1000 });
@@ -242,37 +238,91 @@ export default {
         });
       }
 
-      // 3. NEW USER REGISTRATION
-      if (url.pathname === '/api/auth/register' && req.method === 'POST') {
-        const { name, mobile, role, password } = await body();
+      // ====================================================
+      // 3. REGISTRATION FLOW (OTP-GATED)
+      // Step A: Send OTP to Mobile
+      // Step B: Verify OTP & Create Account with Password
+      // ====================================================
+
+      // Step A: Send Registration OTP
+      if (url.pathname === '/api/auth/register-send-otp' && req.method === 'POST') {
+        const { name, mobile, role } = await body();
         const cleanMobile = String(mobile || '').replace(/\D/g, '').slice(-10);
 
         if (!name || name.trim().length < 2) return json({ error: 'Please enter your full name.' }, 400);
-        if (!validMobile(cleanMobile) || !ROLES.includes(role)) return json({ error: 'Please enter a valid 10-digit mobile and role.' }, 400);
-        if (!password || password.length < 4) return json({ error: 'Password must be at least 4 characters.' }, 400);
+        if (!validMobile(cleanMobile) || !ROLES.includes(role)) return json({ error: 'Please enter a valid 10-digit mobile and select role.' }, 400);
 
         const existing = await db.prepare('SELECT id FROM users WHERE mobile=? AND role=?').bind(cleanMobile, role).first();
         if (existing) {
-          return json({ error: `An account already exists for this mobile as ${role}. Please sign in.` }, 400);
+          return json({ error: `An account already exists for +91 ${cleanMobile} as ${role}. Please sign in with your password.` }, 400);
         }
 
+        const now = Date.now();
+        const isDemo = env.DEMO_OTP && env.DEMO_OTP.trim() !== '';
+        const code = isDemo ? env.DEMO_OTP.trim() : randOtp();
+
+        await db.prepare('INSERT OR REPLACE INTO otps(mobile, code, expires, tries, sent, win) VALUES(?,?,?,?,?,?)')
+          .bind(cleanMobile, code, now + 10 * 60 * 1000, 0, 1, now).run();
+
+        const smsResult = await sendSmsOtp(env, cleanMobile, code, `Register-${role}`);
+        const returnCode = isDemo ? code : (smsResult.errorMsg ? code : undefined);
+
+        return json({
+          ok: true,
+          message: smsResult.success
+            ? `Verification OTP sent to +91 ${cleanMobile}. Enter the code below to complete registration.`
+            : `Registration OTP generated for +91 ${cleanMobile}. (Code: ${code})`,
+          demoOtp: returnCode
+        });
+      }
+
+      // Step B: Verify OTP & Actually Create Account
+      if (url.pathname === '/api/auth/register-verify-create' && req.method === 'POST') {
+        const { name, mobile, role, password, code } = await body();
+        const cleanMobile = String(mobile || '').replace(/\D/g, '').slice(-10);
+
+        if (!name || name.trim().length < 2) return json({ error: 'Please enter your full name.' }, 400);
+        if (!validMobile(cleanMobile) || !ROLES.includes(role)) return json({ error: 'Invalid mobile or role.' }, 400);
+        if (!password || password.length < 4) return json({ error: 'Password must be at least 4 characters long.' }, 400);
+        if (!code || code.trim().length < 4) return json({ error: 'Please enter the verification OTP code.' }, 400);
+
+        const row = await db.prepare('SELECT * FROM otps WHERE mobile=?').bind(cleanMobile).first();
+        if (!row || row.expires < Date.now() || row.tries >= 5) {
+          return json({ error: 'OTP has expired or exceeded maximum tries. Please request a new OTP.' }, 400);
+        }
+
+        await db.prepare('UPDATE otps SET tries=tries+1 WHERE mobile=?').bind(cleanMobile).run();
+        if (String(row.code).trim() !== String(code).trim()) {
+          return json({ error: 'Incorrect OTP code entered. Account NOT created.' }, 400);
+        }
+
+        // OTP Verified Successfully! Now create user
         const passHash = await hashPassword(password);
-        await db.prepare('INSERT INTO users(mobile, role, name, password_hash) VALUES(?,?,?,?)')
+        await db.prepare('INSERT OR REPLACE INTO users(mobile, role, name, password_hash) VALUES(?,?,?,?)')
           .bind(cleanMobile, role, name.trim().slice(0, 80), passHash).run();
+
+        // Delete used OTP
+        await db.prepare('DELETE FROM otps WHERE mobile=?').bind(cleanMobile).run();
 
         const newUser = await db.prepare('SELECT id, mobile, role, name FROM users WHERE mobile=? AND role=?').bind(cleanMobile, role).first();
         const token = await signToken(secret, { id: newUser.id, role: newUser.role, exp: Date.now() + 8 * 3600 * 1000 });
 
         return json({
           ok: true,
-          message: 'Account registered successfully!',
+          message: '✓ OTP verified! Account registered successfully.',
           token,
           user: newUser,
           modules: MODULES[newUser.role] || []
         });
       }
 
-      // 4. FORGOT PASSWORD - STEP 1: SEND OTP
+      // ====================================================
+      // 4. FORGOT PASSWORD (OTP-GATED)
+      // Step A: Send Reset OTP
+      // Step B: Verify OTP & Set New Password
+      // ====================================================
+
+      // Step A: Send Reset OTP
       if (url.pathname === '/api/auth/forgot-password/send-otp' && req.method === 'POST') {
         const { mobile, role } = await body();
         const cleanMobile = String(mobile || '').replace(/\D/g, '').slice(-10);
@@ -283,7 +333,7 @@ export default {
 
         const user = await db.prepare('SELECT id FROM users WHERE mobile=? AND role=?').bind(cleanMobile, role).first();
         if (!user) {
-          return json({ error: 'No account found with this mobile number and role.' }, 404);
+          return json({ error: 'No account registered with this mobile number and role.' }, 404);
         }
 
         const now = Date.now();
@@ -294,24 +344,24 @@ export default {
           .bind(cleanMobile, code, now + 10 * 60 * 1000, 0, 1, now).run();
 
         const smsResult = await sendSmsOtp(env, cleanMobile, code, `Reset-${role}`);
-
         const returnCode = isDemo ? code : (smsResult.errorMsg ? code : undefined);
+
         return json({
           ok: true,
           message: smsResult.success
             ? `Password reset OTP sent to +91 ${cleanMobile}.`
-            : `Password reset OTP generated. (Use code: ${code})`,
+            : `Password reset OTP generated. (Code: ${code})`,
           demoOtp: returnCode
         });
       }
 
-      // 5. FORGOT PASSWORD - STEP 2: VERIFY OTP & SET NEW PASSWORD
+      // Step B: Verify OTP & Save New Password
       if (url.pathname === '/api/auth/forgot-password/verify-reset' && req.method === 'POST') {
         const { mobile, role, code, newPassword } = await body();
         const cleanMobile = String(mobile || '').replace(/\D/g, '').slice(-10);
 
         if (!validMobile(cleanMobile) || !ROLES.includes(role)) return json({ error: 'Invalid mobile or role.' }, 400);
-        if (!code || code.trim().length < 4) return json({ error: 'Please enter the verification code.' }, 400);
+        if (!code || code.trim().length < 4) return json({ error: 'Please enter the verification OTP.' }, 400);
         if (!newPassword || newPassword.length < 4) return json({ error: 'New password must be at least 4 characters.' }, 400);
 
         const row = await db.prepare('SELECT * FROM otps WHERE mobile=?').bind(cleanMobile).first();
@@ -321,7 +371,7 @@ export default {
 
         await db.prepare('UPDATE otps SET tries=tries+1 WHERE mobile=?').bind(cleanMobile).run();
         if (String(row.code).trim() !== String(code).trim()) {
-          return json({ error: 'Incorrect OTP code.' }, 400);
+          return json({ error: 'Incorrect OTP code. Password was NOT changed.' }, 400);
         }
 
         // OTP verified: update password
@@ -329,10 +379,10 @@ export default {
         await db.prepare('UPDATE users SET password_hash=? WHERE mobile=? AND role=?').bind(newHash, cleanMobile, role).run();
         await db.prepare('DELETE FROM otps WHERE mobile=?').bind(cleanMobile).run();
 
-        return json({ ok: true, message: 'Password reset successful! You can now log in with your new password.' });
+        return json({ ok: true, message: '✓ OTP verified! Password reset successful. You can now log in.' });
       }
 
-      // 6. CHANGE PASSWORD (Logged in user)
+      // 5. CHANGE PASSWORD (Logged in user)
       if (url.pathname === '/api/auth/change-password' && req.method === 'POST') {
         const authUser = await getAuthUser();
         if (!authUser) return json({ error: 'Unauthorized. Please sign in.' }, 401);
@@ -351,7 +401,7 @@ export default {
         return json({ ok: true, message: 'Password changed successfully.' });
       }
 
-      // 7. OTP DIRECT SEND & VERIFY (Alternative quick login)
+      // 6. DIRECT OTP LOGIN (Alternative)
       if (url.pathname === '/api/otp/send' && req.method === 'POST') {
         const { mobile, role } = await body();
         const cleanMobile = String(mobile || '').replace(/\D/g, '').slice(-10);
@@ -420,7 +470,7 @@ export default {
         return json({ token, user, modules: MODULES[user.role] || [] });
       }
 
-      // 8. CANDIDATES API
+      // 7. CANDIDATES API
       if (url.pathname === '/api/candidates') {
         if (req.method === 'GET') {
           const authUser = await getAuthUser();
@@ -469,7 +519,7 @@ export default {
         }
       }
 
-      // 9. LEADS API
+      // 8. LEADS API
       if (url.pathname === '/api/leads') {
         if (req.method === 'POST') {
           const { name, mobile, vertical, message } = await body();
@@ -511,7 +561,7 @@ export default {
         }
       }
 
-      // 10. USERS API
+      // 9. USERS API
       if (url.pathname === '/api/users') {
         const authUser = await getAuthUser();
         if (!authUser || (authUser.role !== 'Admin' && authUser.role !== 'HR')) {
@@ -534,7 +584,6 @@ export default {
         }
       }
 
-      // Reset password for a specific user (Admin)
       const userResetMatch = url.pathname.match(/^\/api\/users\/(\d+)\/reset-password$/);
       if (userResetMatch && req.method === 'POST') {
         const authUser = await getAuthUser();
@@ -547,7 +596,7 @@ export default {
         return json({ ok: true, message: `Password reset to: ${pToSet}` });
       }
 
-      // 11. ME API
+      // 10. ME API
       if (url.pathname === '/api/me') {
         const user = await getAuthUser();
         if (!user) return json({ error: 'Please sign in.' }, 401);
@@ -573,7 +622,7 @@ export default {
         return json(responseData);
       }
 
-      // 12. SMS STATUS & WALLET
+      // 11. SMS STATUS & WALLET
       if (url.pathname === '/api/sms/status') {
         const authUser = await getAuthUser();
         if (!authUser || authUser.role !== 'Admin') {
@@ -599,7 +648,7 @@ export default {
         });
       }
 
-      // 13. TEST SMS API
+      // 12. TEST SMS API
       if (url.pathname === '/api/test-sms' && req.method === 'POST') {
         const authUser = await getAuthUser();
         if (!authUser || authUser.role !== 'Admin') {
