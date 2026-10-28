@@ -6,3 +6,4 @@ ykr.db-journal
 .env
 dist/
 .DS_Store
+

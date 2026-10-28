@@ -51,3 +51,4 @@ INSERT OR IGNORE INTO candidates(id, name, qualification, experience, area, skil
 -- Seed initial admin user (+91 7218550652)
 INSERT OR IGNORE INTO users(id, mobile, role, name) VALUES
 (1, '7218550652', 'Admin', 'YKR Super Admin');
+

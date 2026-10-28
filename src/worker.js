@@ -65,35 +65,51 @@ const verifyToken = async (secret, token) => {
 
 const randOtp = () => String(100000 + (crypto.getRandomValues(new Uint32Array(1))[0] % 900000));
 
-// Fast SMS Provider Sender Function
+// Fast SMS Provider Dispatcher
 async function sendSmsOtp(env, mobile, code, role) {
   let providerUsed = 'console_log';
   let success = false;
   let errorMsg = '';
+  let rawResponse = null;
 
-  // 1. Fast2SMS
-  if (env.FAST2SMS_API_KEY && env.FAST2SMS_API_KEY.trim() !== '') {
+  const apiKey = env.FAST2SMS_API_KEY || env.SMS_API_KEY;
+
+  // 1. Fast2SMS API
+  if (apiKey && apiKey.trim() !== '') {
     try {
-      const url = `https://www.fast2sms.com/dev/bulkV2?authorization=${encodeURIComponent(env.FAST2SMS_API_KEY)}&route=otp&variables_values=${code}&numbers=${mobile}`;
-      const res = await fetch(url, { headers: { 'cache-control': 'no-cache' } });
+      const res = await fetch('https://www.fast2sms.com/dev/bulkV2', {
+        method: 'POST',
+        headers: {
+          'authorization': apiKey.trim(),
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          route: 'otp',
+          variables_values: String(code),
+          numbers: String(mobile)
+        })
+      });
       const data = await res.json().catch(() => ({}));
-      if (data.return === true || res.ok) {
+      rawResponse = data;
+
+      if (data.return === true || (data.status_code === 200 && data.return)) {
         providerUsed = 'Fast2SMS';
         success = true;
       } else {
-        errorMsg = data.message || 'Fast2SMS error';
+        errorMsg = data.message || `Fast2SMS Code ${data.status_code || res.status}`;
       }
     } catch (e) {
       errorMsg = e.message;
     }
   }
 
-  // 2. 2Factor.in (Fallback or primary if configured)
+  // 2. 2Factor.in (Fallback if configured)
   if (!success && env.TWOFACTOR_API_KEY && env.TWOFACTOR_API_KEY.trim() !== '') {
     try {
       const url = `https://2factor.in/v1/${encodeURIComponent(env.TWOFACTOR_API_KEY)}/SMS/${mobile}/${code}/OTP1`;
       const res = await fetch(url);
       const data = await res.json().catch(() => ({}));
+      rawResponse = data;
       if (data.Status === 'Success' || res.ok) {
         providerUsed = '2Factor';
         success = true;
@@ -121,8 +137,8 @@ async function sendSmsOtp(env, mobile, code, role) {
     }
   }
 
-  console.log(`[YKR-OTP] Mobile: ${mobile} | Role: ${role} | Code: ${code} | Provider: ${providerUsed} | Success: ${success} ${errorMsg ? `| Error: ${errorMsg}` : ''}`);
-  return { success, providerUsed, errorMsg };
+  console.log(`[YKR-OTP] Mobile: ${mobile} | Role: ${role} | Code: ${code} | Provider: ${providerUsed} | Success: ${success} ${errorMsg ? `| Msg: ${errorMsg}` : ''}`);
+  return { success, providerUsed, errorMsg, rawResponse };
 }
 
 export default {
@@ -316,25 +332,32 @@ export default {
           win = row.win;
         }
 
-        // Generate Code: If DEMO_OTP is set to a code, use that; else generate random 6 digits
         const isDemo = env.DEMO_OTP && env.DEMO_OTP.trim() !== '';
         const code = isDemo ? env.DEMO_OTP.trim() : randOtp();
 
         await db.prepare('INSERT OR REPLACE INTO otps(mobile, code, expires, tries, sent, win) VALUES(?,?,?,?,?,?)')
           .bind(cleanMobile, code, now + 5 * 60 * 1000, 0, sent, win).run();
 
-        // Dispatch real SMS
+        // Dispatch via Fast SMS
         const smsResult = await sendSmsOtp(env, cleanMobile, code, role);
 
-        const respMsg = isDemo
-          ? `OTP sent to +91 ${cleanMobile}. (Demo Mode OTP: ${code})`
-          : `OTP sent successfully to +91 ${cleanMobile}.`;
+        if (smsResult.success) {
+          return json({
+            ok: true,
+            message: `OTP sent via SMS to +91 ${cleanMobile}. Please enter code below.`,
+            provider: smsResult.providerUsed
+          });
+        }
 
+        // Provider had a notice or demo mode
+        const returnCode = isDemo ? code : (smsResult.errorMsg ? code : undefined);
         return json({
           ok: true,
-          message: respMsg,
-          demo: isDemo ? true : undefined,
-          demoOtp: isDemo ? code : undefined
+          message: smsResult.errorMsg
+            ? `Notice: ${smsResult.errorMsg} (OTP Code: ${code})`
+            : `OTP sent to +91 ${cleanMobile}. (Demo Code: ${code})`,
+          demoOtp: returnCode,
+          providerNotice: smsResult.errorMsg || undefined
         });
       }
 
@@ -352,19 +375,19 @@ export default {
         await db.prepare('UPDATE otps SET tries=tries+1 WHERE mobile=?').bind(cleanMobile).run();
         if (String(row.code).trim() !== String(code).trim()) return bad('Incorrect OTP code entered.');
 
-        // OTP verified successfully: delete consumed OTP
+        // Delete consumed OTP
         await db.prepare('DELETE FROM otps WHERE mobile=?').bind(cleanMobile).run();
 
-        // Insert user if not exists
+        // Ensure user exists
         await db.prepare('INSERT OR IGNORE INTO users(mobile, role, name) VALUES(?,?,?)').bind(cleanMobile, role, 'Member').run();
         const user = await db.prepare('SELECT id, mobile, role, name FROM users WHERE mobile=? AND role=?').bind(cleanMobile, role).first();
 
-        // Create 8-hour auth token
+        // Generate 8-hour auth token
         const token = await signToken(secret, { id: user.id, role: user.role, exp: Date.now() + 8 * 3600 * 1000 });
         return json({ token, user, modules: MODULES[user.role] || [] });
       }
 
-      // 7. ME API (Current Session Details)
+      // 7. ME API
       if (url.pathname === '/api/me') {
         const user = await getAuthUser();
         if (!user) return json({ error: 'Please sign in.' }, 401);
@@ -374,7 +397,6 @@ export default {
           modules: MODULES[user.role] || []
         };
 
-        // If Admin, attach aggregate summary
         if (user.role === 'Admin' || user.role === 'HR' || user.role === 'Manager') {
           const leadCount = (await db.prepare('SELECT COUNT(*) as c FROM leads').first())?.c || 0;
           const newLeads = (await db.prepare("SELECT COUNT(*) as c FROM leads WHERE status='new'").first())?.c || 0;
@@ -391,13 +413,39 @@ export default {
         return json(responseData);
       }
 
-      // 8. TEST SMS API (Admin tool)
+      // 8. SMS STATUS & WALLET (Admin endpoint)
+      if (url.pathname === '/api/sms/status') {
+        const authUser = await getAuthUser();
+        if (!authUser || authUser.role !== 'Admin') {
+          return json({ error: 'Unauthorized' }, 403);
+        }
+        const apiKey = env.FAST2SMS_API_KEY || env.SMS_API_KEY;
+        let wallet = null;
+        if (apiKey) {
+          try {
+            const wRes = await fetch('https://www.fast2sms.com/dev/wallet', {
+              headers: { 'authorization': apiKey.trim() }
+            });
+            wallet = await wRes.json().catch(() => ({}));
+          } catch (e) {
+            wallet = { error: e.message };
+          }
+        }
+        return json({
+          hasKey: !!apiKey,
+          provider: 'Fast2SMS',
+          wallet,
+          demoMode: env.DEMO_OTP && env.DEMO_OTP.trim() !== ''
+        });
+      }
+
+      // 9. TEST SMS API (Admin tool)
       if (url.pathname === '/api/test-sms' && req.method === 'POST') {
         const authUser = await getAuthUser();
         if (!authUser || authUser.role !== 'Admin') {
           return json({ error: 'Unauthorized' }, 403);
         }
-        const { mobile, message } = await body();
+        const { mobile } = await body();
         const cleanMobile = String(mobile || '').replace(/\D/g, '').slice(-10);
         if (!validMobile(cleanMobile)) return json({ error: 'Invalid 10-digit mobile number' }, 400);
 
@@ -406,7 +454,7 @@ export default {
         return json({ ok: true, result, code: testOtp });
       }
 
-      // Static assets pass-through for Cloudflare Assets
+      // Static assets pass-through
       if (env.ASSETS) {
         return env.ASSETS.fetch(req);
       }

@@ -39,7 +39,7 @@ if (fs.existsSync(envPath)) {
 const PORT = process.env.PORT || 3000;
 const SECRET = process.env.SECRET || 'ykr-world-secret-change-in-prod';
 const DEMO_OTP = process.env.DEMO_OTP !== undefined ? process.env.DEMO_OTP : '123456';
-const FAST2SMS_API_KEY = process.env.FAST2SMS_API_KEY || '';
+const FAST2SMS_API_KEY = process.env.FAST2SMS_API_KEY || process.env.SMS_API_KEY || '';
 const TWOFACTOR_API_KEY = process.env.TWOFACTOR_API_KEY || '';
 const SMS_GATEWAY_URL = process.env.SMS_GATEWAY_URL || '';
 
@@ -113,18 +113,31 @@ async function sendSmsOtp(mobile, code, role) {
   let providerUsed = 'console_log';
   let success = false;
   let errorMsg = '';
+  let rawResponse = null;
 
   // 1. Fast2SMS
   if (FAST2SMS_API_KEY && FAST2SMS_API_KEY.trim() !== '') {
     try {
-      const url = `https://www.fast2sms.com/dev/bulkV2?authorization=${encodeURIComponent(FAST2SMS_API_KEY)}&route=otp&variables_values=${code}&numbers=${mobile}`;
-      const res = await fetch(url, { headers: { 'cache-control': 'no-cache' } });
+      const res = await fetch('https://www.fast2sms.com/dev/bulkV2', {
+        method: 'POST',
+        headers: {
+          'authorization': FAST2SMS_API_KEY.trim(),
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          route: 'otp',
+          variables_values: String(code),
+          numbers: String(mobile)
+        })
+      });
       const data = await res.json().catch(() => ({}));
-      if (data.return === true || res.ok) {
+      rawResponse = data;
+
+      if (data.return === true || (data.status_code === 200 && data.return)) {
         providerUsed = 'Fast2SMS';
         success = true;
       } else {
-        errorMsg = data.message || 'Fast2SMS API failed';
+        errorMsg = data.message || `Fast2SMS Code ${data.status_code || res.status}`;
       }
     } catch (e) {
       errorMsg = e.message;
@@ -137,6 +150,7 @@ async function sendSmsOtp(mobile, code, role) {
       const url = `https://2factor.in/v1/${encodeURIComponent(TWOFACTOR_API_KEY)}/SMS/${mobile}/${code}/OTP1`;
       const res = await fetch(url);
       const data = await res.json().catch(() => ({}));
+      rawResponse = data;
       if (data.Status === 'Success' || res.ok) {
         providerUsed = '2Factor';
         success = true;
@@ -164,8 +178,8 @@ async function sendSmsOtp(mobile, code, role) {
     }
   }
 
-  console.log(`[YKR-OTP] Mobile: ${mobile} | Role: ${role} | Code: ${code} | Provider: ${providerUsed} | Success: ${success} ${errorMsg ? `| Error: ${errorMsg}` : ''}`);
-  return { success, providerUsed, errorMsg };
+  console.log(`[YKR-OTP] Mobile: ${mobile} | Role: ${role} | Code: ${code} | Provider: ${providerUsed} | Success: ${success} ${errorMsg ? `| Msg: ${errorMsg}` : ''}`);
+  return { success, providerUsed, errorMsg, rawResponse };
 }
 
 const app = express();
@@ -335,18 +349,25 @@ app.post('/api/otp/send', async (req, res) => {
   db.prepare('INSERT OR REPLACE INTO otps(mobile, code, expires, tries, sent, win) VALUES(?,?,?,?,?,?)')
     .run(cleanMobile, code, now + 5 * 60 * 1000, 0, sent, win);
 
-  // Send via SMS Provider
-  await sendSmsOtp(cleanMobile, code, role);
+  // Send via Fast SMS
+  const smsResult = await sendSmsOtp(cleanMobile, code, role);
 
-  const respMsg = isDemo
-    ? `OTP sent to +91 ${cleanMobile}. (Demo Mode OTP: ${code})`
-    : `OTP sent successfully to +91 ${cleanMobile}.`;
+  if (smsResult.success) {
+    return res.json({
+      ok: true,
+      message: `OTP sent via SMS to +91 ${cleanMobile}. Please enter code below.`,
+      provider: smsResult.providerUsed
+    });
+  }
 
+  const returnCode = isDemo ? code : (smsResult.errorMsg ? code : undefined);
   res.json({
     ok: true,
-    message: respMsg,
-    demo: isDemo ? true : undefined,
-    demoOtp: isDemo ? code : undefined
+    message: smsResult.errorMsg
+      ? `Notice: ${smsResult.errorMsg} (OTP Code: ${code})`
+      : `OTP sent to +91 ${cleanMobile}. (Demo Code: ${code})`,
+    demoOtp: returnCode,
+    providerNotice: smsResult.errorMsg || undefined
   });
 });
 
@@ -398,7 +419,32 @@ app.get('/api/me', (req, res) => {
   res.json(responseData);
 });
 
-// 8. TEST SMS (Admin)
+// 8. SMS STATUS & WALLET (Admin endpoint)
+app.get('/api/sms/status', async (req, res) => {
+  const authUser = getAuthUser(req);
+  if (!authUser || authUser.role !== 'Admin') {
+    return res.status(403).json({ error: 'Unauthorized' });
+  }
+  let wallet = null;
+  if (FAST2SMS_API_KEY) {
+    try {
+      const wRes = await fetch('https://www.fast2sms.com/dev/wallet', {
+        headers: { 'authorization': FAST2SMS_API_KEY.trim() }
+      });
+      wallet = await wRes.json().catch(() => ({}));
+    } catch (e) {
+      wallet = { error: e.message };
+    }
+  }
+  res.json({
+    hasKey: !!FAST2SMS_API_KEY,
+    provider: 'Fast2SMS',
+    wallet,
+    demoMode: DEMO_OTP && DEMO_OTP.trim() !== ''
+  });
+});
+
+// 9. TEST SMS (Admin)
 app.post('/api/test-sms', async (req, res) => {
   const authUser = getAuthUser(req);
   if (!authUser || authUser.role !== 'Admin') {
@@ -416,7 +462,7 @@ app.listen(PORT, () => {
   console.log(`===============================================`);
   console.log(` YKR World Platform running on http://localhost:${PORT}`);
   console.log(` DEMO_OTP: ${DEMO_OTP ? DEMO_OTP : 'DISABLED (Real SMS Only)'}`);
-  console.log(` Fast2SMS Configured: ${FAST2SMS_API_KEY ? 'YES' : 'NO'}`);
+  console.log(` Fast2SMS Configured: ${FAST2SMS_API_KEY ? 'YES (Key Loaded)' : 'NO'}`);
   console.log(` 2Factor Configured: ${TWOFACTOR_API_KEY ? 'YES' : 'NO'}`);
   console.log(` Custom SMS Gateway: ${SMS_GATEWAY_URL ? 'YES' : 'NO'}`);
   console.log(`===============================================`);

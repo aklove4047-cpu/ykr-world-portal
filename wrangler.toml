@@ -8,8 +8,7 @@ binding = "ASSETS"
 run_worker_first = ["/api/*"]
 
 [vars]
-DEMO_OTP = "123456"   # Fallback OTP for testing. Real SMS API kicks in when FAST2SMS_API_KEY, TWOFACTOR_API_KEY or SMS_GATEWAY_URL is provided
-FAST2SMS_API_KEY = ""
+DEMO_OTP = "123456"
 TWOFACTOR_API_KEY = ""
 SMS_GATEWAY_URL = ""
 

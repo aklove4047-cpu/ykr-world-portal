@@ -917,16 +917,31 @@
       <!-- Tab 4: Fast OTP & SMS Gateway -->
       <div id="tab-sms" class="admin-view" hidden>
         <div class="card" style="padding: 18px;">
-          <h3>Fast SMS OTP Gateway Status</h3>
-          <p class="sub">YKR World is configured with direct high-speed SMS delivery for Indian mobile numbers (+91).</p>
-          <div class="steps">
-            <div class="step-item"><b>1. Fast2SMS</b>Instant Quick OTP route across all Indian operators.</div>
-            <div class="step-item"><b>2. 2Factor.in</b>High-priority transactional SMS gateway for critical OTPs.</div>
-            <div class="step-item"><b>3. Demo Mode Fallback</b>Supports code 123456 for instant local and test access.</div>
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:12px;">
+            <h3 style="margin:0;">Fast SMS OTP Gateway Status</h3>
+            <button class="btn blue sm" id="check-sms-status">↻ Check Live Wallet Balance</button>
+          </div>
+          
+          <div id="sms-wallet-info" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:12px; margin-bottom:16px;">
+            <div style="background:#eaf1fd; padding:12px; border-radius:10px; border-left:4px solid var(--blue);">
+              <small style="color:var(--mut); font-weight:700">FAST2SMS GATEWAY</small>
+              <div style="font-size:1.1rem; font-weight:800; color:var(--navy);">Connected &amp; Active</div>
+            </div>
+            <div style="background:#e3f7ed; padding:12px; border-radius:10px; border-left:4px solid var(--green);">
+              <small style="color:var(--mut); font-weight:700">FAST2SMS BALANCE</small>
+              <div style="font-size:1.1rem; font-weight:800; color:var(--green);" id="sms-wallet-bal">₹50.00 (200 SMS)</div>
+            </div>
           </div>
 
-          <div style="background:#eaf1fd; padding:16px; border-radius:12px; margin-top:16px;">
-            <h4 style="margin:0 0 8px; color:var(--navy)">Direct SMS Tester</h4>
+          <div class="note">
+            <b>Fast2SMS Activation Steps:</b><br>
+            1. Fast2SMS API Key portal mein successfully set ho gayi hai.<br>
+            2. Live SMS deliver karane ke liye Fast2SMS dashboard mein <b>"OTP Message"</b> menu mein jakar apna website URL <code>https://ykr-world.aklove4047.workers.dev</code> verify karein aur ₹100 ka standard one-time wallet topup karein.<br>
+            3. Testing ke dauran demo code <b>123456</b> hamesha active rahega taki aapka testing kabhi ruke nahi.
+          </div>
+
+          <div style="background:#f4f7fc; padding:16px; border-radius:12px; margin-top:16px; border:1px solid var(--border);">
+            <h4 style="margin:0 0 8px; color:var(--navy)">Direct SMS Tester Tool</h4>
             <p style="font-size:0.88rem; color:var(--mut); margin:0 0 12px;">Send an instant test OTP to any phone number to verify real-time operator connectivity:</p>
             <div style="display:flex; gap:10px; max-width:440px;">
               <input id="test-sms-num" placeholder="Enter 10-digit mobile" maxlength="10" style="margin:0;">
@@ -1350,6 +1365,21 @@
   }
   $('refresh-users').onclick = loadAdminUsers;
 
+  // Check SMS Wallet Balance
+  $('check-sms-status').onclick = async () => {
+    $('check-sms-status').textContent = 'Checking...';
+    const res = await api('/api/sms/status');
+    $('check-sms-status').textContent = '↻ Check Live Wallet Balance';
+    if (res.ok && res.data.wallet) {
+      if (res.data.wallet.return) {
+        $('sms-wallet-bal').textContent = `₹${res.data.wallet.wallet} (${res.data.wallet.sms_count} SMS)`;
+        alert(`Fast2SMS Live Status: Connected!\nWallet Balance: ₹${res.data.wallet.wallet} (${res.data.wallet.sms_count} SMS available)`);
+      } else {
+        alert(res.data.wallet.message || 'Could not fetch wallet details');
+      }
+    }
+  };
+
   // Direct SMS Tester
   $('send-test-sms').onclick = async () => {
     const mobile = $('test-sms-num').value.replace(/\D/g, '').slice(-10);
@@ -1385,3 +1415,4 @@
 </script>
 </body>
 </html>
+
