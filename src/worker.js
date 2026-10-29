@@ -1,4 +1,5 @@
 // YKR World - Cloudflare Worker API & Static Asset Dispatcher
+import { WorkerMailer } from 'worker-mailer';
 
 const ROLES = [
   'Student',
@@ -143,6 +144,65 @@ async function sendSmsOtp(env, mobile, code, role) {
   return { success, providerUsed, errorMsg, rawResponse };
 }
 
+// WorkerMailer Gmail SMTP Dispatcher
+async function sendWorkerEmailOtp(env, email, code, purpose) {
+  const gmailUser = env.GMAIL_USER || 'aklove4047@gmail.com';
+  const gmailPass = env.GMAIL_APP_PASSWORD || 'REDACTED_GMAIL_PASS';
+
+  const subjects = {
+    login: 'Your YKR World Login Verification Code',
+    register: 'Verify Your Email — Welcome to YKR World',
+    forgot: 'Password Reset Code — YKR World'
+  };
+  const subject = subjects[purpose] || 'Your YKR World Verification Code';
+
+  const html = `
+    <div style="font-family: Arial, sans-serif; max-width: 520px; margin: 0 auto; padding: 24px; border: 1px solid #e2e8f0; border-radius: 12px; background: #ffffff;">
+      <div style="text-align: center; margin-bottom: 20px;">
+        <h2 style="color: #0b2447; margin: 0;">YKR WORLD PORTAL</h2>
+        <p style="color: #64748b; font-size: 14px; margin: 4px 0 0;">Transforming businesses, empowering people</p>
+      </div>
+      <div style="background: #f8fafc; border-radius: 8px; padding: 24px; text-align: center; margin-bottom: 20px; border: 1px solid #cbd5e1;">
+        <p style="color: #334155; font-size: 15px; margin: 0 0 12px; font-weight: 600;">Your 6-Digit Email Verification Code:</p>
+        <div style="font-size: 38px; font-weight: 800; letter-spacing: 10px; color: #1d5fc4; padding: 12px 0; background: #ffffff; border-radius: 8px; border: 2px dashed #93c5fd; display: inline-block; width: 100%;">
+          ${code}
+        </div>
+        <p style="color: #64748b; font-size: 13px; margin: 12px 0 0;">⏱️ Valid for 10 minutes. Do not share this code.</p>
+      </div>
+      <p style="color: #94a3b8; font-size: 12px; text-align: center; margin: 0;">
+        If you did not request this verification, please ignore this email.<br>
+        &copy; 2026 YKR World. All rights reserved.
+      </p>
+    </div>
+  `;
+
+  try {
+    const mailer = await WorkerMailer.connect({
+      host: 'smtp.gmail.com',
+      port: 465,
+      secure: true,
+      authType: 'login',
+      credentials: {
+        username: gmailUser,
+        password: gmailPass,
+      },
+    });
+
+    await mailer.send({
+      from: { name: 'YKR World', email: gmailUser },
+      to: { name: 'Recipient', email },
+      subject,
+      html,
+      text: `Your YKR World verification code is: ${code}. Valid for 10 minutes.`
+    });
+    console.log(`[WORKER-EMAIL] Successfully sent OTP ${code} to ${email} via Gmail SMTP`);
+    return { success: true };
+  } catch (err) {
+    console.error(`[WORKER-EMAIL-ERROR] Failed to send email to ${email}:`, err);
+    return { success: false, error: err.message };
+  }
+}
+
 export default {
   async fetch(req, env) {
     const url = new URL(req.url);
@@ -284,6 +344,9 @@ export default {
         await db.prepare('INSERT OR REPLACE INTO email_otps(email, code, purpose, expires) VALUES(?,?,?,?)')
           .bind(cleanEmail, code, actPurpose, expires).run();
 
+        // Dispatch real email OTP via Gmail SMTP
+        const emailDispatchResult = await sendWorkerEmailOtp(env, cleanEmail, code, actPurpose);
+
         // If forgot, trigger Google Firebase Password Reset email
         if (actPurpose === 'forgot') {
           try {
@@ -298,7 +361,8 @@ export default {
 
         return json({
           ok: true,
-          message: `Verification OTP dispatched to ${cleanEmail}. Valid for 10 minutes.`
+          message: `Verification OTP dispatched to ${cleanEmail}. Valid for 10 minutes.`,
+          emailSent: emailDispatchResult.success
         });
       }
 

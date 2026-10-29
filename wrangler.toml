@@ -2,6 +2,8 @@ name = "ykr-world"
 main = "src/worker.js"
 compatibility_date = "2026-10-01"
 
+compatibility_flags = ["nodejs_compat"]
+
 [assets]
 directory = "./public"
 binding = "ASSETS"
@@ -13,6 +15,8 @@ FIREBASE_PROJECT_ID = "ykr-world"
 FIREBASE_API_KEY = "REDACTED_FIREBASE_KEY"
 TWOFACTOR_API_KEY = ""
 SMS_GATEWAY_URL = ""
+GMAIL_USER = "aklove4047@gmail.com"
+GMAIL_APP_PASSWORD = "REDACTED_GMAIL_PASS"
 
 [[d1_databases]]
 binding = "DB"
