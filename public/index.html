@@ -443,9 +443,174 @@
     }
     .cand-card h4 { margin: 0 0 4px; color: var(--navy); font-size: 1.05rem; }
     .cand-meta { font-size: 0.85rem; color: var(--mut); margin-bottom: 8px; }
+
+    /* Live Ticker Bar */
+    .top-ticker {
+      background: #061730;
+      color: #cbd5e1;
+      font-size: 0.82rem;
+      padding: 7px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      overflow: hidden;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .ticker-badge {
+      background: var(--gold);
+      color: #0b2447;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-weight: 800;
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      flex-shrink: 0;
+    }
+    .ticker-marquee {
+      display: flex;
+      gap: 24px;
+      white-space: nowrap;
+      animation: marquee 28s linear infinite;
+    }
+    @keyframes marquee {
+      0% { transform: translateX(0%); }
+      100% { transform: translateX(-50%); }
+    }
+
+    /* Branch Directory Cards */
+    .branch-card {
+      background: #fff;
+      border: 1.5px solid var(--border);
+      border-radius: 14px;
+      padding: 20px;
+      transition: all 0.25s ease;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: 0 4px 14px rgba(11,36,71,0.04);
+    }
+    .branch-card:hover {
+      border-color: var(--blue);
+      transform: translateY(-3px);
+      box-shadow: 0 10px 28px rgba(29,95,196,0.12);
+    }
+    .branch-badge {
+      font-size: 0.72rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      padding: 3px 10px;
+      border-radius: 99px;
+      display: inline-block;
+      margin-bottom: 10px;
+    }
+
+    /* Interactive Syllabus Modules */
+    .curriculum-module {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      margin-bottom: 10px;
+      overflow: hidden;
+      background: #fff;
+      transition: border 0.2s;
+    }
+    .curriculum-header {
+      padding: 14px 18px;
+      background: #f8fafc;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-weight: 700;
+      color: var(--navy);
+      user-select: none;
+    }
+    .curriculum-header:hover { background: #f0f4fa; }
+    .curriculum-body {
+      padding: 16px 18px;
+      border-top: 1px solid var(--border);
+      background: #fff;
+      font-size: 0.92rem;
+      line-height: 1.6;
+    }
+
+    /* Interactive Calculator Cards */
+    .calc-card {
+      background: linear-gradient(145deg, #0f2347, #173870);
+      color: #fff;
+      border-radius: 16px;
+      padding: 26px;
+      box-shadow: 0 14px 34px rgba(11,36,71,0.25);
+    }
+    .calc-input {
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.25);
+      color: #fff;
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-weight: 600;
+    }
+    .calc-input:focus {
+      background: rgba(255,255,255,0.18);
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(245,176,46,0.3);
+    }
+
+    /* Notice Spam Alert Box */
+    .spam-notice-box {
+      background: #fffbeb;
+      border: 2px solid #f59e0b;
+      border-radius: 12px;
+      padding: 14px 16px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      box-shadow: 0 4px 14px rgba(245,158,11,0.12);
+    }
+
+    /* Floating WhatsApp & Helpline Widget */
+    .floating-help-btn {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 999;
+      background: #25d366;
+      color: #fff;
+      width: 58px;
+      height: 58px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 8px 24px rgba(37, 211, 102, 0.45);
+      cursor: pointer;
+      border: 3px solid #fff;
+      transition: all 0.25s ease;
+      text-decoration: none;
+      font-size: 1.8rem;
+    }
+    .floating-help-btn:hover {
+      transform: scale(1.08);
+      box-shadow: 0 12px 32px rgba(37, 211, 102, 0.6);
+      text-decoration: none;
+    }
   </style>
 </head>
 <body>
+
+<!-- Live Top Ticker -->
+<div class="top-ticker">
+  <span class="ticker-badge">Live Updates</span>
+  <div class="ticker-marquee">
+    <span>🎉 <b>Placements:</b> 18 Candidates placed this week across Tata Motors, Infosys & PCMC IT Hub!</span>
+    <span>🎓 <b>Fresh Batch:</b> New Political Leadership & Public Speaking weekend batch starting this Saturday!</span>
+    <span>📍 <b>Campus:</b> 6 Training Campuses active across PCMC (Talwade, Dehugaon, Chikhali, Sane Chowk, Chinchwad, Bhosari)</span>
+    <span>📞 <b>Direct Helpline:</b> +91 7218550652 / aklove4047@gmail.com</span>
+    <span>🎉 <b>Placements:</b> 18 Candidates placed this week across Tata Motors, Infosys & PCMC IT Hub!</span>
+  </div>
+</div>
 
 <!-- Header -->
 <header>
@@ -455,15 +620,16 @@
   </div>
   <nav id="nav">
     <a href="#home">Home</a>
+    <a href="#curriculum">Syllabus</a>
     <a href="#training">Training</a>
+    <a href="#campuses">6 Branches</a>
     <a href="#consult">Consultancy</a>
-    <a href="#hr">HR Placement</a>
-    <a href="#digital">Digital &amp; IT</a>
-    <a href="#contact">Contact</a>
+    <a href="#hr">Placements</a>
+    <a href="#calculator">ROI Calc</a>
     <a href="/admin/" style="color:var(--gold); font-weight:700;">🛡️ Admin Portal</a>
   </nav>
   <div class="header-actions">
-    <a class="btn sm" href="#signin">Portal Login</a>
+    <a class="btn sm" href="#signin">Portal Sign In</a>
     <a class="btn sm ghost" href="/admin/" style="color:#fff; border-color:rgba(255,255,255,0.35);" title="Go to Dedicated Admin Website">🛡️ Admin</a>
     <button class="btn ghost sm" id="menu" aria-label="Toggle Navigation">☰</button>
   </div>
@@ -576,6 +742,302 @@
         <li>Live mock interview drills &amp; feedback</li>
         <li>Salary negotiation techniques</li>
       </ul>
+    </div>
+  </div>
+</section>
+
+<!-- Interactive Curriculum & Syllabus Explorer -->
+<section id="curriculum">
+  <div style="display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:12px; margin-bottom:18px;">
+    <div>
+      <span class="pill gold" style="font-size:0.75rem;">ACADEMIC BLUEPRINT</span>
+      <h2 style="margin:4px 0 0;">Comprehensive Course Curriculum</h2>
+      <p class="sub" style="margin:4px 0 0;">Interactive weekly module breakdown designed by industry experts &amp; master coaches.</p>
+    </div>
+    <div style="display:flex; gap:8px;">
+      <a class="btn sm ghost" style="color:var(--ink); border:1px solid var(--border);" href="https://wa.me/917218550652?text=Hello%20YKR%20World,%20please%20share%20complete%20syllabus%20brochure%20PDF" target="_blank">📥 Download Syllabus PDF</a>
+    </div>
+  </div>
+
+  <div style="display:flex; gap:8px; overflow-x:auto; padding-bottom:8px; margin-bottom:18px;" id="curr-tabs">
+    <button class="btn sm blue" onclick="switchCurriculum('english', this)">🗣️ Spoken English</button>
+    <button class="btn sm ghost" style="color:var(--ink); border:1px solid var(--border);" onclick="switchCurriculum('public-speaking', this)">🎤 Public Speaking</button>
+    <button class="btn sm ghost" style="color:var(--ink); border:1px solid var(--border);" onclick="switchCurriculum('soft-skills', this)">👔 Corporate Soft Skills</button>
+    <button class="btn sm ghost" style="color:var(--ink); border:1px solid var(--border);" onclick="switchCurriculum('political', this)">🏛️ Political Leadership</button>
+  </div>
+
+  <!-- English Curriculum -->
+  <div id="curr-english" class="curriculum-container">
+    <div class="curriculum-module">
+      <div class="curriculum-header" onclick="toggleCurriculumModule(this)">
+        <span><b>Week 1–2:</b> Foundation of Fluency, Phonetics &amp; Overcoming Hesitation</span>
+        <span>▼</span>
+      </div>
+      <div class="curriculum-body">
+        <ul>
+          <li>Eliminating subconscious mother-tongue influence (MTI) with daily vocal drills</li>
+          <li>Basic sentence structure: Active vs Passive conversational templates</li>
+          <li>Everyday English for meetings, office interactions &amp; introducing yourself with poise</li>
+          <li><b>Hands-on Drill:</b> 2-minute spontaneous speech without filler words (um, uh, you know)</li>
+        </ul>
+      </div>
+    </div>
+    <div class="curriculum-module">
+      <div class="curriculum-header" onclick="toggleCurriculumModule(this)">
+        <span><b>Week 3–4:</b> Grammar Power, Phrasal Verbs &amp; Professional Phrasing</span>
+        <span>▼</span>
+      </div>
+      <div class="curriculum-body" hidden>
+        <ul>
+          <li>Mastering 12 English tenses through real workplace story frameworks</li>
+          <li>100 high-frequency corporate phrasal verbs for emails and team syncs</li>
+          <li>Polite assertion: Disagreeing respectfully and asking smart questions</li>
+          <li><b>Hands-on Drill:</b> Mock client telephone call simulation and business email review</li>
+        </ul>
+      </div>
+    </div>
+    <div class="curriculum-module">
+      <div class="curriculum-header" onclick="toggleCurriculumModule(this)">
+        <span><b>Week 5–6:</b> Corporate Debates, Group Discussions &amp; Speed Thinking</span>
+        <span>▼</span>
+      </div>
+      <div class="curriculum-body" hidden>
+        <ul>
+          <li>Group Discussion strategies: Entering the discussion, building points, summarising</li>
+          <li>Accent softening and rhythm pacing for clarity in international calls</li>
+          <li>Business vocabulary: KPIs, deliverables, bottlenecks, stakeholder messaging</li>
+          <li><b>Hands-on Drill:</b> Live boardroom debate with instructor video feedback</li>
+        </ul>
+      </div>
+    </div>
+    <div class="curriculum-module">
+      <div class="curriculum-header" onclick="toggleCurriculumModule(this)">
+        <span><b>Week 7–8:</b> Executive Presentations &amp; Final Fluency Assessment</span>
+        <span>▼</span>
+      </div>
+      <div class="curriculum-body" hidden>
+        <ul>
+          <li>Final graduation presentation evaluated by corporate HR mentors</li>
+          <li>Personalised communication scorecard with 6 key fluency metrics</li>
+          <li>YKR Government-recognised course completion certificate</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Public Speaking Curriculum -->
+  <div id="curr-public-speaking" class="curriculum-container" hidden>
+    <div class="curriculum-module">
+      <div class="curriculum-header" onclick="toggleCurriculumModule(this)">
+        <span><b>Module 1:</b> Defeating Stage Fright, Adrenaline &amp; Anxiety</span>
+        <span>▼</span>
+      </div>
+      <div class="curriculum-body">
+        <ul>
+          <li>The psychology of stage fear: Somatic breathing and somatic grounding</li>
+          <li>First 30 seconds: Powerful speech hooks (questions, shocking stats, storytelling)</li>
+          <li>Eye contact patterns: The triangle technique for connecting with 500+ audience</li>
+        </ul>
+      </div>
+    </div>
+    <div class="curriculum-module">
+      <div class="curriculum-header" onclick="toggleCurriculumModule(this)">
+        <span><b>Module 2:</b> Vocal Mastery, Microphones &amp; Body Dynamics</span>
+        <span>▼</span>
+      </div>
+      <div class="curriculum-body" hidden>
+        <ul>
+          <li>Diaphragmatic projection: Speaking loud and clear without vocal strain</li>
+          <li>The power of intentional pause: Building suspense and authority</li>
+          <li>Podium etiquette, hand gestures and stage movement mapping</li>
+        </ul>
+      </div>
+    </div>
+    <div class="curriculum-module">
+      <div class="curriculum-header" onclick="toggleCurriculumModule(this)">
+        <span><b>Module 3:</b> Impromptu Speeches &amp; Crisis Handling</span>
+        <span>▼</span>
+      </div>
+      <div class="curriculum-body" hidden>
+        <ul>
+          <li>The PREP formula (Point, Reason, Example, Point) for unscripted speaking</li>
+          <li>Handling hecklers, hostile questions, and technical glitches calmly</li>
+          <li>Live onstage graduation speech at YKR Auditorium with recording</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Soft Skills Curriculum -->
+  <div id="curr-soft-skills" class="curriculum-container" hidden>
+    <div class="curriculum-module">
+      <div class="curriculum-header" onclick="toggleCurriculumModule(this)">
+        <span><b>Module 1:</b> Executive Grooming, Body Language &amp; First Impressions</span>
+        <span>▼</span>
+      </div>
+      <div class="curriculum-body">
+        <ul>
+          <li>Corporate dress codes: Business formal, business casual &amp; industry standards</li>
+          <li>The 7-second impression rule: Handshakes, posture, open vs closed signals</li>
+          <li>Dining etiquette, networking mixers and visiting card protocols</li>
+        </ul>
+      </div>
+    </div>
+    <div class="curriculum-module">
+      <div class="curriculum-header" onclick="toggleCurriculumModule(this)">
+        <span><b>Module 2:</b> High-Stakes Negotiation &amp; Conflict Management</span>
+        <span>▼</span>
+      </div>
+      <div class="curriculum-body" hidden>
+        <ul>
+          <li>BATNA and win-win negotiation strategies for salary and contracts</li>
+          <li>De-escalating heated workplace disputes with empathy and clear boundaries</li>
+          <li>Time management matrix: Eliminating daily firefighting and distractions</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Political Leadership Curriculum -->
+  <div id="curr-political" class="curriculum-container" hidden>
+    <div class="curriculum-module">
+      <div class="curriculum-header" onclick="toggleCurriculumModule(this)">
+        <span><b>Phase 1:</b> Constituency Communication, Public Rallies &amp; Cadre Mobilisation</span>
+        <span>▼</span>
+      </div>
+      <div class="curriculum-body">
+        <ul>
+          <li>Mass address techniques: Delivering impactful 20-minute rally speeches</li>
+          <li>Constituency voter sentiment mapping, ward-level issues &amp; grievance management</li>
+          <li>Building and inspiring dedicated youth cadre networks across PCMC</li>
+        </ul>
+      </div>
+    </div>
+    <div class="curriculum-module">
+      <div class="curriculum-header" onclick="toggleCurriculumModule(this)">
+        <span><b>Phase 2:</b> Media Management, TV Debates &amp; Crisis PR</span>
+        <span>▼</span>
+      </div>
+      <div class="curriculum-body" hidden>
+        <ul>
+          <li>Press conference framing: Bridging tough journalist questions into party manifesto</li>
+          <li>Social media narrative building: WhatsApp broadcasting, Reels &amp; digital campaign PR</li>
+          <li>Ethics, democratic governance laws, RTI act &amp; municipal administration procedures</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Section: PCMC 6 Campus Explorer -->
+<section id="campuses">
+  <div style="text-align:center; max-width:700px; margin:0 auto 26px;">
+    <span class="pill gold">CENTRAL PRESENCE</span>
+    <h2>6 Campuses Across PCMC &amp; Pune</h2>
+    <p class="sub">Strategically situated near IT hubs, industrial clusters, and youth centers for convenient access.</p>
+  </div>
+
+  <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:16px;">
+    <!-- Branch 1 -->
+    <div class="branch-card">
+      <div>
+        <span class="branch-badge" style="background:#e0edff; color:var(--blue);">HQ &amp; EXECUTIVE LAB</span>
+        <h3 style="margin:0 0 6px; color:var(--navy);">🏢 Talwade IT Hub</h3>
+        <p style="font-size:0.88rem; color:var(--mut); margin:0 0 10px;">Near Talwade Software Technology Park, Tower 2, Nigdi-Dehu Road.</p>
+        <div style="font-size:0.82rem; color:var(--ink); margin-bottom:14px; background:#f8fafc; padding:10px; border-radius:8px;">
+          <div><b>⏱️ Batches:</b> 7:30 AM – 9:00 PM (Mon–Sat)</div>
+          <div><b>🎯 Focus:</b> Corporate English, IT Bootcamps, Placements</div>
+        </div>
+      </div>
+      <div style="display:flex; gap:8px;">
+        <a class="act-btn wa" href="https://wa.me/917218550652?text=Hello%20Talwade%20Center,%20I%20want%20to%20enquire%20about%20classes" target="_blank" style="flex:1; justify-content:center; padding:8px;">💬 WhatsApp</a>
+        <a class="act-btn call" href="tel:+917218550652" style="flex:1; justify-content:center; padding:8px;">📞 Call Branch</a>
+      </div>
+    </div>
+
+    <!-- Branch 2 -->
+    <div class="branch-card">
+      <div>
+        <span class="branch-badge" style="background:#fef4df; color:#92400e;">LEADERSHIP HUB</span>
+        <h3 style="margin:0 0 6px; color:var(--navy);">🏛️ Dehu Gaon Campus</h3>
+        <p style="font-size:0.88rem; color:var(--mut); margin:0 0 10px;">Main Bazaar Road, Near Sant Tukaram Temple Arch, Dehugaon.</p>
+        <div style="font-size:0.82rem; color:var(--ink); margin-bottom:14px; background:#f8fafc; padding:10px; border-radius:8px;">
+          <div><b>⏱️ Batches:</b> Morning 8-11 AM | Evening 5-8 PM</div>
+          <div><b>🎯 Focus:</b> Political Leadership, Public Speaking &amp; Youth Cadre</div>
+        </div>
+      </div>
+      <div style="display:flex; gap:8px;">
+        <a class="act-btn wa" href="https://wa.me/917218550652?text=Hello%20Dehugaon%20Center,%20I%20want%20to%20enquire%20about%20leadership%20courses" target="_blank" style="flex:1; justify-content:center; padding:8px;">💬 WhatsApp</a>
+        <a class="act-btn call" href="tel:+917218550652" style="flex:1; justify-content:center; padding:8px;">📞 Call Branch</a>
+      </div>
+    </div>
+
+    <!-- Branch 3 -->
+    <div class="branch-card">
+      <div>
+        <span class="branch-badge" style="background:#e3f7ed; color:var(--green);">CAREER CENTER</span>
+        <h3 style="margin:0 0 6px; color:var(--navy);">💻 Chikhali Branch</h3>
+        <p style="font-size:0.88rem; color:var(--mut); margin:0 0 10px;">Moshi-Chikhali BRT Road, Near Spine Road Junction, PCMC.</p>
+        <div style="font-size:0.82rem; color:var(--ink); margin-bottom:14px; background:#f8fafc; padding:10px; border-radius:8px;">
+          <div><b>⏱️ Batches:</b> Full Day &amp; Weekend Special</div>
+          <div><b>🎯 Focus:</b> Job Seekers, Freshers Bootcamp, Interview Prep</div>
+        </div>
+      </div>
+      <div style="display:flex; gap:8px;">
+        <a class="act-btn wa" href="https://wa.me/917218550652?text=Hello%20Chikhali%20Center,%20enquiring%20about%20job%20oriented%20training" target="_blank" style="flex:1; justify-content:center; padding:8px;">💬 WhatsApp</a>
+        <a class="act-btn call" href="tel:+917218550652" style="flex:1; justify-content:center; padding:8px;">📞 Call Branch</a>
+      </div>
+    </div>
+
+    <!-- Branch 4 -->
+    <div class="branch-card">
+      <div>
+        <span class="branch-badge" style="background:#efeafb; color:var(--purple);">STUDENT ACADEMY</span>
+        <h3 style="margin:0 0 6px; color:var(--navy);">🎓 Sane Chowk Center</h3>
+        <p style="font-size:0.88rem; color:var(--mut); margin:0 0 10px;">Chikhali-Pradhikaran Link Road, Sane Chowk, Nigdi.</p>
+        <div style="font-size:0.82rem; color:var(--ink); margin-bottom:14px; background:#f8fafc; padding:10px; border-radius:8px;">
+          <div><b>⏱️ Batches:</b> 8:00 AM – 7:30 PM</div>
+          <div><b>🎯 Focus:</b> School &amp; College Students, Spoken English, Confidence</div>
+        </div>
+      </div>
+      <div style="display:flex; gap:8px;">
+        <a class="act-btn wa" href="https://wa.me/917218550652?text=Hello%20Sane%20Chowk%20Center,%20I%20want%20admission%20details" target="_blank" style="flex:1; justify-content:center; padding:8px;">💬 WhatsApp</a>
+        <a class="act-btn call" href="tel:+917218550652" style="flex:1; justify-content:center; padding:8px;">📞 Call Branch</a>
+      </div>
+    </div>
+
+    <!-- Branch 5 -->
+    <div class="branch-card">
+      <div>
+        <span class="branch-badge" style="background:#e0edff; color:var(--blue);">PLACEMENT VAULT</span>
+        <h3 style="margin:0 0 6px; color:var(--navy);">🤝 Chinchwad Hub</h3>
+        <p style="font-size:0.88rem; color:var(--mut); margin:0 0 10px;">Old Mumbai-Pune Highway, Near Chinchwad Station Commercial Plaza.</p>
+        <div style="font-size:0.82rem; color:var(--ink); margin-bottom:14px; background:#f8fafc; padding:10px; border-radius:8px;">
+          <div><b>⏱️ Batches:</b> 9:00 AM – 8:00 PM</div>
+          <div><b>🎯 Focus:</b> Recruiter Interviews, ATS Resumes, Corporate Drives</div>
+        </div>
+      </div>
+      <div style="display:flex; gap:8px;">
+        <a class="act-btn wa" href="https://wa.me/917218550652?text=Hello%20Chinchwad%20Center,%20recruitment%20cell%20enquiry" target="_blank" style="flex:1; justify-content:center; padding:8px;">💬 WhatsApp</a>
+        <a class="act-btn call" href="tel:+917218550652" style="flex:1; justify-content:center; padding:8px;">📞 Call Branch</a>
+      </div>
+    </div>
+
+    <!-- Branch 6 -->
+    <div class="branch-card">
+      <div>
+        <span class="branch-badge" style="background:#fef4df; color:#92400e;">INDUSTRIAL HUB</span>
+        <h3 style="margin:0 0 6px; color:var(--navy);">🏭 Bhosari MIDC Center</h3>
+        <p style="font-size:0.88rem; color:var(--mut); margin:0 0 10px;">Telco Road, Bhosari Industrial Area, Pune.</p>
+        <div style="font-size:0.82rem; color:var(--ink); margin-bottom:14px; background:#f8fafc; padding:10px; border-radius:8px;">
+          <div><b>⏱️ Batches:</b> Shift friendly &amp; Evening Corporate</div>
+          <div><b>🎯 Focus:</b> Factory Staff, Production Supervisors, Soft Skills</div>
+        </div>
+      </div>
+      <div style="display:flex; gap:8px;">
+        <a class="act-btn wa" href="https://wa.me/917218550652?text=Hello%20Bhosari%20Center,%20industrial%20training%20enquiry" target="_blank" style="flex:1; justify-content:center; padding:8px;">💬 WhatsApp</a>
+        <a class="act-btn call" href="tel:+917218550652" style="flex:1; justify-content:center; padding:8px;">📞 Call Branch</a>
+      </div>
     </div>
   </div>
 </section>
@@ -720,135 +1182,179 @@
   </div>
 </section>
 
+<!-- Interactive SPANCO Business Sales ROI Calculator -->
+<section id="calculator">
+  <div class="calc-card">
+    <div style="max-width:700px; margin-bottom:20px;">
+      <span class="pill gold" style="font-size:0.75rem;">BUSINESS GROWTH CALCULATOR</span>
+      <h2 style="color:#fff; margin:6px 0 8px;">SPANCO Revenue Potential &amp; Leakage Calculator</h2>
+      <p style="color:#cbd5e1; margin:0; font-size:0.95rem;">Enter your current sales team size and deal parameters to see how much revenue leaks across the SPANCO stages and how much YKR training can recover.</p>
+    </div>
+
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:16px; margin-bottom:20px;">
+      <div>
+        <label style="color:#fff;">Sales Team Size (Reps)</label>
+        <input class="calc-input" id="calc-reps" type="number" value="8" min="1" max="100" oninput="calculateSpancoRoi()">
+      </div>
+      <div>
+        <label style="color:#fff;">Average Deal / Order Value (₹)</label>
+        <input class="calc-input" id="calc-deal" type="number" value="75000" min="5000" step="5000" oninput="calculateSpancoRoi()">
+      </div>
+      <div>
+        <label style="color:#fff;">Monthly Leads per Rep</label>
+        <input class="calc-input" id="calc-leads" type="number" value="30" min="5" max="500" oninput="calculateSpancoRoi()">
+      </div>
+    </div>
+
+    <div style="background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.2); border-radius:14px; padding:20px; display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:18px; text-align:center;">
+      <div>
+        <span style="font-size:0.8rem; color:#93c5fd; text-transform:uppercase; letter-spacing:0.5px; font-weight:700;">Estimated Monthly Revenue Leak</span>
+        <b style="font-size:1.8rem; color:#f87171; display:block; margin-top:4px;" id="calc-leak">₹ 3.60 Lakhs</b>
+        <small style="color:#cbd5e1;">Lost at Negotiate &amp; Close stages</small>
+      </div>
+      <div>
+        <span style="font-size:0.8rem; color:#93c5fd; text-transform:uppercase; letter-spacing:0.5px; font-weight:700;">Projected YKR SPANCO Uplift</span>
+        <b style="font-size:1.8rem; color:#4ade80; display:block; margin-top:4px;" id="calc-gain">+ ₹ 5.40 Lakhs/mo</b>
+        <small style="color:#cbd5e1;">With 15% improved conversion</small>
+      </div>
+      <div style="display:flex; align-items:center; justify-content:center;">
+        <a class="btn" href="https://wa.me/917218550652?text=Hello%20YKR%20Consultancy,%20I%20used%20your%20SPANCO%20ROI%20calculator%20and%20want%20a%20free%20sales%20audit" target="_blank" style="padding:12px 18px; font-weight:700;">Schedule Free Sales Audit →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Free Study Vault & ATS Resume Calculator -->
+<section id="career-vault" style="padding-top:10px;">
+  <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:18px;">
+    <!-- ATS Calculator Card -->
+    <div class="card" style="--c:var(--blue); border-top-color:var(--blue);">
+      <span class="pill">FREE CANDIDATE TOOL</span>
+      <h3 style="margin-top:6px;">ATS Resume Readiness Score</h3>
+      <p style="font-size:0.9rem; color:var(--mut);">Check if your resume will pass modern PCMC corporate Applicant Tracking Systems (ATS).</p>
+      
+      <div style="display:flex; flex-direction:column; gap:8px; margin:14px 0; font-size:0.9rem;">
+        <label style="font-weight:500; display:flex; align-items:center; gap:8px; cursor:pointer;">
+          <input type="checkbox" id="ats-q1" onchange="calcAtsScore()" checked style="width:auto; margin:0;"> Clean single-column layout without tables or graphics
+        </label>
+        <label style="font-weight:500; display:flex; align-items:center; gap:8px; cursor:pointer;">
+          <input type="checkbox" id="ats-q2" onchange="calcAtsScore()" checked style="width:auto; margin:0;"> Measurable achievements with numbers (% growth, revenue)
+        </label>
+        <label style="font-weight:500; display:flex; align-items:center; gap:8px; cursor:pointer;">
+          <input type="checkbox" id="ats-q3" onchange="calcAtsScore()" style="width:auto; margin:0;"> Industry keywords matching target job description
+        </label>
+        <label style="font-weight:500; display:flex; align-items:center; gap:8px; cursor:pointer;">
+          <input type="checkbox" id="ats-q4" onchange="calcAtsScore()" style="width:auto; margin:0;"> Standard section headings (Experience, Education, Skills)
+        </label>
+      </div>
+
+      <div style="background:#f4f7fc; border-radius:10px; padding:12px; display:flex; align-items:center; justify-content:space-between;">
+        <span style="font-size:0.85rem; font-weight:700; color:var(--navy);">Your ATS Strength:</span>
+        <b style="font-size:1.2rem; color:var(--blue);" id="ats-score-display">50% — Average</b>
+      </div>
+      <div style="margin-top:12px;">
+        <a class="btn sm ghost" style="color:var(--ink); border:1px solid var(--border); width:100%;" href="https://wa.me/917218550652?text=Hello%20YKR%20Placement%20Cell,%20I%20want%20my%20resume%20reviewed%20by%20HR" target="_blank">📄 Get Free HR Resume Review On WhatsApp</a>
+      </div>
+    </div>
+
+    <!-- Free Study Material Downloads -->
+    <div class="card" style="--c:var(--green); border-top-color:var(--green);">
+      <span class="pill green">STUDY REPOSITORY</span>
+      <h3 style="margin-top:6px;">Free Downloads &amp; Master Resources</h3>
+      <p style="font-size:0.9rem; color:var(--mut);">Handcrafted preparation guides used in our classroom bootcamps.</p>
+      
+      <div style="display:flex; flex-direction:column; gap:10px; margin-top:14px;">
+        <a href="https://wa.me/917218550652?text=Please%20send%20PDF:%20500%20High-Frequency%20Phrasal%20Verbs" target="_blank" style="display:flex; align-items:center; justify-content:space-between; padding:10px 14px; background:#f8fafc; border:1px solid var(--border); border-radius:10px; text-decoration:none; color:var(--ink);">
+          <div style="display:flex; align-items:center; gap:10px;">
+            <span style="font-size:1.2rem;">📥</span>
+            <div><b style="font-size:0.88rem; display:block;">500 Corporate Phrasal Verbs</b><small style="color:var(--mut);">PDF Cheat Sheet</small></div>
+          </div>
+          <span class="pill" style="margin:0;">Free</span>
+        </a>
+
+        <a href="https://wa.me/917218550652?text=Please%20send%20PDF:%20Public%20Speaking%20PREP%20Framework" target="_blank" style="display:flex; align-items:center; justify-content:space-between; padding:10px 14px; background:#f8fafc; border:1px solid var(--border); border-radius:10px; text-decoration:none; color:var(--ink);">
+          <div style="display:flex; align-items:center; gap:10px;">
+            <span style="font-size:1.2rem;">🎤</span>
+            <div><b style="font-size:0.88rem; display:block;">Speech Hooks &amp; PREP Framework</b><small style="color:var(--mut);">Stage Confidence PDF</small></div>
+          </div>
+          <span class="pill" style="margin:0;">Free</span>
+        </a>
+
+        <a href="https://wa.me/917218550652?text=Please%20send%20Template:%20ATS-Optimized%20Corporate%20Resume" target="_blank" style="display:flex; align-items:center; justify-content:space-between; padding:10px 14px; background:#f8fafc; border:1px solid var(--border); border-radius:10px; text-decoration:none; color:var(--ink);">
+          <div style="display:flex; align-items:center; gap:10px;">
+            <span style="font-size:1.2rem;">📑</span>
+            <div><b style="font-size:0.88rem; display:block;">YKR ATS-Ready Resume Template</b><small style="color:var(--mut);">Word / PDF Format</small></div>
+          </div>
+          <span class="pill green" style="margin:0;">Instant</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- Unified Sign-in & Portal Section -->
 <section id="signin">
   <div style="text-align:center; max-width:600px; margin:0 auto 24px;">
     <h2>YKR World Portal</h2>
-    <p class="sub" style="margin:0;">Clients, Students &amp; Staff: Mobile ya Email se login karein aur apne dashboard mein pravesh karein.</p>
+    <p class="sub" style="margin:0;">Clients, Students &amp; Staff: Email se login karein aur apne dashboard mein pravesh karein.</p>
   </div>
 
-  <!-- Smart Auth Card -->
-  <div class="card" id="auth-card" style="max-width: 500px; margin: auto; border-top: 4px solid var(--blue); box-shadow: 0 12px 36px rgba(11,36,71,0.12); padding: 28px;">
+  <!-- Pure Streamlined Email Auth Card with 10-Digit Mobile Collection for Admin -->
+  <div class="card" id="auth-card" style="max-width: 520px; margin: auto; border-top: 4px solid var(--blue); box-shadow: 0 14px 40px rgba(11,36,71,0.14); padding: 28px;">
     
-    <!-- Google Firebase Invisible Recaptcha Container -->
-    <div id="recaptcha-container"></div>
-
-    <!-- Auth Method Tabs: Mobile OTP vs Email OTP -->
-    <div style="display:flex; background:#f4f7fc; border-radius:10px; padding:4px; margin-bottom:20px; gap:4px;">
-      <button id="tab-mobile-btn" onclick="switchAuthTab('mobile')" style="flex:1; padding:9px; border:none; border-radius:7px; font-weight:700; font-size:0.85rem; cursor:pointer; background:var(--blue); color:#fff; box-shadow:0 4px 12px rgba(29,95,196,0.25); font-family:inherit; transition:all 0.2s;">📲 Mobile OTP</button>
-      <button id="tab-email-btn" onclick="switchAuthTab('email')" style="flex:1; padding:9px; border:none; border-radius:7px; font-weight:700; font-size:0.85rem; cursor:pointer; background:transparent; color:var(--mut); font-family:inherit; transition:all 0.2s;">✉️ Email OTP</button>
+    <!-- Auth Method Tabs: Sign In / Register / Forgot -->
+    <div style="display:flex; background:#f4f7fc; border-radius:10px; padding:4px; margin-bottom:22px; gap:4px;">
+      <button id="etab-login-btn" onclick="switchEmailMode('login')" style="flex:1; padding:10px 8px; border:none; border-radius:7px; font-weight:700; font-size:0.86rem; cursor:pointer; background:var(--blue); color:#fff; box-shadow:0 4px 12px rgba(29,95,196,0.25); font-family:inherit; transition:all 0.2s;">🔓 Sign In</button>
+      <button id="etab-reg-btn" onclick="switchEmailMode('register')" style="flex:1; padding:10px 8px; border:none; border-radius:7px; font-weight:700; font-size:0.86rem; cursor:pointer; background:transparent; color:var(--mut); font-family:inherit; transition:all 0.2s;">🆕 Create Account</button>
+      <button id="etab-forgot-btn" onclick="switchEmailMode('forgot')" style="flex:1; padding:10px 8px; border:none; border-radius:7px; font-weight:700; font-size:0.86rem; cursor:pointer; background:transparent; color:var(--mut); font-family:inherit; transition:all 0.2s;">🔑 Reset</button>
     </div>
 
-    <!-- MOBILE OTP TAB WRAPPER -->
-    <div id="auth-tab-mobile">
-    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; padding-bottom:12px; border-bottom:1px solid var(--border);">
-      <div style="display:flex; align-items:center; gap:8px;">
-        <span style="font-size:1.3rem;">📲</span>
-        <b style="color:var(--navy); font-size:1.05rem;">Mobile OTP Login</b>
-      </div>
-      <span class="pill green" style="font-size:0.75rem;">● Google SMS</span>
-    </div>
+    <!-- 1. SIGN IN (PASSWORD OR INSTANT EMAIL OTP) -->
+    <div id="email-mode-login">
+      <div id="login-form-password">
+        <label style="font-weight:700; color:var(--navy); margin-bottom:6px; display:block;">Email Address or Mobile Number *</label>
+        <input id="login-identifier" type="text" placeholder="yourname@email.com or 10-digit mobile" style="margin-bottom:12px;">
 
-    <!-- Step 1: Mobile Input -->
-    <div id="auth-step-mobile">
-      <label style="font-weight:700; color:var(--navy); margin-bottom:6px; display:block;">Enter Your 10-Digit Mobile Number</label>
-      <div style="display:flex; align-items:center; border:2px solid var(--border); border-radius:10px; background:#fff; overflow:hidden; margin-bottom:16px;">
-        <span style="padding:10px 14px; background:#f4f7fc; font-weight:700; color:var(--ink); border-right:1px solid var(--border); font-size:1rem;">🇮🇳 +91</span>
-        <input id="smart-mob" type="tel" maxlength="10" placeholder="e.g. 7218550652" style="border:none; outline:none; padding:12px 14px; width:100%; font-size:1.1rem; font-weight:600; margin:0; letter-spacing:1px;">
-      </div>
+        <label style="font-weight:700; color:var(--navy); margin-bottom:6px; display:block;">Password *</label>
+        <input id="login-password" type="password" placeholder="Enter your account password" style="margin-bottom:14px;">
 
-      <!-- Password Login Toggle (Collapsible) -->
-      <div id="password-login-box" hidden style="margin-bottom:16px; padding:14px; background:#f4f7fc; border-radius:10px; border:1px solid var(--border);">
-        <label style="font-weight:700; font-size:0.9rem; margin-bottom:6px; display:block;">Enter Your Password</label>
-        <input id="smart-pass" type="password" placeholder="Enter password" style="margin-bottom:10px;">
-        <button class="btn blue" id="smart-btn-pass-login" style="width:100%; padding:12px; font-weight:700;">Sign In With Password →</button>
-      </div>
+        <button class="btn blue" onclick="emailPasswordLogin()" style="width:100%; padding:13px; font-weight:700; border-radius:10px; font-size:1.02rem;">
+          Sign In to Dashboard →
+        </button>
 
-      <button class="btn blue" id="smart-btn-send-otp" style="width:100%; font-size:1.05rem; padding:13px; font-weight:700; border-radius:10px;">
-        📲 Get OTP On Mobile →
-      </button>
-
-      <div style="margin-top:14px; display:flex; justify-content:space-between; align-items:center;">
-        <a href="javascript:void(0)" id="smart-toggle-pass-link" style="font-size:0.85rem; font-weight:600; color:var(--blue);">🔑 Or sign in with password</a>
-        <small style="color:var(--mut);">Secure Google Cloud Auth</small>
-      </div>
-    </div>
-
-    <!-- Step 2: OTP Entry Box (Revealed after OTP is sent) -->
-    <div id="auth-step-otp" hidden style="margin-top:10px;">
-      <div style="background:#eef7f2; border:1.5px solid var(--green); border-radius:10px; padding:14px; margin-bottom:16px;">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-          <b style="color:var(--green); font-size:0.95rem;">✓ OTP Dispatched!</b>
-          <a href="javascript:void(0)" id="smart-change-number" style="font-size:0.8rem; color:var(--blue); font-weight:600;">Change Number</a>
+        <div style="margin-top:14px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+          <a href="javascript:void(0)" onclick="toggleLoginMethod('otp')" style="font-size:0.85rem; font-weight:700; color:var(--blue);">✉️ Login with instant Email OTP</a>
+          <a href="javascript:void(0)" onclick="switchEmailMode('forgot')" style="font-size:0.85rem; color:var(--mut);">Forgot password?</a>
         </div>
-        <p style="margin:4px 0 0; font-size:0.85rem; color:var(--ink);" id="smart-otp-target-text">6-digit OTP has been sent via SMS to your mobile.</p>
       </div>
 
-      <label style="font-weight:700; color:var(--navy); margin-bottom:6px; display:block;">Enter 6-Digit Verification Code</label>
-      <input id="smart-otp-code" type="tel" maxlength="6" placeholder="• • • • • •" style="text-align:center; font-size:1.5rem; letter-spacing:8px; font-weight:800; padding:12px; margin-bottom:14px; border:2px solid var(--border); border-radius:10px;">
-
-      <button class="btn green" id="smart-btn-verify-otp" style="width:100%; font-size:1.05rem; padding:13px; font-weight:700; border-radius:10px;">
-        ✓ Verify OTP &amp; Enter Dashboard →
-      </button>
-
-      <div style="margin-top:12px; text-align:center;">
-        <span id="smart-resend-timer" style="font-size:0.85rem; color:var(--mut);">Resend code in <b id="timer-sec">30</b>s</span>
-        <a href="javascript:void(0)" id="smart-btn-resend" hidden style="font-size:0.85rem; font-weight:700; color:var(--blue);">Resend OTP via SMS</a>
-      </div>
-    </div>
-
-    <!-- Step 3: New User Name & Role Selection (Only shown if first time user) -->
-    <div id="auth-step-new-user" hidden style="margin-top:10px;">
-      <div style="background:#f0f7ff; border:1.5px solid var(--blue); border-radius:10px; padding:14px; margin-bottom:16px;">
-        <b style="color:var(--navy); font-size:0.95rem;">🎉 Welcome to YKR World!</b>
-        <p style="margin:4px 0 0; font-size:0.85rem; color:var(--ink);">Aapka number verify ho gaya hai. Bas apna naam aur category select karein:</p>
-      </div>
-
-      <label style="font-weight:700; color:var(--navy); margin-bottom:6px; display:block;">Your Full Name *</label>
-      <input id="new-user-name" placeholder="e.g. Rahul Sharma" style="margin-bottom:14px;">
-
-      <label style="font-weight:700; color:var(--navy); margin-bottom:6px; display:block;">I am a: *</label>
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:16px;" id="new-user-role-select">
-        <button type="button" class="btn sm on" data-role="Student">🎓 Student / Learner</button>
-        <button type="button" class="btn sm ghost" data-role="Job seeker">💼 Job Seeker</button>
-        <button type="button" class="btn sm ghost" data-role="Business client">🏢 Business Client</button>
-        <button type="button" class="btn sm ghost" data-role="Employer / recruiter">🤝 Recruiter</button>
-      </div>
-
-      <button class="btn blue" id="new-user-submit" style="width:100%; font-size:1.05rem; padding:13px; font-weight:700; border-radius:10px;">
-        Complete &amp; Enter Dashboard →
-      </button>
-    </div>
-    </div><!-- /auth-tab-mobile -->
-
-    <!-- ══════════ EMAIL OTP TAB ══════════ -->
-    <div id="auth-tab-email" style="display:none;">
-      <!-- Email Sub-mode tabs -->
-      <div style="display:flex; gap:6px; margin-bottom:20px; flex-wrap:wrap;">
-        <button class="btn sm blue" id="etab-login-btn" onclick="switchEmailMode('login')" style="flex:1; padding:9px 6px; font-size:0.82rem;">🔓 Login</button>
-        <button class="btn sm ghost" id="etab-reg-btn" onclick="switchEmailMode('register')" style="flex:1; padding:9px 6px; font-size:0.82rem;">🆕 Register</button>
-        <button class="btn sm ghost" id="etab-forgot-btn" onclick="switchEmailMode('forgot')" style="flex:1; padding:9px 6px; font-size:0.82rem;">🔑 Forgot</button>
-      </div>
-
-      <!-- EMAIL LOGIN -->
-      <div id="email-mode-login">
+      <!-- Instant Email OTP sub-mode -->
+      <div id="login-form-otp" hidden>
         <div id="email-login-step1">
-          <label style="font-weight:700; color:var(--navy); margin-bottom:6px; display:block;">Your Email Address</label>
+          <label style="font-weight:700; color:var(--navy); margin-bottom:6px; display:block;">Your Registered Email Address *</label>
           <input id="el-email" type="email" placeholder="yourname@email.com" style="margin-bottom:14px;">
           <button class="btn blue" id="el-send-btn" onclick="emailLoginSendOtp()" style="width:100%; padding:13px; font-weight:700; border-radius:10px;">
-            ✉️ Send OTP to Email →
+            ✉️ Send Verification Code to Email →
           </button>
-          <div style="margin-top:12px; text-align:center;"><small style="color:var(--mut);">OTP will be sent to your registered email</small></div>
+          <div style="margin-top:12px; text-align:center;">
+            <a href="javascript:void(0)" onclick="toggleLoginMethod('password')" style="font-size:0.85rem; font-weight:600; color:var(--blue);">🔑 Back to Password Login</a>
+          </div>
         </div>
+
         <div id="email-login-step2" hidden>
-          <div style="background:#eef7f2; border:1.5px solid var(--green); border-radius:10px; padding:12px 14px; margin-bottom:16px;">
-            <b style="color:var(--green); font-size:0.9rem;">✉️ Check Your Inbox!</b>
-            <p style="margin:4px 0 0; font-size:0.83rem; color:var(--ink);" id="el-sent-text">OTP sent to your email. Valid for 10 minutes.</p>
+          <div class="spam-notice-box">
+            <span style="font-size:1.6rem; line-height:1;">⚠️</span>
+            <div>
+              <b style="color:#92400e; font-size:0.92rem; display:block; margin-bottom:2px;">Check Spam / Updates Folder!</b>
+              <p style="margin:0; font-size:0.83rem; color:#78350f; line-height:1.45;" id="el-sent-text">
+                6-Digit OTP code aapke Gmail par bhej diya gaya hai. <b>Agar Inbox me na mile, toh kripya Spam (Junk) folder ya Promotions / Updates tab zaroor check karein!</b>
+              </p>
+            </div>
           </div>
           <label style="font-weight:700; color:var(--navy); margin-bottom:6px; display:block;">Enter 6-Digit OTP Code</label>
           <input id="el-otp" type="tel" maxlength="6" placeholder="• • • • • •" style="text-align:center; font-size:1.5rem; letter-spacing:8px; font-weight:800; padding:12px; margin-bottom:14px; border:2px solid var(--border); border-radius:10px;">
           <button class="btn green" id="el-verify-btn" onclick="emailLoginVerify()" style="width:100%; padding:13px; font-weight:700; border-radius:10px;">
-            ✓ Verify &amp; Login →
+            ✓ Verify OTP &amp; Login →
           </button>
           <div style="margin-top:10px; text-align:center;">
             <a href="javascript:void(0)" onclick="resetEmailLogin()" style="font-size:0.82rem; color:var(--blue);">← Different email</a>
@@ -857,70 +1363,105 @@
           </div>
         </div>
       </div>
+    </div>
 
-      <!-- EMAIL REGISTER -->
-      <div id="email-mode-register" style="display:none;">
-        <div id="email-reg-step1">
-          <label style="font-weight:700; color:var(--navy); margin-bottom:6px; display:block;">Full Name *</label>
-          <input id="er-name" type="text" placeholder="e.g. Rahul Sharma" style="margin-bottom:12px;">
-          <label style="font-weight:700; color:var(--navy); margin-bottom:6px; display:block;">Email Address *</label>
-          <input id="er-email" type="email" placeholder="yourname@email.com" style="margin-bottom:12px;">
-          <label style="font-weight:700; color:var(--navy); margin-bottom:6px; display:block;">Set Password *</label>
-          <input id="er-pass" type="password" placeholder="Create a password (min 4 chars)" style="margin-bottom:12px;">
-          <label style="font-weight:700; color:var(--navy); margin-bottom:6px; display:block;">I am a: *</label>
-          <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:14px;" id="er-role-select">
-            <button type="button" class="btn sm on" data-role="Student">🎓 Student</button>
-            <button type="button" class="btn sm ghost" data-role="Job seeker">💼 Job Seeker</button>
-            <button type="button" class="btn sm ghost" data-role="Business client">🏢 Business</button>
-            <button type="button" class="btn sm ghost" data-role="Employer / recruiter">🤝 Recruiter</button>
-          </div>
-          <button class="btn blue" id="er-send-btn" onclick="emailRegSendOtp()" style="width:100%; padding:13px; font-weight:700; border-radius:10px;">
-            ✉️ Send Verification OTP →
-          </button>
+    <!-- 2. CREATE ACCOUNT (REGISTER) -->
+    <div id="email-mode-register" style="display:none;">
+      <div id="email-reg-step1">
+        <label style="font-weight:700; color:var(--navy); margin-bottom:6px; display:block;">Full Name *</label>
+        <input id="er-name" type="text" placeholder="e.g. Rahul Sharma" style="margin-bottom:12px;">
+
+        <label style="font-weight:700; color:var(--navy); margin-bottom:6px; display:block;">Email Address * <small style="color:var(--blue); font-weight:600;">(Real OTP will be sent here)</small></label>
+        <input id="er-email" type="email" placeholder="yourname@gmail.com" style="margin-bottom:12px;">
+
+        <label style="font-weight:700; color:var(--navy); margin-bottom:6px; display:block;">Mobile / WhatsApp Number (10 Digits) * <small style="color:var(--green); font-weight:600;">(Admin record ke liye zaroori)</small></label>
+        <div style="display:flex; align-items:center; border:1.5px solid var(--border); border-radius:10px; background:#fff; overflow:hidden; margin-bottom:12px;">
+          <span style="padding:10px 12px; background:#f4f7fc; font-weight:700; color:var(--ink); border-right:1px solid var(--border); font-size:0.92rem;">🇮🇳 +91</span>
+          <input id="er-mobile" type="tel" maxlength="10" placeholder="e.g. 9876543210" style="border:none; outline:none; padding:10px 12px; width:100%; font-size:1rem; font-weight:600; margin:0;">
         </div>
-        <div id="email-reg-step2" hidden>
-          <div style="background:#eef7f2; border:1.5px solid var(--green); border-radius:10px; padding:12px 14px; margin-bottom:16px;">
-            <b style="color:var(--green); font-size:0.9rem;">✉️ Verification Email Sent!</b>
-            <p style="margin:4px 0 0; font-size:0.83rem; color:var(--ink);" id="er-sent-text">Check your inbox and enter the OTP to complete registration.</p>
+
+        <label style="font-weight:700; color:var(--navy); margin-bottom:6px; display:block;">Create Password *</label>
+        <input id="er-pass" type="password" placeholder="Create a secure password (min 4 chars)" style="margin-bottom:12px;">
+
+        <label style="font-weight:700; color:var(--navy); margin-bottom:6px; display:block;">I am joining as a: *</label>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:16px;" id="er-role-select">
+          <button type="button" class="btn sm on" data-role="Student">🎓 Student / Learner</button>
+          <button type="button" class="btn sm ghost" data-role="Job seeker">💼 Job Seeker</button>
+          <button type="button" class="btn sm ghost" data-role="Business client">🏢 Business Client</button>
+          <button type="button" class="btn sm ghost" data-role="Employer / recruiter">🤝 Recruiter</button>
+        </div>
+
+        <button class="btn blue" id="er-send-btn" onclick="emailRegSendOtp()" style="width:100%; padding:13px; font-weight:700; border-radius:10px; font-size:1.02rem;">
+          ✉️ Send Verification OTP to Email →
+        </button>
+        <p style="margin:10px 0 0; font-size:0.8rem; color:var(--mut); text-align:center;">
+          🔒 OTP aapke Gmail par dispatch kiya jayega. Koi number SMS verify karne ki zaroorat nahi hai.
+        </p>
+      </div>
+
+      <!-- Step 2: OTP Entry with Bold Spam Notice -->
+      <div id="email-reg-step2" hidden>
+        <!-- EYE-CATCHING PROMINENT NOTICE BANNER -->
+        <div class="spam-notice-box">
+          <span style="font-size:1.8rem; line-height:1;">⚠️</span>
+          <div>
+            <b style="color:#92400e; font-size:0.98rem; display:block; margin-bottom:3px;">Zaroori Suchna: OTP Gmail ke Spam Folder me Check Karein!</b>
+            <p style="margin:0; font-size:0.86rem; color:#78350f; line-height:1.5;" id="er-sent-text">
+              6-Digit OTP code aapke Gmail par bhej diya gaya hai. <b>Agar Inbox me na mile, toh kripya Spam (Junk) folder ya Promotions / Updates tab zaroor check karein!</b>
+            </p>
           </div>
-          <label style="font-weight:700; color:var(--navy); margin-bottom:6px; display:block;">Enter 6-Digit OTP Code</label>
-          <input id="er-otp" type="tel" maxlength="6" placeholder="• • • • • •" style="text-align:center; font-size:1.5rem; letter-spacing:8px; font-weight:800; padding:12px; margin-bottom:14px; border:2px solid var(--border); border-radius:10px;">
-          <button class="btn green" id="er-verify-btn" onclick="emailRegVerify()" style="width:100%; padding:13px; font-weight:700; border-radius:10px;">
-            ✓ Verify OTP &amp; Create Account →
-          </button>
-          <div style="margin-top:10px; text-align:center;">
-            <a href="javascript:void(0)" onclick="resetEmailReg()" style="font-size:0.82rem; color:var(--blue);">← Back</a>
-          </div>
+        </div>
+
+        <label style="font-weight:700; color:var(--navy); margin-bottom:6px; display:block;">Enter Sahi 6-Digit Verification Code *</label>
+        <input id="er-otp" type="tel" maxlength="6" placeholder="• • • • • •" style="text-align:center; font-size:1.6rem; letter-spacing:8px; font-weight:800; padding:12px; margin-bottom:14px; border:2px solid var(--border); border-radius:10px;">
+        
+        <button class="btn green" id="er-verify-btn" onclick="emailRegVerify()" style="width:100%; padding:13px; font-weight:700; border-radius:10px; font-size:1.02rem;">
+          ✓ Verify Real OTP &amp; Complete Registration →
+        </button>
+
+        <div style="margin-top:12px; text-align:center;">
+          <a href="javascript:void(0)" onclick="resetEmailReg()" style="font-size:0.85rem; color:var(--blue); font-weight:600;">← Change Details / Re-enter</a>
+          &nbsp;·&nbsp;
+          <a href="javascript:void(0)" onclick="emailRegSendOtp()" style="font-size:0.85rem; color:var(--blue); font-weight:600;">↻ Resend OTP</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. FORGOT PASSWORD -->
+    <div id="email-mode-forgot" style="display:none;">
+      <div id="email-forgot-step1">
+        <label style="font-weight:700; color:var(--navy); margin-bottom:6px; display:block;">Registered Email Address *</label>
+        <input id="ef-email" type="email" placeholder="yourname@gmail.com" style="margin-bottom:14px;">
+        <button class="btn blue" id="ef-send-btn" onclick="emailForgotSendOtp()" style="width:100%; padding:13px; font-weight:700; border-radius:10px;">
+          ✉️ Send Password Reset OTP →
+        </button>
+        <div style="margin-top:12px; text-align:center;">
+          <a href="javascript:void(0)" onclick="switchEmailMode('login')" style="font-size:0.85rem; color:var(--blue);">← Back to Sign In</a>
         </div>
       </div>
 
-      <!-- EMAIL FORGOT PASSWORD -->
-      <div id="email-mode-forgot" style="display:none;">
-        <div id="email-forgot-step1">
-          <label style="font-weight:700; color:var(--navy); margin-bottom:6px; display:block;">Registered Email Address</label>
-          <input id="ef-email" type="email" placeholder="yourname@email.com" style="margin-bottom:14px;">
-          <button class="btn blue" id="ef-send-btn" onclick="emailForgotSendOtp()" style="width:100%; padding:13px; font-weight:700; border-radius:10px;">
-            ✉️ Send Password Reset OTP →
-          </button>
+      <div id="email-forgot-step2" hidden>
+        <div class="spam-notice-box">
+          <span style="font-size:1.6rem; line-height:1;">⚠️</span>
+          <div>
+            <b style="color:#92400e; font-size:0.92rem; display:block; margin-bottom:2px;">Check Spam / Updates Folder!</b>
+            <p style="margin:0; font-size:0.83rem; color:#78350f; line-height:1.45;" id="ef-sent-text">
+              Password reset OTP sent to your email. Agar Inbox me na mile toh kripya Spam folder check karein!
+            </p>
+          </div>
         </div>
-        <div id="email-forgot-step2" hidden>
-          <div style="background:#eef7f2; border:1.5px solid var(--green); border-radius:10px; padding:12px 14px; margin-bottom:16px;">
-            <b style="color:var(--green); font-size:0.9rem;">✉️ Reset Code Sent!</b>
-            <p style="margin:4px 0 0; font-size:0.83rem; color:var(--ink);" id="ef-sent-text">Check your inbox for the password reset OTP.</p>
-          </div>
-          <label style="font-weight:700; color:var(--navy); margin-bottom:6px; display:block;">OTP Code</label>
-          <input id="ef-otp" type="tel" maxlength="6" placeholder="• • • • • •" style="text-align:center; font-size:1.5rem; letter-spacing:8px; font-weight:800; padding:12px; margin-bottom:14px; border:2px solid var(--border); border-radius:10px;">
-          <label style="font-weight:700; color:var(--navy); margin-bottom:6px; display:block;">New Password (min 4 chars)</label>
-          <input id="ef-newpass" type="password" placeholder="Enter new password" style="margin-bottom:14px;">
-          <button class="btn green" id="ef-verify-btn" onclick="emailForgotVerify()" style="width:100%; padding:13px; font-weight:700; border-radius:10px;">
-            ✓ Reset Password →
-          </button>
-          <div style="margin-top:10px; text-align:center;">
-            <a href="javascript:void(0)" onclick="resetEmailForgot()" style="font-size:0.82rem; color:var(--blue);">← Use different email</a>
-          </div>
+        <label style="font-weight:700; color:var(--navy); margin-bottom:6px; display:block;">6-Digit OTP Code *</label>
+        <input id="ef-otp" type="tel" maxlength="6" placeholder="• • • • • •" style="text-align:center; font-size:1.5rem; letter-spacing:8px; font-weight:800; padding:12px; margin-bottom:14px; border:2px solid var(--border); border-radius:10px;">
+        <label style="font-weight:700; color:var(--navy); margin-bottom:6px; display:block;">New Password (min 4 chars) *</label>
+        <input id="ef-newpass" type="password" placeholder="Enter new password" style="margin-bottom:14px;">
+        <button class="btn green" id="ef-verify-btn" onclick="emailForgotVerify()" style="width:100%; padding:13px; font-weight:700; border-radius:10px;">
+          ✓ Reset Password →
+        </button>
+        <div style="margin-top:10px; text-align:center;">
+          <a href="javascript:void(0)" onclick="resetEmailForgot()" style="font-size:0.82rem; color:var(--blue);">← Back</a>
         </div>
       </div>
-    </div><!-- /auth-tab-email -->
+    </div>
 
     <p class="err" id="aerr" style="margin-top:14px; margin-bottom:0;"></p>
     <p class="succ" id="asucc" style="margin-top:14px; margin-bottom:0;"></p>
@@ -952,6 +1493,61 @@
         <button class="btn blue sm" id="cp-save-btn">Update Password</button>
         <button class="btn ghost sm" style="color:var(--ink);" id="cp-cancel-btn">Cancel</button>
         <span id="cp-msg" style="margin-left:10px; font-weight:600; font-size:0.9rem;"></span>
+      </div>
+    </div>
+
+    <!-- Dedicated Admin Portal Launch Banner -->
+    <div id="admin-direct-link-banner" hidden style="background:linear-gradient(135deg, #0f172a, #1e293b); border:1px solid #334155; border-radius:14px; padding:16px 20px; margin-bottom:18px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+      <div style="display:flex; align-items:center; gap:12px;">
+        <span style="font-size:1.8rem;">🛡️</span>
+        <div>
+          <b style="color:#fff; font-size:1.05rem; display:block;">Executive Admin Access Granted</b>
+          <span style="color:#94a3b8; font-size:0.85rem;">Manage leads, candidates approval, user directory &amp; system settings in dedicated standalone panel.</span>
+        </div>
+      </div>
+      <a class="btn" href="/admin/" target="_blank" style="font-weight:800; background:var(--gold); color:#0b2447; padding:10px 18px; box-shadow:0 4px 14px rgba(245,158,11,0.3);">
+        Launch Dedicated Admin Panel ↗
+      </a>
+    </div>
+
+    <!-- Student / Learner Interactive Dashboard Grid -->
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:16px; margin-bottom:20px;">
+      <!-- Active Batch & Live Class -->
+      <div class="card" style="margin:0; border-top-color:var(--blue);">
+        <span class="pill blue">LIVE BATCH</span>
+        <h3 style="margin-top:6px;">Current Enrolled Batch</h3>
+        <p style="font-size:0.88rem; color:var(--ink); margin-bottom:10px;">
+          <b>Batch:</b> Spoken English &amp; Corporate Communication (Talwade Center)<br>
+          <b>Timing:</b> Mon–Fri, 8:00 AM – 9:30 AM<br>
+          <b>Mentor:</b> Senior Corporate Master Trainer
+        </p>
+        <a class="btn green sm" href="https://meet.google.com/new" target="_blank" style="width:100%; text-decoration:none;">🎥 Join Live Virtual Classroom</a>
+      </div>
+
+      <!-- Attendance & Progress Gauge -->
+      <div class="card" style="margin:0; border-top-color:var(--green);">
+        <span class="pill green">ATTENDANCE &amp; PROGRESS</span>
+        <h3 style="margin-top:6px;">Classroom Attendance</h3>
+        <div style="display:flex; align-items:baseline; gap:8px; margin:8px 0;">
+          <b style="font-size:2rem; color:var(--green);">90%</b>
+          <span style="font-size:0.88rem; color:var(--mut); font-weight:600;">(18 / 20 Sessions Attended)</span>
+        </div>
+        <div style="background:#e2e8f0; border-radius:99px; height:10px; width:100%; overflow:hidden; margin-bottom:12px;">
+          <div style="background:var(--green); width:90%; height:100%; border-radius:99px;"></div>
+        </div>
+        <small style="color:var(--mut);">Eligible for YKR Completion Certificate on 80%+ attendance.</small>
+      </div>
+
+      <!-- Digital Certificate Card -->
+      <div class="card" style="margin:0; border-top-color:var(--gold);">
+        <span class="pill gold">VERIFIED CREDENTIAL</span>
+        <h3 style="margin-top:6px;">Course Certificate</h3>
+        <p style="font-size:0.88rem; color:var(--mut); margin-bottom:12px;">
+          Digital certificate with unique QR code verification issued upon course graduation.
+        </p>
+        <button class="btn sm" onclick="alert('Digital Certificate preview generated! Official physical and verified PDF certificate will be unlocked upon final assessment.')" style="width:100%;">
+          🎓 Preview Digital Certificate
+        </button>
       </div>
     </div>
 
@@ -1403,12 +1999,26 @@
       const btn = $('etab-' + m + '-btn');
       if (el) el.style.display = (m === mode) ? 'block' : 'none';
       if (btn) {
-        btn.className = (m === mode) ? 'btn sm blue' : 'btn sm ghost';
+        btn.style.background = (m === mode) ? 'var(--blue)' : 'transparent';
+        btn.style.color = (m === mode) ? '#fff' : 'var(--mut)';
+        btn.style.boxShadow = (m === mode) ? '0 4px 12px rgba(29,95,196,0.25)' : 'none';
       }
     });
   };
 
-  // Role selector for Email Register
+  window.toggleLoginMethod = function(mode) {
+    $('aerr').textContent = '';
+    $('asucc').textContent = '';
+    if (mode === 'otp') {
+      $('login-form-password').hidden = true;
+      $('login-form-otp').hidden = false;
+    } else {
+      $('login-form-password').hidden = false;
+      $('login-form-otp').hidden = true;
+    }
+  };
+
+  // Role selector for Register
   if ($('er-role-select')) {
     $('er-role-select').querySelectorAll('button').forEach(btn => {
       btn.onclick = () => {
@@ -1423,7 +2033,38 @@
     });
   }
 
-  // 1. EMAIL LOGIN: SEND OTP & VERIFY
+  // 1. PASSWORD SIGN IN (FASTEST FOR REGISTERED USERS)
+  window.emailPasswordLogin = async function() {
+    $('aerr').textContent = '';
+    $('asucc').textContent = '';
+    const id = $('login-identifier').value.trim();
+    const password = $('login-password').value;
+
+    if (!id) {
+      $('aerr').textContent = 'Please enter your email address or mobile number.';
+      return;
+    }
+    if (!password) {
+      $('aerr').textContent = 'Please enter your account password.';
+      return;
+    }
+
+    const res = await api('/api/auth/login', 'POST', {
+      email: id.includes('@') ? id : undefined,
+      mobile: !id.includes('@') ? id : undefined,
+      password
+    });
+
+    if (res.ok && res.data.token) {
+      authToken = res.data.token;
+      localStorage.setItem('ykr_token', authToken);
+      initSession();
+    } else {
+      $('aerr').textContent = res.data?.error || 'Login failed. Please check credentials or login with OTP.';
+    }
+  };
+
+  // 2. EMAIL OTP LOGIN (INSTANT 6-DIGIT CODE)
   let pendingEmailLogin = '';
   window.emailLoginSendOtp = async function(isResend = false) {
     $('aerr').textContent = '';
@@ -1440,13 +2081,13 @@
 
     const res = await api('/api/auth/email/send-otp', 'POST', { email, purpose: 'login' });
     btn.disabled = false;
-    btn.textContent = '✉️ Send OTP to Email →';
+    btn.textContent = '✉️ Send Verification Code to Email →';
 
     if (res.ok) {
       $('email-login-step1').hidden = true;
       $('email-login-step2').hidden = false;
-      $('el-sent-text').textContent = `OTP code sent to ${email}. Valid for 10 minutes.`;
-      $('asucc').textContent = res.data.message || 'OTP dispatched to your email!';
+      $('el-sent-text').textContent = `6-Digit OTP code aapke Gmail (${email}) par bhej diya gaya hai. Agar Inbox me na mile, toh kripya Spam (Junk) folder ya Promotions / Updates tab zaroor check karein!`;
+      $('asucc').textContent = res.data.message || '✓ OTP code dispatched to your Gmail!';
       $('el-otp').focus();
     } else {
       $('aerr').textContent = res.data?.error || 'Could not send OTP to this email.';
@@ -1458,7 +2099,7 @@
     $('asucc').textContent = '';
     const code = $('el-otp').value.trim();
     if (code.length !== 6) {
-      $('aerr').textContent = 'Please enter the 6-digit OTP sent to your email.';
+      $('aerr').textContent = '❌ Kripya 6-digit OTP code enter karein (Gmail Inbox ya Spam folder me check karein).';
       return;
     }
 
@@ -1472,14 +2113,14 @@
     });
 
     btn.disabled = false;
-    btn.textContent = '✓ Verify & Login →';
+    btn.textContent = '✓ Verify OTP & Login →';
 
     if (res.ok && res.data.token) {
       authToken = res.data.token;
       localStorage.setItem('ykr_token', authToken);
       initSession();
     } else {
-      $('aerr').textContent = res.data?.error || 'Invalid or expired OTP code.';
+      $('aerr').textContent = res.data?.error || '❌ Galat OTP code! Kripya sahi 6-digit code enter karein.';
     }
   };
 
@@ -1491,13 +2132,14 @@
     $('asucc').textContent = '';
   };
 
-  // 2. EMAIL REGISTER: SEND OTP & VERIFY
+  // 3. EMAIL REGISTER: SEND OTP & VERIFY STRICTLY (Captures mobile for admin)
   let pendingEmailReg = {};
   window.emailRegSendOtp = async function() {
     $('aerr').textContent = '';
     $('asucc').textContent = '';
     const name = $('er-name').value.trim();
     const email = $('er-email').value.trim();
+    const mobile = $('er-mobile').value.replace(/\D/g, '').slice(-10);
     const password = $('er-pass').value;
     const role = selectedEmailRegRole || 'Student';
 
@@ -1509,25 +2151,29 @@
       $('aerr').textContent = 'Please enter a valid email address.';
       return;
     }
+    if (mobile.length !== 10) {
+      $('aerr').textContent = 'Please enter a valid 10-digit mobile number (required for admin records).';
+      return;
+    }
     if (!password || password.length < 4) {
       $('aerr').textContent = 'Password must be at least 4 characters long.';
       return;
     }
 
-    pendingEmailReg = { name, email, password, role };
+    pendingEmailReg = { name, email, mobile, password, role };
     const btn = $('er-send-btn');
     btn.disabled = true;
     btn.textContent = 'Sending Verification OTP...';
 
     const res = await api('/api/auth/email/send-otp', 'POST', { email, purpose: 'register' });
     btn.disabled = false;
-    btn.textContent = '✉️ Send Verification OTP →';
+    btn.textContent = '✉️ Send Verification OTP to Email →';
 
     if (res.ok) {
       $('email-reg-step1').hidden = true;
       $('email-reg-step2').hidden = false;
-      $('er-sent-text').textContent = `Verification OTP sent to ${email}. Check your inbox!`;
-      $('asucc').textContent = 'Verification code sent to your email!';
+      $('er-sent-text').textContent = `6-Digit OTP code aapke Gmail (${email}) par bhej diya gaya hai. Agar Inbox me na mile, toh kripya Spam (Junk) folder ya Promotions / Updates tab zaroor check karein!`;
+      $('asucc').textContent = '✓ 6-Digit OTP aapke Gmail par bhej diya gaya hai! Spam folder zaroor check karein.';
       $('er-otp').focus();
     } else {
       $('aerr').textContent = res.data?.error || 'Could not send verification OTP.';
@@ -1539,13 +2185,13 @@
     $('asucc').textContent = '';
     const code = $('er-otp').value.trim();
     if (code.length !== 6) {
-      $('aerr').textContent = 'Please enter the 6-digit OTP code.';
+      $('aerr').textContent = '❌ Kripya 6-digit OTP code enter karein (Gmail Inbox ya Spam folder me check karein).';
       return;
     }
 
     const btn = $('er-verify-btn');
     btn.disabled = true;
-    btn.textContent = 'Creating Account...';
+    btn.textContent = 'Verifying OTP & Creating Account...';
 
     const res = await api('/api/auth/email/register', 'POST', {
       ...pendingEmailReg,
@@ -1553,15 +2199,16 @@
     });
 
     btn.disabled = false;
-    btn.textContent = '✓ Verify OTP & Create Account →';
+    btn.textContent = '✓ Verify Real OTP & Complete Registration →';
 
     if (res.ok && res.data.token) {
       authToken = res.data.token;
       localStorage.setItem('ykr_token', authToken);
-      alert(`Welcome, ${pendingEmailReg.name}! Your account has been registered.`);
+      alert(`🎉 Welcome, ${pendingEmailReg.name}! Your account has been created and verified.`);
       initSession();
     } else {
-      $('aerr').textContent = res.data?.error || 'Registration failed. Check OTP code.';
+      // STRICT OTP ERROR MESSAGE:
+      $('aerr').textContent = res.data?.error || '❌ Galat OTP code! Kripya sahi 6-digit OTP code enter karein jo aapke Gmail par bheja gaya hai (Spam folder check karein).';
     }
   };
 
@@ -1573,7 +2220,7 @@
     $('asucc').textContent = '';
   };
 
-  // 3. EMAIL FORGOT PASSWORD: SEND OTP & RESET
+  // 4. EMAIL FORGOT PASSWORD: SEND OTP & RESET
   let pendingEmailForgot = '';
   window.emailForgotSendOtp = async function() {
     $('aerr').textContent = '';
@@ -1596,7 +2243,7 @@
     if (res.ok) {
       $('email-forgot-step1').hidden = true;
       $('email-forgot-step2').hidden = false;
-      $('ef-sent-text').textContent = `Password reset code sent to ${email}.`;
+      $('ef-sent-text').textContent = `Password reset code sent to ${email}. Agar Inbox me na mile toh kripya Spam folder check karein!`;
       $('asucc').textContent = 'Password reset code sent to your email!';
       $('ef-otp').focus();
     } else {
@@ -1611,7 +2258,7 @@
     const newPassword = $('ef-newpass').value;
 
     if (code.length !== 6) {
-      $('aerr').textContent = 'Please enter the 6-digit OTP code.';
+      $('aerr').textContent = '❌ Please enter the 6-digit OTP code.';
       return;
     }
     if (!newPassword || newPassword.length < 4) {
@@ -1636,9 +2283,9 @@
       alert('✓ Password reset successfully! You can now log in.');
       resetEmailForgot();
       switchEmailMode('login');
-      $('el-email').value = pendingEmailForgot;
+      $('login-identifier').value = pendingEmailForgot;
     } else {
-      $('aerr').textContent = res.data?.error || 'Password reset failed.';
+      $('aerr').textContent = res.data?.error || '❌ Galat OTP code! Password reset failed.';
     }
   };
 
@@ -1651,246 +2298,53 @@
     $('asucc').textContent = '';
   };
 
-  // ==========================================
-  // SMART MOBILE OTP & LOGIN CONTROLLER
-  // ==========================================
-  let smartConfirmationResult = null;
-  let smartPendingMobile = '';
-  let smartResendInterval = null;
-  let selectedNewUserRole = 'Student';
-
-  // Toggle Password Box
-  if ($('smart-toggle-pass-link')) {
-    $('smart-toggle-pass-link').onclick = () => {
-      const pBox = $('password-login-box');
-      pBox.hidden = !pBox.hidden;
-      if (!pBox.hidden) {
-        $('smart-pass').focus();
-        $('smart-toggle-pass-link').textContent = '📲 Back to OTP Login';
-      } else {
-        $('smart-toggle-pass-link').textContent = '🔑 Or sign in with password';
-      }
-    };
-  }
-
-  // Password Login
-  if ($('smart-btn-pass-login')) {
-    $('smart-btn-pass-login').onclick = async () => {
-      $('aerr').textContent = '';
-      $('asucc').textContent = '';
-      const mobile = $('smart-mob').value.replace(/\D/g, '').slice(-10);
-      const password = $('smart-pass').value;
-
-      if (mobile.length !== 10) {
-        $('aerr').textContent = 'Please enter a valid 10-digit mobile number.';
-        return;
-      }
-      if (!password) {
-        $('aerr').textContent = 'Please enter your password.';
-        return;
-      }
-
-      $('smart-btn-pass-login').textContent = 'Signing in...';
-      $('smart-btn-pass-login').disabled = true;
-
-      const res = await api('/api/auth/login', 'POST', { mobile, password });
-      $('smart-btn-pass-login').textContent = 'Sign In With Password →';
-      $('smart-btn-pass-login').disabled = false;
-
-      if (res.ok && res.data.token) {
-        authToken = res.data.token;
-        localStorage.setItem('ykr_token', authToken);
-        initSession();
-      } else {
-        $('aerr').textContent = res.data?.error || 'Login failed. Please check credentials or login with OTP.';
-      }
-    };
-  }
-
-  // Timer Helper
-  function startResendCountdown() {
-    let timeLeft = 30;
-    $('timer-sec').textContent = timeLeft;
-    $('smart-resend-timer').hidden = false;
-    $('smart-btn-resend').hidden = true;
-    if (smartResendInterval) clearInterval(smartResendInterval);
-    smartResendInterval = setInterval(() => {
-      timeLeft--;
-      if (timeLeft <= 0) {
-        clearInterval(smartResendInterval);
-        $('smart-resend-timer').hidden = true;
-        $('smart-btn-resend').hidden = false;
-      } else {
-        $('timer-sec').textContent = timeLeft;
-      }
-    }, 1000);
-  }
-
-  // Change Number button
-  if ($('smart-change-number')) {
-    $('smart-change-number').onclick = () => {
-      $('auth-step-otp').hidden = true;
-      $('auth-step-mobile').hidden = false;
-      $('auth-step-new-user').hidden = true;
-      $('smart-otp-code').value = '';
-      $('aerr').textContent = '';
-      $('asucc').textContent = '';
-      $('smart-mob').focus();
-    };
-  }
-
-  // Send OTP
-  async function requestSmartOtp() {
-    $('aerr').textContent = '';
-    $('asucc').textContent = '';
-    const mobile = $('smart-mob').value.replace(/\D/g, '').slice(-10);
-
-    if (mobile.length !== 10) {
-      $('aerr').textContent = 'Please enter a valid 10-digit mobile number.';
-      return;
-    }
-
-    smartPendingMobile = mobile;
-    $('smart-btn-send-otp').textContent = 'Sending OTP...';
-    $('smart-btn-send-otp').disabled = true;
-
-    // Trigger Google Firebase Real SMS OTP
-    const fbRes = await triggerGoogleFirebaseSms(mobile);
-    if (fbRes.success) {
-      smartConfirmationResult = fbRes.confirmationResult;
-    }
-
-    // Call server backup OTP
-    const srvRes = await api('/api/otp/send', 'POST', { mobile, role: mobile === '7218550652' ? 'Admin' : 'Student' });
-    $('smart-btn-send-otp').textContent = '📲 Get OTP On Mobile →';
-    $('smart-btn-send-otp').disabled = false;
-
-    if (fbRes.success || srvRes.ok) {
-      $('auth-step-mobile').hidden = true;
-      $('auth-step-otp').hidden = false;
-      $('smart-otp-target-text').textContent = `6-digit OTP has been dispatched to +91 ${mobile} via Google SMS Gateway.`;
-      $('asucc').textContent = fbRes.success
-        ? `🔥 Real SMS OTP sent to +91 ${mobile}. Please check your phone messages.`
-        : (srvRes.data?.message || 'OTP sent successfully.');
-      if (srvRes.data?.demoOtp) $('smart-otp-code').value = srvRes.data.demoOtp;
-      startResendCountdown();
-      $('smart-otp-code').focus();
-    } else {
-      $('aerr').textContent = fbRes.error || srvRes.data?.error || 'Failed to dispatch OTP. Please try again.';
-    }
-  }
-
-  if ($('smart-btn-send-otp')) $('smart-btn-send-otp').onclick = requestSmartOtp;
-  if ($('smart-btn-resend')) $('smart-btn-resend').onclick = requestSmartOtp;
-
-  // Verify OTP
-  if ($('smart-btn-verify-otp')) {
-    $('smart-btn-verify-otp').onclick = async () => {
-      $('aerr').textContent = '';
-      $('asucc').textContent = '';
-      const mobile = smartPendingMobile || $('smart-mob').value.replace(/\D/g, '').slice(-10);
-      const code = $('smart-otp-code').value.trim();
-
-      if (code.length < 4) {
-        $('aerr').textContent = 'Please enter the 6-digit OTP code received on your mobile.';
-        return;
-      }
-
-      $('smart-btn-verify-otp').textContent = 'Verifying...';
-      $('smart-btn-verify-otp').disabled = true;
-
-      let verifiedToken = null;
-      if (smartConfirmationResult) {
-        try {
-          const userCred = await smartConfirmationResult.confirm(code);
-          if (userCred && userCred.user) {
-            verifiedToken = await userCred.user.getIdToken();
-          }
-        } catch (fbErr) {
-          console.warn('Firebase confirmation failed, trying fallback:', fbErr);
-        }
-      }
-
-      const res = await api('/api/auth/smart-login', 'POST', {
-        idToken: verifiedToken,
-        code,
-        mobile
-      });
-
-      $('smart-btn-verify-otp').textContent = '✓ Verify OTP & Enter Dashboard →';
-      $('smart-btn-verify-otp').disabled = false;
-
-      if (!res.ok) {
-        $('aerr').textContent = res.data?.error || 'OTP verification failed. Please check the code.';
-        return;
-      }
-
-      // Check if new user
-      if (res.data.isNew) {
-        $('auth-step-otp').hidden = true;
-        $('auth-step-new-user').hidden = false;
-        $('new-user-name').focus();
-        return;
-      }
-
-      // Existing user / Admin logged in!
-      if (res.data.token) {
-        authToken = res.data.token;
-        localStorage.setItem('ykr_token', authToken);
-        initSession();
-      }
-    };
-  }
-
-  // Setup New User Role Selector
-  if ($('new-user-role-select')) {
-    $('new-user-role-select').querySelectorAll('button').forEach(btn => {
-      btn.onclick = () => {
-        $('new-user-role-select').querySelectorAll('button').forEach(b => {
-          b.classList.remove('on');
-          b.classList.add('ghost');
-        });
-        btn.classList.add('on');
-        btn.classList.remove('ghost');
-        selectedNewUserRole = btn.getAttribute('data-role');
-      };
+  // 5. INTERACTIVE CURRICULUM SWITCHER & ACCORDION
+  window.switchCurriculum = function(type, btn) {
+    document.querySelectorAll('.curriculum-container').forEach(c => c.hidden = true);
+    const el = $('curr-' + type);
+    if (el) el.hidden = false;
+    document.querySelectorAll('#curr-tabs button').forEach(b => {
+      b.className = 'btn sm ghost';
+      b.style.color = 'var(--ink)';
+      b.style.border = '1px solid var(--border)';
     });
-  }
+    btn.className = 'btn sm blue';
+    btn.style.color = '#fff';
+    btn.style.border = 'none';
+  };
 
-  // Submit New User Setup
-  if ($('new-user-submit')) {
-    $('new-user-submit').onclick = async () => {
-      $('aerr').textContent = '';
-      const name = $('new-user-name').value.trim();
-      const mobile = smartPendingMobile || $('smart-mob').value.replace(/\D/g, '').slice(-10);
+  window.toggleCurriculumModule = function(header) {
+    const body = header.nextElementSibling;
+    if (!body) return;
+    body.hidden = !body.hidden;
+    const arrow = header.querySelector('span:last-child');
+    if (arrow) arrow.textContent = body.hidden ? '▼' : '▲';
+  };
 
-      if (!name || name.length < 2) {
-        $('aerr').textContent = 'Please enter your full name.';
-        return;
-      }
+  // 6. INTERACTIVE SPANCO ROI CALCULATOR
+  window.calculateSpancoRoi = function() {
+    const reps = parseInt($('calc-reps')?.value || '8', 10);
+    const deal = parseFloat($('calc-deal')?.value || '75000');
+    const leads = parseInt($('calc-leads')?.value || '30', 10);
 
-      $('new-user-submit').textContent = 'Creating Account...';
-      $('new-user-submit').disabled = true;
+    const totalLeads = reps * leads;
+    const estLoss = Math.round((totalLeads * 0.12 * deal) / 100000 * 10) / 10;
+    const estGain = Math.round((totalLeads * 0.18 * deal) / 100000 * 10) / 10;
 
-      const res = await api('/api/auth/smart-login', 'POST', {
-        mobile,
-        name,
-        role: selectedNewUserRole
-      });
+    if ($('calc-leak')) $('calc-leak').textContent = `₹ ${estLoss.toFixed(2)} Lakhs`;
+    if ($('calc-gain')) $('calc-gain').textContent = `+ ₹ ${estGain.toFixed(2)} Lakhs/mo`;
+  };
 
-      $('new-user-submit').textContent = 'Complete & Enter Dashboard →';
-      $('new-user-submit').disabled = false;
-
-      if (res.ok && res.data.token) {
-        authToken = res.data.token;
-        localStorage.setItem('ykr_token', authToken);
-        alert(`Welcome, ${name}! Your account has been registered.`);
-        initSession();
-      } else {
-        $('aerr').textContent = res.data?.error || 'Account setup failed.';
-      }
-    };
-  }
+  // 7. INTERACTIVE ATS RESUME SCORE CALCULATOR
+  window.calcAtsScore = function() {
+    let checked = 0;
+    for (let i = 1; i <= 4; i++) {
+      if ($('ats-q' + i)?.checked) checked++;
+    }
+    const pct = checked * 25;
+    const label = pct >= 75 ? 'Excellent' : (pct >= 50 ? 'Average' : 'Needs Optimization');
+    if ($('ats-score-display')) $('ats-score-display').textContent = `${pct}% — ${label}`;
+  };
 
   // Change Password Box in Dashboard
   $('change-pass-open-btn').onclick = () => $('change-pass-box').hidden = !$('change-pass-box').hidden;
@@ -1972,6 +2426,7 @@
     const isHrOrMgr = currentAuthUser.role === 'HR' || currentAuthUser.role === 'Manager';
 
     if (isAdmin || isHrOrMgr) {
+      if ($('admin-direct-link-banner')) $('admin-direct-link-banner').hidden = false;
       $('admin-panel').hidden = false;
       setupAdminTabs();
       loadAdminDashboard(res.data.adminStats);
@@ -1979,6 +2434,7 @@
       loadAdminCandidates();
       if (isAdmin) loadAdminUsers();
     } else {
+      if ($('admin-direct-link-banner')) $('admin-direct-link-banner').hidden = true;
       $('admin-panel').hidden = true;
     }
   }
@@ -2134,7 +2590,7 @@
       <tr>
         <td>#${u.id}</td>
         <td><b>${esc(u.name || 'Member')}</b></td>
-        <td>+91 ${esc(u.mobile)}</td>
+        <td>${u.email ? `<span style="font-size:0.82rem; color:var(--blue);">✉️ ${esc(u.email)}</span><br>` : ''}+91 ${esc(u.mobile)}</td>
         <td><span class="pill gold">${esc(u.role)}</span></td>
         <td style="font-size:0.8rem; color:var(--mut);">${esc((u.created || '').slice(0, 16))}</td>
         <td>
@@ -2193,6 +2649,12 @@
   // Check existing session on boot
   initSession();
 </script>
+
+<!-- Floating WhatsApp & Counselor Connect Button -->
+<a class="floating-help-btn" href="https://wa.me/917218550652?text=Hello%20YKR%20World,%20I%20need%20quick%20assistance%20regarding%20courses%20or%20registration" target="_blank" title="Chat with Admissions Counselor on WhatsApp">
+  💬
+</a>
+
 </body>
 </html>
 

@@ -361,7 +361,7 @@ export default {
 
         return json({
           ok: true,
-          message: `Verification OTP dispatched to ${cleanEmail}. Valid for 10 minutes.`,
+          message: `✓ 6-Digit OTP code aapke email (${cleanEmail}) par bhej diya gaya hai! Kripya Gmail ke Inbox ya Spam/Promotions folder me check karein.`,
           emailSent: emailDispatchResult.success
         });
       }
@@ -374,16 +374,14 @@ export default {
           return json({ error: 'Email and 6-digit OTP code are required.' }, 400);
         }
 
-        const isDemo = (env.DEMO_OTP && code === env.DEMO_OTP) || code === '123456';
-        if (!isDemo) {
-          const row = await db.prepare('SELECT * FROM email_otps WHERE email=?').bind(cleanEmail).first();
-          if (!row || row.expires < Date.now() || String(row.code).trim() !== String(code).trim()) {
-            return json({ error: 'Invalid or expired OTP verification code.' }, 401);
-          }
-          await db.prepare('DELETE FROM email_otps WHERE email=?').bind(cleanEmail).run();
+        // Strict OTP verification: rejects any wrong code or expired OTP
+        const row = await db.prepare('SELECT * FROM email_otps WHERE email=?').bind(cleanEmail).first();
+        if (!row || row.expires < Date.now() || String(row.code).trim() !== String(code).trim()) {
+          return json({ error: '❌ Galat OTP code! Kripya sahi 6-digit OTP code enter karein (apne Gmail ke Inbox ya Spam folder me check karein).' }, 401);
         }
+        await db.prepare('DELETE FROM email_otps WHERE email=?').bind(cleanEmail).run();
 
-        let user = await db.prepare('SELECT * FROM users WHERE email=? OR mobile=? ORDER BY CASE WHEN role="Admin" THEN 1 ELSE 2 END LIMIT 1').bind(cleanEmail, cleanEmail).first();
+        let user = await db.prepare("SELECT * FROM users WHERE email=? OR mobile=? ORDER BY CASE WHEN role='Admin' THEN 1 ELSE 2 END LIMIT 1").bind(cleanEmail, cleanEmail).first();
         if (!user) {
           return json({ error: 'User account not found.' }, 404);
         }
@@ -399,38 +397,40 @@ export default {
       }
 
       if (url.pathname === '/api/auth/email/register' && req.method === 'POST') {
-        const { name, email, password, role, code } = await body();
+        const { name, email, mobile, password, role, code } = await body();
         const cleanEmail = String(email || '').trim().toLowerCase();
+        const cleanMobile = String(mobile || '').replace(/\D/g, '').slice(-10);
 
         if (!name || name.trim().length < 2) return json({ error: 'Please enter your full name.' }, 400);
         if (!cleanEmail || !cleanEmail.includes('@')) return json({ error: 'Valid email is required.' }, 400);
+        if (!validMobile(cleanMobile)) return json({ error: 'Please enter a valid 10-digit mobile number (required for admin records).' }, 400);
         if (!password || password.length < 4) return json({ error: 'Password must be at least 4 characters.' }, 400);
 
         const finalRole = ROLES.includes(role) ? role : 'Student';
 
-        const isDemo = (env.DEMO_OTP && code === env.DEMO_OTP) || code === '123456';
-        if (!isDemo) {
-          const row = await db.prepare('SELECT * FROM email_otps WHERE email=?').bind(cleanEmail).first();
-          if (!row || row.expires < Date.now() || String(row.code).trim() !== String(code).trim()) {
-            return json({ error: 'Invalid or expired OTP code.' }, 401);
-          }
-          await db.prepare('DELETE FROM email_otps WHERE email=?').bind(cleanEmail).run();
+        // STRICT OTP CHECK - NO DEMO BYPASS!
+        if (!code || String(code).trim().length !== 6) {
+          return json({ error: 'Kripya 6-digit OTP code enter karein.' }, 400);
         }
+        const row = await db.prepare('SELECT * FROM email_otps WHERE email=?').bind(cleanEmail).first();
+        if (!row || row.expires < Date.now() || String(row.code).trim() !== String(code).trim()) {
+          return json({ error: '❌ Galat OTP code! Kripya sahi 6-digit OTP code enter karein (apne Gmail ke Inbox ya Spam folder me check karein).' }, 401);
+        }
+        await db.prepare('DELETE FROM email_otps WHERE email=?').bind(cleanEmail).run();
 
-        const existing = await db.prepare('SELECT id FROM users WHERE email=?').bind(cleanEmail).first();
+        const existing = await db.prepare('SELECT id FROM users WHERE email=? OR mobile=?').bind(cleanEmail, cleanMobile).first();
         if (existing) {
-          return json({ error: 'An account already exists with this email address.' }, 400);
+          return json({ error: 'An account already exists with this email address or mobile number.' }, 400);
         }
 
         const passHash = await hashPassword(password);
-        const dummyMobile = '9' + String(Math.floor(100000000 + Math.random() * 900000000));
 
         try {
           await db.prepare('ALTER TABLE users ADD COLUMN email TEXT').run();
         } catch (_) {}
 
         await db.prepare('INSERT INTO users(mobile, role, name, email, password_hash) VALUES(?,?,?,?,?)')
-          .bind(dummyMobile, finalRole, name.trim().slice(0, 80), cleanEmail, passHash).run();
+          .bind(cleanMobile, finalRole, name.trim().slice(0, 80), cleanEmail, passHash).run();
 
         const newUser = await db.prepare('SELECT id, mobile, email, role, name FROM users WHERE email=?').bind(cleanEmail).first();
         const token = await signToken(secret, { id: newUser.id, role: newUser.role, exp: Date.now() + 8 * 3600 * 1000 });
@@ -449,19 +449,17 @@ export default {
         const cleanEmail = String(email || '').trim().toLowerCase();
 
         if (!cleanEmail || !cleanEmail.includes('@')) return json({ error: 'Valid email required.' }, 400);
-        if (!code) return json({ error: 'OTP code required.' }, 400);
+        if (!code || String(code).trim().length !== 6) return json({ error: '6-digit OTP code required.' }, 400);
         if (!newPassword || newPassword.length < 4) return json({ error: 'New password must be at least 4 characters.' }, 400);
 
-        const isDemo = (env.DEMO_OTP && code === env.DEMO_OTP) || code === '123456';
-        if (!isDemo) {
-          const row = await db.prepare('SELECT * FROM email_otps WHERE email=?').bind(cleanEmail).first();
-          if (!row || row.expires < Date.now() || String(row.code).trim() !== String(code).trim()) {
-            return json({ error: 'Invalid or expired OTP code.' }, 401);
-          }
-          await db.prepare('DELETE FROM email_otps WHERE email=?').bind(cleanEmail).run();
+        // Strict OTP check
+        const row = await db.prepare('SELECT * FROM email_otps WHERE email=?').bind(cleanEmail).first();
+        if (!row || row.expires < Date.now() || String(row.code).trim() !== String(code).trim()) {
+          return json({ error: '❌ Galat OTP code! Kripya sahi 6-digit OTP code enter karein (apne Gmail ke Inbox ya Spam folder me check karein).' }, 401);
         }
+        await db.prepare('DELETE FROM email_otps WHERE email=?').bind(cleanEmail).run();
 
-        const user = await db.prepare('SELECT id FROM users WHERE email=? OR mobile=?').bind(cleanEmail, cleanEmail).first();
+        const user = await db.prepare("SELECT id FROM users WHERE email=? OR mobile=?").bind(cleanEmail, cleanEmail).first();
         if (!user) {
           return json({ error: 'No account registered with this email address.' }, 404);
         }
@@ -520,7 +518,7 @@ export default {
             await db.prepare('INSERT INTO users(mobile, role, name) VALUES(?,?,?)').bind('7218550652', 'Admin', 'YKR Super Admin').run();
             user = await db.prepare("SELECT * FROM users WHERE mobile='7218550652' AND role='Admin'").first();
           } else if (user.role !== 'Admin') {
-            await db.prepare('UPDATE users SET role="Admin" WHERE id=?').bind(user.id).run();
+            await db.prepare("UPDATE users SET role='Admin' WHERE id=?").bind(user.id).run();
             user.role = 'Admin';
           }
         }
