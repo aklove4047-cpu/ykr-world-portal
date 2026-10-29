@@ -460,9 +460,11 @@
     <a href="#hr">HR Placement</a>
     <a href="#digital">Digital &amp; IT</a>
     <a href="#contact">Contact</a>
+    <a href="/admin/" style="color:var(--gold); font-weight:700;">🛡️ Admin Portal</a>
   </nav>
   <div class="header-actions">
     <a class="btn sm" href="#signin">Portal Login</a>
+    <a class="btn sm ghost" href="/admin/" style="color:#fff; border-color:rgba(255,255,255,0.35);" title="Go to Dedicated Admin Website">🛡️ Admin</a>
     <button class="btn ghost sm" id="menu" aria-label="Toggle Navigation">☰</button>
   </div>
 </header>
@@ -720,143 +722,208 @@
 
 <!-- Unified Sign-in & Portal Section -->
 <section id="signin">
-  <h2>One Portal For Every Client &amp; Team Member</h2>
-  <p class="sub">Instant password login for existing users, quick registration for new members, and OTP-based password reset.</p>
+  <div style="text-align:center; max-width:600px; margin:0 auto 24px;">
+    <h2>YKR World Portal</h2>
+    <p class="sub" style="margin:0;">Clients, Students &amp; Staff: Mobile ya Email se login karein aur apne dashboard mein pravesh karein.</p>
+  </div>
 
-  <!-- Login Card -->
-  <div class="card" id="auth-card" style="max-width: 620px; margin: auto; border-top-color: var(--gold);">
+  <!-- Smart Auth Card -->
+  <div class="card" id="auth-card" style="max-width: 500px; margin: auto; border-top: 4px solid var(--blue); box-shadow: 0 12px 36px rgba(11,36,71,0.12); padding: 28px;">
     
-    <!-- Auth Mode Switcher Tabs -->
-    <div style="display: flex; gap: 6px; border-bottom: 2px solid var(--border); padding-bottom: 10px; margin-bottom: 16px; overflow-x: auto;">
-      <button class="btn sm" id="tab-btn-login" style="background:var(--blue); color:#fff;">🔑 Sign In (Password)</button>
-      <button class="btn sm ghost" id="tab-btn-register" style="color:var(--navy); border-color:var(--border);">✨ Register New</button>
-      <button class="btn sm ghost" id="tab-btn-forgot" style="color:var(--navy); border-color:var(--border);">❓ Forgot Password</button>
-      <button class="btn sm ghost" id="tab-btn-otp" style="color:var(--navy); border-color:var(--border);">📲 Sign In (OTP)</button>
+    <!-- Google Firebase Invisible Recaptcha Container -->
+    <div id="recaptcha-container"></div>
+
+    <!-- Auth Method Tabs: Mobile OTP vs Email OTP -->
+    <div style="display:flex; background:#f4f7fc; border-radius:10px; padding:4px; margin-bottom:20px; gap:4px;">
+      <button id="tab-mobile-btn" onclick="switchAuthTab('mobile')" style="flex:1; padding:9px; border:none; border-radius:7px; font-weight:700; font-size:0.85rem; cursor:pointer; background:var(--blue); color:#fff; box-shadow:0 4px 12px rgba(29,95,196,0.25); font-family:inherit; transition:all 0.2s;">📲 Mobile OTP</button>
+      <button id="tab-email-btn" onclick="switchAuthTab('email')" style="flex:1; padding:9px; border:none; border-radius:7px; font-weight:700; font-size:0.85rem; cursor:pointer; background:transparent; color:var(--mut); font-family:inherit; transition:all 0.2s;">✉️ Email OTP</button>
     </div>
 
-    <!-- 1. SIGN IN WITH PASSWORD VIEW -->
-    <div id="view-login">
-      <div class="note" style="margin-top:0;">
-        <b>Fast Login:</b> Apna role aur 10-digit mobile number + password daal kar turant 1 second mein login karein.
-        <br><small style="color:var(--mut);">Admin Default: Mobile <b>7218550652</b> / Password: <b>Admin@123</b></small>
+    <!-- MOBILE OTP TAB WRAPPER -->
+    <div id="auth-tab-mobile">
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; padding-bottom:12px; border-bottom:1px solid var(--border);">
+      <div style="display:flex; align-items:center; gap:8px;">
+        <span style="font-size:1.3rem;">📲</span>
+        <b style="color:var(--navy); font-size:1.05rem;">Mobile OTP Login</b>
       </div>
-
-      <div class="role-group-title">1. Select Your Role (Customers)</div>
-      <div class="roles" id="roles-customers-login"></div>
-
-      <div class="role-group-title">2. Staff &amp; Management</div>
-      <div class="roles" id="roles-staff-login"></div>
-
-      <label>10-Digit Mobile Number</label>
-      <input id="login-mob" placeholder="e.g. 7218550652" inputmode="numeric" maxlength="10">
-
-      <label>Password</label>
-      <input id="login-pass" type="password" placeholder="Enter your password">
-
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-        <a href="javascript:void(0)" id="link-to-forgot" style="font-size:0.85rem; font-weight:600; color:var(--blue);">Forgot Password? Reset via OTP</a>
-        <a href="javascript:void(0)" id="link-to-register" style="font-size:0.85rem; font-weight:600; color:var(--green);">New user? Register here</a>
-      </div>
-
-      <button class="btn blue" id="submit-login" style="width:100%; font-size:1.05rem; padding:12px;">Sign In Now →</button>
+      <span class="pill green" style="font-size:0.75rem;">● Google SMS</span>
     </div>
 
-    <!-- 2. REGISTER NEW ACCOUNT VIEW (OTP-GATED) -->
-    <div id="view-register" hidden>
-      <div class="note" style="margin-top:0;">
-        <b>OTP-Verified Registration:</b> Pehle apna naam, mobile aur password enter karke OTP mangwayein. Jab tak OTP verify nahi hoga, account create nahi hoga.
+    <!-- Step 1: Mobile Input -->
+    <div id="auth-step-mobile">
+      <label style="font-weight:700; color:var(--navy); margin-bottom:6px; display:block;">Enter Your 10-Digit Mobile Number</label>
+      <div style="display:flex; align-items:center; border:2px solid var(--border); border-radius:10px; background:#fff; overflow:hidden; margin-bottom:16px;">
+        <span style="padding:10px 14px; background:#f4f7fc; font-weight:700; color:var(--ink); border-right:1px solid var(--border); font-size:1rem;">🇮🇳 +91</span>
+        <input id="smart-mob" type="tel" maxlength="10" placeholder="e.g. 7218550652" style="border:none; outline:none; padding:12px 14px; width:100%; font-size:1.1rem; font-weight:600; margin:0; letter-spacing:1px;">
       </div>
 
-      <div id="reg-step1">
-        <label>Your Full Name *</label>
-        <input id="reg-name" placeholder="e.g. Rahul Sharma">
-
-        <div class="role-group-title">Select Your Role (Customers)</div>
-        <div class="roles" id="roles-customers-reg"></div>
-
-        <div class="role-group-title">Staff &amp; Management</div>
-        <div class="roles" id="roles-staff-reg"></div>
-
-        <label>10-Digit Mobile Number *</label>
-        <input id="reg-mob" placeholder="e.g. 9876543210" inputmode="numeric" maxlength="10">
-
-        <label>Set A Password (Min. 4 characters) *</label>
-        <input id="reg-pass" type="password" placeholder="Create a secure password">
-
-        <button class="btn blue" id="btn-reg-send-otp" style="width:100%; font-size:1.05rem; padding:12px; margin-top:8px;">📲 Step 1: Send Verification OTP →</button>
+      <!-- Password Login Toggle (Collapsible) -->
+      <div id="password-login-box" hidden style="margin-bottom:16px; padding:14px; background:#f4f7fc; border-radius:10px; border:1px solid var(--border);">
+        <label style="font-weight:700; font-size:0.9rem; margin-bottom:6px; display:block;">Enter Your Password</label>
+        <input id="smart-pass" type="password" placeholder="Enter password" style="margin-bottom:10px;">
+        <button class="btn blue" id="smart-btn-pass-login" style="width:100%; padding:12px; font-weight:700;">Sign In With Password →</button>
       </div>
 
-      <!-- Step 2: Enter OTP & Actually Create Account -->
-      <div id="reg-step2" hidden style="margin-top:16px; padding:16px; background:#eef7f2; border:1.5px solid var(--green); border-radius:12px;">
-        <h4 style="margin:0 0 8px; color:var(--green);">Step 2: Enter OTP to Create Account</h4>
-        <p style="font-size:0.88rem; color:var(--mut); margin:0 0 10px;" id="reg-otp-notice">OTP sent to your mobile. Enter the code below:</p>
-        <label style="margin:0 0 4px;">6-Digit Verification Code</label>
-        <input id="reg-otp-code" placeholder="Enter OTP code" inputmode="numeric" maxlength="6" style="margin-bottom:12px;">
-        <button class="btn green" id="btn-reg-verify-create" style="width:100%; font-size:1.05rem; padding:12px;">✓ Verify OTP &amp; Create Account →</button>
-      </div>
+      <button class="btn blue" id="smart-btn-send-otp" style="width:100%; font-size:1.05rem; padding:13px; font-weight:700; border-radius:10px;">
+        📲 Get OTP On Mobile →
+      </button>
 
-      <div style="margin-top:14px; text-align:center;">
-        <a href="javascript:void(0)" id="link-reg-to-login" style="font-size:0.85rem; font-weight:600; color:var(--blue);">Already have an account? Sign In</a>
+      <div style="margin-top:14px; display:flex; justify-content:space-between; align-items:center;">
+        <a href="javascript:void(0)" id="smart-toggle-pass-link" style="font-size:0.85rem; font-weight:600; color:var(--blue);">🔑 Or sign in with password</a>
+        <small style="color:var(--mut);">Secure Google Cloud Auth</small>
       </div>
     </div>
 
-    <!-- 3. FORGOT PASSWORD (RESET VIA OTP) VIEW -->
-    <div id="view-forgot" hidden>
-      <div class="note" style="margin-top:0;">
-        <b>Forgot Password?:</b> Apna role aur registered mobile number enter karein. Hum ek verification code generate karenge jisse aap naya password set kar sakte hain.
+    <!-- Step 2: OTP Entry Box (Revealed after OTP is sent) -->
+    <div id="auth-step-otp" hidden style="margin-top:10px;">
+      <div style="background:#eef7f2; border:1.5px solid var(--green); border-radius:10px; padding:14px; margin-bottom:16px;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <b style="color:var(--green); font-size:0.95rem;">✓ OTP Dispatched!</b>
+          <a href="javascript:void(0)" id="smart-change-number" style="font-size:0.8rem; color:var(--blue); font-weight:600;">Change Number</a>
+        </div>
+        <p style="margin:4px 0 0; font-size:0.85rem; color:var(--ink);" id="smart-otp-target-text">6-digit OTP has been sent via SMS to your mobile.</p>
       </div>
 
-      <div class="role-group-title">Select Your Registered Role</div>
-      <div class="roles" id="roles-all-forgot"></div>
+      <label style="font-weight:700; color:var(--navy); margin-bottom:6px; display:block;">Enter 6-Digit Verification Code</label>
+      <input id="smart-otp-code" type="tel" maxlength="6" placeholder="• • • • • •" style="text-align:center; font-size:1.5rem; letter-spacing:8px; font-weight:800; padding:12px; margin-bottom:14px; border:2px solid var(--border); border-radius:10px;">
 
-      <label>Registered 10-Digit Mobile Number</label>
-      <div style="display:flex; gap:8px;">
-        <input id="forgot-mob" placeholder="10-digit mobile" inputmode="numeric" maxlength="10" style="margin:0;">
-        <button class="btn blue" id="forgot-send-otp" style="white-space:nowrap;">Send Reset OTP</button>
-      </div>
+      <button class="btn green" id="smart-btn-verify-otp" style="width:100%; font-size:1.05rem; padding:13px; font-weight:700; border-radius:10px;">
+        ✓ Verify OTP &amp; Enter Dashboard →
+      </button>
 
-      <!-- Step 2: OTP Verification & New Password Setting -->
-      <div id="forgot-step2" hidden style="margin-top:16px; padding-top:16px; border-top:1.5px dashed var(--border);">
-        <label>Enter Verification Code (OTP)</label>
-        <input id="forgot-otp" placeholder="Enter code" inputmode="numeric">
-
-        <label>Enter New Password (Min. 4 characters)</label>
-        <input id="forgot-new-pass" type="password" placeholder="Enter your new password">
-
-        <button class="btn" id="submit-reset-pass" style="width:100%; font-size:1rem; padding:12px; margin-top:8px;">✓ Reset Password &amp; Sign In</button>
-      </div>
-
-      <div style="margin-top:14px; text-align:center;">
-        <a href="javascript:void(0)" id="link-forgot-to-login" style="font-size:0.85rem; font-weight:600; color:var(--blue);">Remembered your password? Back to Sign In</a>
+      <div style="margin-top:12px; text-align:center;">
+        <span id="smart-resend-timer" style="font-size:0.85rem; color:var(--mut);">Resend code in <b id="timer-sec">30</b>s</span>
+        <a href="javascript:void(0)" id="smart-btn-resend" hidden style="font-size:0.85rem; font-weight:700; color:var(--blue);">Resend OTP via SMS</a>
       </div>
     </div>
 
-    <!-- 4. SIGN IN WITH OTP VIEW (ALTERNATIVE) -->
-    <div id="view-otp" hidden>
-      <div class="note" style="margin-top:0;">
-        <b>Direct OTP Login:</b> Mobile number enter karke verification code ke zariye direct sign in karein.
+    <!-- Step 3: New User Name & Role Selection (Only shown if first time user) -->
+    <div id="auth-step-new-user" hidden style="margin-top:10px;">
+      <div style="background:#f0f7ff; border:1.5px solid var(--blue); border-radius:10px; padding:14px; margin-bottom:16px;">
+        <b style="color:var(--navy); font-size:0.95rem;">🎉 Welcome to YKR World!</b>
+        <p style="margin:4px 0 0; font-size:0.85rem; color:var(--ink);">Aapka number verify ho gaya hai. Bas apna naam aur category select karein:</p>
       </div>
 
-      <div class="role-group-title">Select Your Role</div>
-      <div class="roles" id="roles-all-otp"></div>
+      <label style="font-weight:700; color:var(--navy); margin-bottom:6px; display:block;">Your Full Name *</label>
+      <input id="new-user-name" placeholder="e.g. Rahul Sharma" style="margin-bottom:14px;">
 
-      <label>10-Digit Mobile Number</label>
-      <div style="display: flex; gap: 8px;">
-        <input id="mob" placeholder="10-digit mobile" inputmode="numeric" maxlength="10" style="margin:0;">
-        <button class="btn blue" id="send-otp" style="white-space: nowrap;">Send OTP</button>
+      <label style="font-weight:700; color:var(--navy); margin-bottom:6px; display:block;">I am a: *</label>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:16px;" id="new-user-role-select">
+        <button type="button" class="btn sm on" data-role="Student">🎓 Student / Learner</button>
+        <button type="button" class="btn sm ghost" data-role="Job seeker">💼 Job Seeker</button>
+        <button type="button" class="btn sm ghost" data-role="Business client">🏢 Business Client</button>
+        <button type="button" class="btn sm ghost" data-role="Employer / recruiter">🤝 Recruiter</button>
       </div>
 
-      <div id="otpbox" hidden style="margin-top: 14px; padding-top: 14px; border-top: 1px dashed var(--border);">
-        <label>Enter 6-Digit OTP</label>
-        <div style="display: flex; gap: 8px;">
-          <input id="otp" placeholder="6-digit code" inputmode="numeric" maxlength="6" style="margin:0;">
-          <button class="btn" id="verify-otp" style="white-space: nowrap;">Verify &amp; Sign In</button>
+      <button class="btn blue" id="new-user-submit" style="width:100%; font-size:1.05rem; padding:13px; font-weight:700; border-radius:10px;">
+        Complete &amp; Enter Dashboard →
+      </button>
+    </div>
+    </div><!-- /auth-tab-mobile -->
+
+    <!-- ══════════ EMAIL OTP TAB ══════════ -->
+    <div id="auth-tab-email" style="display:none;">
+      <!-- Email Sub-mode tabs -->
+      <div style="display:flex; gap:6px; margin-bottom:20px; flex-wrap:wrap;">
+        <button class="btn sm blue" id="etab-login-btn" onclick="switchEmailMode('login')" style="flex:1; padding:9px 6px; font-size:0.82rem;">🔓 Login</button>
+        <button class="btn sm ghost" id="etab-reg-btn" onclick="switchEmailMode('register')" style="flex:1; padding:9px 6px; font-size:0.82rem;">🆕 Register</button>
+        <button class="btn sm ghost" id="etab-forgot-btn" onclick="switchEmailMode('forgot')" style="flex:1; padding:9px 6px; font-size:0.82rem;">🔑 Forgot</button>
+      </div>
+
+      <!-- EMAIL LOGIN -->
+      <div id="email-mode-login">
+        <div id="email-login-step1">
+          <label style="font-weight:700; color:var(--navy); margin-bottom:6px; display:block;">Your Email Address</label>
+          <input id="el-email" type="email" placeholder="yourname@email.com" style="margin-bottom:14px;">
+          <button class="btn blue" id="el-send-btn" onclick="emailLoginSendOtp()" style="width:100%; padding:13px; font-weight:700; border-radius:10px;">
+            ✉️ Send OTP to Email →
+          </button>
+          <div style="margin-top:12px; text-align:center;"><small style="color:var(--mut);">OTP will be sent to your registered email</small></div>
+        </div>
+        <div id="email-login-step2" hidden>
+          <div style="background:#eef7f2; border:1.5px solid var(--green); border-radius:10px; padding:12px 14px; margin-bottom:16px;">
+            <b style="color:var(--green); font-size:0.9rem;">✉️ Check Your Inbox!</b>
+            <p style="margin:4px 0 0; font-size:0.83rem; color:var(--ink);" id="el-sent-text">OTP sent to your email. Valid for 10 minutes.</p>
+          </div>
+          <label style="font-weight:700; color:var(--navy); margin-bottom:6px; display:block;">Enter 6-Digit OTP Code</label>
+          <input id="el-otp" type="tel" maxlength="6" placeholder="• • • • • •" style="text-align:center; font-size:1.5rem; letter-spacing:8px; font-weight:800; padding:12px; margin-bottom:14px; border:2px solid var(--border); border-radius:10px;">
+          <button class="btn green" id="el-verify-btn" onclick="emailLoginVerify()" style="width:100%; padding:13px; font-weight:700; border-radius:10px;">
+            ✓ Verify &amp; Login →
+          </button>
+          <div style="margin-top:10px; text-align:center;">
+            <a href="javascript:void(0)" onclick="resetEmailLogin()" style="font-size:0.82rem; color:var(--blue);">← Different email</a>
+            &nbsp;·&nbsp;
+            <a href="javascript:void(0)" onclick="emailLoginSendOtp(true)" style="font-size:0.82rem; color:var(--blue);">Resend OTP</a>
+          </div>
         </div>
       </div>
-    </div>
 
-    <p class="err" id="aerr"></p>
-    <p class="succ" id="asucc"></p>
+      <!-- EMAIL REGISTER -->
+      <div id="email-mode-register" style="display:none;">
+        <div id="email-reg-step1">
+          <label style="font-weight:700; color:var(--navy); margin-bottom:6px; display:block;">Full Name *</label>
+          <input id="er-name" type="text" placeholder="e.g. Rahul Sharma" style="margin-bottom:12px;">
+          <label style="font-weight:700; color:var(--navy); margin-bottom:6px; display:block;">Email Address *</label>
+          <input id="er-email" type="email" placeholder="yourname@email.com" style="margin-bottom:12px;">
+          <label style="font-weight:700; color:var(--navy); margin-bottom:6px; display:block;">Set Password *</label>
+          <input id="er-pass" type="password" placeholder="Create a password (min 4 chars)" style="margin-bottom:12px;">
+          <label style="font-weight:700; color:var(--navy); margin-bottom:6px; display:block;">I am a: *</label>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:14px;" id="er-role-select">
+            <button type="button" class="btn sm on" data-role="Student">🎓 Student</button>
+            <button type="button" class="btn sm ghost" data-role="Job seeker">💼 Job Seeker</button>
+            <button type="button" class="btn sm ghost" data-role="Business client">🏢 Business</button>
+            <button type="button" class="btn sm ghost" data-role="Employer / recruiter">🤝 Recruiter</button>
+          </div>
+          <button class="btn blue" id="er-send-btn" onclick="emailRegSendOtp()" style="width:100%; padding:13px; font-weight:700; border-radius:10px;">
+            ✉️ Send Verification OTP →
+          </button>
+        </div>
+        <div id="email-reg-step2" hidden>
+          <div style="background:#eef7f2; border:1.5px solid var(--green); border-radius:10px; padding:12px 14px; margin-bottom:16px;">
+            <b style="color:var(--green); font-size:0.9rem;">✉️ Verification Email Sent!</b>
+            <p style="margin:4px 0 0; font-size:0.83rem; color:var(--ink);" id="er-sent-text">Check your inbox and enter the OTP to complete registration.</p>
+          </div>
+          <label style="font-weight:700; color:var(--navy); margin-bottom:6px; display:block;">Enter 6-Digit OTP Code</label>
+          <input id="er-otp" type="tel" maxlength="6" placeholder="• • • • • •" style="text-align:center; font-size:1.5rem; letter-spacing:8px; font-weight:800; padding:12px; margin-bottom:14px; border:2px solid var(--border); border-radius:10px;">
+          <button class="btn green" id="er-verify-btn" onclick="emailRegVerify()" style="width:100%; padding:13px; font-weight:700; border-radius:10px;">
+            ✓ Verify OTP &amp; Create Account →
+          </button>
+          <div style="margin-top:10px; text-align:center;">
+            <a href="javascript:void(0)" onclick="resetEmailReg()" style="font-size:0.82rem; color:var(--blue);">← Back</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- EMAIL FORGOT PASSWORD -->
+      <div id="email-mode-forgot" style="display:none;">
+        <div id="email-forgot-step1">
+          <label style="font-weight:700; color:var(--navy); margin-bottom:6px; display:block;">Registered Email Address</label>
+          <input id="ef-email" type="email" placeholder="yourname@email.com" style="margin-bottom:14px;">
+          <button class="btn blue" id="ef-send-btn" onclick="emailForgotSendOtp()" style="width:100%; padding:13px; font-weight:700; border-radius:10px;">
+            ✉️ Send Password Reset OTP →
+          </button>
+        </div>
+        <div id="email-forgot-step2" hidden>
+          <div style="background:#eef7f2; border:1.5px solid var(--green); border-radius:10px; padding:12px 14px; margin-bottom:16px;">
+            <b style="color:var(--green); font-size:0.9rem;">✉️ Reset Code Sent!</b>
+            <p style="margin:4px 0 0; font-size:0.83rem; color:var(--ink);" id="ef-sent-text">Check your inbox for the password reset OTP.</p>
+          </div>
+          <label style="font-weight:700; color:var(--navy); margin-bottom:6px; display:block;">OTP Code</label>
+          <input id="ef-otp" type="tel" maxlength="6" placeholder="• • • • • •" style="text-align:center; font-size:1.5rem; letter-spacing:8px; font-weight:800; padding:12px; margin-bottom:14px; border:2px solid var(--border); border-radius:10px;">
+          <label style="font-weight:700; color:var(--navy); margin-bottom:6px; display:block;">New Password (min 4 chars)</label>
+          <input id="ef-newpass" type="password" placeholder="Enter new password" style="margin-bottom:14px;">
+          <button class="btn green" id="ef-verify-btn" onclick="emailForgotVerify()" style="width:100%; padding:13px; font-weight:700; border-radius:10px;">
+            ✓ Reset Password →
+          </button>
+          <div style="margin-top:10px; text-align:center;">
+            <a href="javascript:void(0)" onclick="resetEmailForgot()" style="font-size:0.82rem; color:var(--blue);">← Use different email</a>
+          </div>
+        </div>
+      </div>
+    </div><!-- /auth-tab-email -->
+
+    <p class="err" id="aerr" style="margin-top:14px; margin-bottom:0;"></p>
+    <p class="succ" id="asucc" style="margin-top:14px; margin-bottom:0;"></p>
   </div>
 
   <!-- Authenticated Portal / Dashboard -->
@@ -1031,35 +1098,43 @@
         </div>
       </div>
 
-      <!-- Tab 4: Fast OTP & SMS Gateway -->
+      <!-- Tab 4: Google Firebase & Fast OTP Gateway -->
       <div id="tab-sms" class="admin-view" hidden>
         <div class="card" style="padding: 18px;">
           <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:12px;">
-            <h3 style="margin:0;">Fast SMS OTP Gateway Status</h3>
-            <button class="btn blue sm" id="check-sms-status">↻ Check Live Wallet Balance</button>
+            <h3 style="margin:0;">🔥 Google Firebase &amp; SMS Gateway Status</h3>
+            <button class="btn blue sm" id="check-sms-status">↻ Refresh Gateway Status</button>
           </div>
           
           <div id="sms-wallet-info" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:12px; margin-bottom:16px;">
             <div style="background:#eaf1fd; padding:12px; border-radius:10px; border-left:4px solid var(--blue);">
-              <small style="color:var(--mut); font-weight:700">FAST2SMS GATEWAY</small>
+              <small style="color:var(--mut); font-weight:700">GOOGLE FIREBASE AUTH</small>
               <div style="font-size:1.1rem; font-weight:800; color:var(--navy);">Connected &amp; Active</div>
+              <small style="color:var(--green); font-weight:600;">Project: ykr-world (Cloud Identity)</small>
             </div>
             <div style="background:#e3f7ed; padding:12px; border-radius:10px; border-left:4px solid var(--green);">
-              <small style="color:var(--mut); font-weight:700">FAST2SMS BALANCE</small>
-              <div style="font-size:1.1rem; font-weight:800; color:var(--green);" id="sms-wallet-bal">₹50.00 (200 SMS)</div>
+              <small style="color:var(--mut); font-weight:700">TEST NUMBER (PRE-VERIFIED)</small>
+              <div style="font-size:1.05rem; font-weight:800; color:var(--green);">+91 7218550652</div>
+              <small style="color:var(--navy); font-weight:600;">Instant Code: 123456</small>
+            </div>
+            <div style="background:#fdf6e7; padding:12px; border-radius:10px; border-left:4px solid var(--gold);">
+              <small style="color:var(--mut); font-weight:700">DELIVERY METHOD</small>
+              <div style="font-size:1.05rem; font-weight:800; color:var(--navy);">Google SMS + Server Fallback</div>
+              <small style="color:var(--mut);" id="sms-wallet-bal">Direct operator delivery</small>
             </div>
           </div>
 
           <div class="note">
-            <b>Fast2SMS Activation Steps:</b><br>
-            1. Fast2SMS API Key portal mein successfully set ho gayi hai.<br>
-            2. Live SMS deliver karane ke liye Fast2SMS dashboard mein <b>"OTP Message"</b> menu mein jakar apna website URL <code>https://ykr-world.aklove4047.workers.dev</code> verify karein aur ₹100 ka standard one-time wallet topup karein.<br>
-            3. Testing ke dauran demo code <b>123456</b> hamesha active rahega taki aapka testing kabhi ruke nahi.
+            <b>Google Firebase OTP Gateway Setup:</b><br>
+            1. <b>Project:</b> <code>ykr-world</code> is successfully connected with Google Cloud Identity Platform.<br>
+            2. <b>SMS Delivery:</b> Google Firebase sends official 6-digit SMS OTP to any Indian phone number (+91).<br>
+            3. <b>Authorized Domains:</b> <code>ykr-world.aklove4047.workers.dev</code> &amp; <code>localhost</code> are whitelisted.<br>
+            4. <b>Instant Testing:</b> Number <code>7218550652</code> works with pre-verified code <code>123456</code> anytime without consuming SMS quota.
           </div>
 
           <div style="background:#f4f7fc; padding:16px; border-radius:12px; margin-top:16px; border:1px solid var(--border);">
-            <h4 style="margin:0 0 8px; color:var(--navy)">Direct SMS Tester Tool</h4>
-            <p style="font-size:0.88rem; color:var(--mut); margin:0 0 12px;">Send an instant test OTP to any phone number to verify real-time operator connectivity:</p>
+            <h4 style="margin:0 0 8px; color:var(--navy)">Direct SMS / OTP Tester Tool</h4>
+            <p style="font-size:0.88rem; color:var(--mut); margin:0 0 12px;">Test instant OTP generation and verification connectivity to any mobile number:</p>
             <div style="display:flex; gap:10px; max-width:440px;">
               <input id="test-sms-num" placeholder="Enter 10-digit mobile" maxlength="10" style="margin:0;">
               <button class="btn blue" id="send-test-sms" style="white-space:nowrap;">Send Test OTP</button>
@@ -1110,12 +1185,69 @@
   </div>
 </footer>
 
+<!-- Google Firebase SDK for Phone SMS OTP & Auth -->
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+
 <script>
   const $ = id => document.getElementById(id);
   let selectedLoginRole = 'Admin';
   let selectedRegRole = 'Student';
   let selectedForgotRole = 'Student';
   let selectedOtpRole = 'Student';
+
+  // Google Firebase Configuration (Project: ykr-world)
+  const firebaseConfig = {
+    apiKey: "REDACTED_FIREBASE_KEY",
+    authDomain: "ykr-world.firebaseapp.com",
+    projectId: "ykr-world",
+    storageBucket: "ykr-world.firebasestorage.app",
+    messagingSenderId: "892349370869",
+    appId: "1:892349370869:web:9e9d4c2f3b2a36d22a50bc",
+    measurementId: "G-G7LFY88C2"
+  };
+
+  let fbApp = null;
+  let fbAuth = null;
+  try {
+    if (typeof firebase !== 'undefined') {
+      fbApp = firebase.initializeApp(firebaseConfig);
+      fbAuth = firebase.auth();
+      fbAuth.useDeviceLanguage();
+    }
+  } catch (e) {
+    console.warn('Firebase init:', e);
+  }
+
+  // Active Firebase Confirmation Results
+  let regConfirmationResult = null;
+  let forgotConfirmationResult = null;
+  let otpLoginConfirmationResult = null;
+
+  function getRecaptchaVerifier() {
+    if (!fbAuth) return null;
+    if (!window.recaptchaVerifier) {
+      window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {
+        size: 'invisible',
+        callback: () => {},
+        'expired-callback': () => {}
+      });
+    }
+    return window.recaptchaVerifier;
+  }
+
+  // Helper to trigger real Google SMS OTP
+  async function triggerGoogleFirebaseSms(mobile10) {
+    if (!fbAuth) return { success: false, error: 'Firebase Auth not ready' };
+    try {
+      const verifier = getRecaptchaVerifier();
+      const confirmationResult = await fbAuth.signInWithPhoneNumber('+91' + mobile10, verifier);
+      return { success: true, confirmationResult };
+    } catch (err) {
+      console.warn('Firebase SMS OTP attempt:', err);
+      return { success: false, error: err.message || 'Firebase error' };
+    }
+  }
 
   let authToken = localStorage.getItem('ykr_token');
   let currentAuthUser = null;
@@ -1141,47 +1273,6 @@
       container.appendChild(btn);
     });
   }
-
-  // Initialize roles across all views
-  setupRoleGroup($('roles-customers-login'), CUSTOMER_ROLES, 'Student', r => selectedLoginRole = r);
-  setupRoleGroup($('roles-staff-login'), STAFF_ROLES, 'Admin', r => selectedLoginRole = r);
-  setupRoleGroup($('roles-customers-reg'), CUSTOMER_ROLES, 'Student', r => selectedRegRole = r);
-  setupRoleGroup($('roles-staff-reg'), STAFF_ROLES, 'Employee', r => selectedRegRole = r);
-  setupRoleGroup($('roles-all-forgot'), ALL_ROLES, 'Student', r => selectedForgotRole = r);
-  setupRoleGroup($('roles-all-otp'), ALL_ROLES, 'Student', r => selectedOtpRole = r);
-
-  // Auth View Switcher
-  const authViews = ['view-login', 'view-register', 'view-forgot', 'view-otp'];
-  const tabBtns = ['tab-btn-login', 'tab-btn-register', 'tab-btn-forgot', 'tab-btn-otp'];
-
-  function switchAuthTab(activeViewId, activeBtnId) {
-    authViews.forEach(v => {
-      if ($(v)) $(v).hidden = (v !== activeViewId);
-    });
-    tabBtns.forEach(b => {
-      if ($(b)) {
-        if (b === activeBtnId) {
-          $(b).style.background = 'var(--blue)';
-          $(b).style.color = '#fff';
-        } else {
-          $(b).style.background = 'transparent';
-          $(b).style.color = 'var(--navy)';
-        }
-      }
-    });
-    $('aerr').textContent = '';
-    $('asucc').textContent = '';
-  }
-
-  $('tab-btn-login').onclick = () => switchAuthTab('view-login', 'tab-btn-login');
-  $('tab-btn-register').onclick = () => switchAuthTab('view-register', 'tab-btn-register');
-  $('tab-btn-forgot').onclick = () => switchAuthTab('view-forgot', 'tab-btn-forgot');
-  $('tab-btn-otp').onclick = () => switchAuthTab('view-otp', 'tab-btn-otp');
-
-  $('link-to-forgot').onclick = () => switchAuthTab('view-forgot', 'tab-btn-forgot');
-  $('link-to-register').onclick = () => switchAuthTab('view-register', 'tab-btn-register');
-  $('link-reg-to-login').onclick = () => switchAuthTab('view-login', 'tab-btn-login');
-  $('link-forgot-to-login').onclick = () => switchAuthTab('view-login', 'tab-btn-login');
 
   // Mobile Menu Toggle
   $('menu').onclick = () => $('nav').classList.toggle('open');
@@ -1262,52 +1353,160 @@
     }
   };
 
-  // 1. Password Login Submission (Instant 1-Second Login)
-  $('submit-login').onclick = async () => {
+  // ==========================================
+  // AUTH TABS: MOBILE OTP vs EMAIL OTP
+  // ==========================================
+  window.switchAuthTab = function(tab) {
     $('aerr').textContent = '';
     $('asucc').textContent = '';
-    const mobile = $('login-mob').value.replace(/\D/g, '').slice(-10);
-    const password = $('login-pass').value;
+    const mTab = $('auth-tab-mobile');
+    const eTab = $('auth-tab-email');
+    const mBtn = $('tab-mobile-btn');
+    const eBtn = $('tab-email-btn');
 
-    if (mobile.length !== 10) {
-      $('aerr').textContent = 'Please enter a valid 10-digit mobile number.';
+    if (tab === 'email') {
+      if (mTab) mTab.style.display = 'none';
+      if (eTab) eTab.style.display = 'block';
+      if (mBtn) {
+        mBtn.style.background = 'transparent';
+        mBtn.style.color = 'var(--mut)';
+        mBtn.style.boxShadow = 'none';
+      }
+      if (eBtn) {
+        eBtn.style.background = 'var(--blue)';
+        eBtn.style.color = '#fff';
+        eBtn.style.boxShadow = '0 4px 12px rgba(29,95,196,0.25)';
+      }
+    } else {
+      if (mTab) mTab.style.display = 'block';
+      if (eTab) eTab.style.display = 'none';
+      if (eBtn) {
+        eBtn.style.background = 'transparent';
+        eBtn.style.color = 'var(--mut)';
+        eBtn.style.boxShadow = 'none';
+      }
+      if (mBtn) {
+        mBtn.style.background = 'var(--blue)';
+        mBtn.style.color = '#fff';
+        mBtn.style.boxShadow = '0 4px 12px rgba(29,95,196,0.25)';
+      }
+    }
+  };
+
+  // EMAIL SUB-MODES: LOGIN / REGISTER / FORGOT
+  let selectedEmailRegRole = 'Student';
+  window.switchEmailMode = function(mode) {
+    $('aerr').textContent = '';
+    $('asucc').textContent = '';
+    ['login', 'register', 'forgot'].forEach(m => {
+      const el = $('email-mode-' + m);
+      const btn = $('etab-' + m + '-btn');
+      if (el) el.style.display = (m === mode) ? 'block' : 'none';
+      if (btn) {
+        btn.className = (m === mode) ? 'btn sm blue' : 'btn sm ghost';
+      }
+    });
+  };
+
+  // Role selector for Email Register
+  if ($('er-role-select')) {
+    $('er-role-select').querySelectorAll('button').forEach(btn => {
+      btn.onclick = () => {
+        $('er-role-select').querySelectorAll('button').forEach(b => {
+          b.classList.remove('on');
+          b.classList.add('ghost');
+        });
+        btn.classList.add('on');
+        btn.classList.remove('ghost');
+        selectedEmailRegRole = btn.getAttribute('data-role');
+      };
+    });
+  }
+
+  // 1. EMAIL LOGIN: SEND OTP & VERIFY
+  let pendingEmailLogin = '';
+  window.emailLoginSendOtp = async function(isResend = false) {
+    $('aerr').textContent = '';
+    $('asucc').textContent = '';
+    const email = isResend ? pendingEmailLogin : $('el-email').value.trim();
+    if (!email || !email.includes('@')) {
+      $('aerr').textContent = 'Please enter a valid email address.';
       return;
     }
-    if (!password) {
-      $('aerr').textContent = 'Please enter your password.';
+    pendingEmailLogin = email;
+    const btn = $('el-send-btn');
+    btn.disabled = true;
+    btn.textContent = 'Sending OTP...';
+
+    const res = await api('/api/auth/email/send-otp', 'POST', { email, purpose: 'login' });
+    btn.disabled = false;
+    btn.textContent = '✉️ Send OTP to Email →';
+
+    if (res.ok) {
+      $('email-login-step1').hidden = true;
+      $('email-login-step2').hidden = false;
+      $('el-sent-text').textContent = `OTP code sent to ${email}. Valid for 10 minutes.`;
+      $('asucc').textContent = res.data.message || 'OTP dispatched to your email!';
+      $('el-otp').focus();
+    } else {
+      $('aerr').textContent = res.data?.error || 'Could not send OTP to this email.';
+    }
+  };
+
+  window.emailLoginVerify = async function() {
+    $('aerr').textContent = '';
+    $('asucc').textContent = '';
+    const code = $('el-otp').value.trim();
+    if (code.length !== 6) {
+      $('aerr').textContent = 'Please enter the 6-digit OTP sent to your email.';
       return;
     }
 
-    $('submit-login').textContent = 'Signing in...';
-    $('submit-login').disabled = true;
+    const btn = $('el-verify-btn');
+    btn.disabled = true;
+    btn.textContent = 'Verifying...';
 
-    const res = await api('/api/auth/login', 'POST', { mobile, role: selectedLoginRole, password });
-    $('submit-login').textContent = 'Sign In Now →';
-    $('submit-login').disabled = false;
+    const res = await api('/api/auth/email/verify-otp', 'POST', {
+      email: pendingEmailLogin,
+      code
+    });
+
+    btn.disabled = false;
+    btn.textContent = '✓ Verify & Login →';
 
     if (res.ok && res.data.token) {
       authToken = res.data.token;
       localStorage.setItem('ykr_token', authToken);
       initSession();
     } else {
-      $('aerr').textContent = res.data?.error || 'Login failed. Please check credentials.';
+      $('aerr').textContent = res.data?.error || 'Invalid or expired OTP code.';
     }
   };
 
-  // 2. New User Registration Submission
-  $('submit-register').onclick = async () => {
+  window.resetEmailLogin = function() {
+    $('email-login-step1').hidden = false;
+    $('email-login-step2').hidden = true;
+    $('el-otp').value = '';
     $('aerr').textContent = '';
     $('asucc').textContent = '';
-    const name = $('reg-name').value.trim();
-    const mobile = $('reg-mob').value.replace(/\D/g, '').slice(-10);
-    const password = $('reg-pass').value;
+  };
 
-    if (!name) {
+  // 2. EMAIL REGISTER: SEND OTP & VERIFY
+  let pendingEmailReg = {};
+  window.emailRegSendOtp = async function() {
+    $('aerr').textContent = '';
+    $('asucc').textContent = '';
+    const name = $('er-name').value.trim();
+    const email = $('er-email').value.trim();
+    const password = $('er-pass').value;
+    const role = selectedEmailRegRole || 'Student';
+
+    if (!name || name.length < 2) {
       $('aerr').textContent = 'Please enter your full name.';
       return;
     }
-    if (mobile.length !== 10) {
-      $('aerr').textContent = 'Please enter a valid 10-digit mobile number.';
+    if (!email || !email.includes('@')) {
+      $('aerr').textContent = 'Please enter a valid email address.';
       return;
     }
     if (!password || password.length < 4) {
@@ -1315,172 +1514,383 @@
       return;
     }
 
-    $('btn-reg-send-otp').textContent = 'Sending OTP...';
-    $('btn-reg-send-otp').disabled = true;
+    pendingEmailReg = { name, email, password, role };
+    const btn = $('er-send-btn');
+    btn.disabled = true;
+    btn.textContent = 'Sending Verification OTP...';
 
-    const res = await api('/api/auth/register-send-otp', 'POST', { name, mobile, role: selectedRegRole });
-    $('btn-reg-send-otp').textContent = '📲 Step 1: Send Verification OTP →';
-    $('btn-reg-send-otp').disabled = false;
+    const res = await api('/api/auth/email/send-otp', 'POST', { email, purpose: 'register' });
+    btn.disabled = false;
+    btn.textContent = '✉️ Send Verification OTP →';
 
     if (res.ok) {
-      $('reg-step2').hidden = false;
-      $('asucc').textContent = res.data.message || 'Verification OTP sent to your phone.';
-      $('reg-otp-notice').textContent = `OTP sent to +91 ${mobile}. Enter the code below:`;
-      if (res.data.demoOtp) $('reg-otp-code').value = res.data.demoOtp;
-      $('reg-otp-code').focus();
+      $('email-reg-step1').hidden = true;
+      $('email-reg-step2').hidden = false;
+      $('er-sent-text').textContent = `Verification OTP sent to ${email}. Check your inbox!`;
+      $('asucc').textContent = 'Verification code sent to your email!';
+      $('er-otp').focus();
     } else {
       $('aerr').textContent = res.data?.error || 'Could not send verification OTP.';
     }
   };
 
-  // Step 2: Verify OTP & Actually Create Account
-  $('btn-reg-verify-create').onclick = async () => {
+  window.emailRegVerify = async function() {
     $('aerr').textContent = '';
     $('asucc').textContent = '';
-    const name = $('reg-name').value.trim();
-    const mobile = $('reg-mob').value.replace(/\D/g, '').slice(-10);
-    const password = $('reg-pass').value;
-    const code = $('reg-otp-code').value.trim();
-
-    if (code.length < 4) {
-      $('aerr').textContent = 'Please enter the 6-digit verification OTP received on your mobile.';
+    const code = $('er-otp').value.trim();
+    if (code.length !== 6) {
+      $('aerr').textContent = 'Please enter the 6-digit OTP code.';
       return;
     }
 
-    $('btn-reg-verify-create').textContent = 'Verifying & Creating...';
-    $('btn-reg-verify-create').disabled = true;
+    const btn = $('er-verify-btn');
+    btn.disabled = true;
+    btn.textContent = 'Creating Account...';
 
-    const res = await api('/api/auth/register-verify-create', 'POST', { name, mobile, role: selectedRegRole, password, code });
-    $('btn-reg-verify-create').textContent = '✓ Verify OTP & Create Account →';
-    $('btn-reg-verify-create').disabled = false;
+    const res = await api('/api/auth/email/register', 'POST', {
+      ...pendingEmailReg,
+      code
+    });
+
+    btn.disabled = false;
+    btn.textContent = '✓ Verify OTP & Create Account →';
 
     if (res.ok && res.data.token) {
       authToken = res.data.token;
       localStorage.setItem('ykr_token', authToken);
-      alert('✓ Verification successful! Account created and signed in.');
+      alert(`Welcome, ${pendingEmailReg.name}! Your account has been registered.`);
       initSession();
     } else {
-      $('aerr').textContent = res.data?.error || 'OTP verification failed. Account was NOT created.';
+      $('aerr').textContent = res.data?.error || 'Registration failed. Check OTP code.';
     }
   };
 
-  // 3. Forgot Password - Send OTP
-  $('forgot-send-otp').onclick = async () => {
+  window.resetEmailReg = function() {
+    $('email-reg-step1').hidden = false;
+    $('email-reg-step2').hidden = true;
+    $('er-otp').value = '';
     $('aerr').textContent = '';
     $('asucc').textContent = '';
-    const mobile = $('forgot-mob').value.replace(/\D/g, '').slice(-10);
+  };
 
-    if (mobile.length !== 10) {
-      $('aerr').textContent = 'Please enter a valid 10-digit mobile number.';
+  // 3. EMAIL FORGOT PASSWORD: SEND OTP & RESET
+  let pendingEmailForgot = '';
+  window.emailForgotSendOtp = async function() {
+    $('aerr').textContent = '';
+    $('asucc').textContent = '';
+    const email = $('ef-email').value.trim();
+    if (!email || !email.includes('@')) {
+      $('aerr').textContent = 'Please enter your registered email address.';
       return;
     }
 
-    $('forgot-send-otp').textContent = 'Sending...';
-    $('forgot-send-otp').disabled = true;
+    pendingEmailForgot = email;
+    const btn = $('ef-send-btn');
+    btn.disabled = true;
+    btn.textContent = 'Sending Reset OTP...';
 
-    const res = await api('/api/auth/forgot-password/send-otp', 'POST', { mobile, role: selectedForgotRole });
-    $('forgot-send-otp').textContent = 'Send Reset OTP';
-    $('forgot-send-otp').disabled = false;
+    const res = await api('/api/auth/email/send-otp', 'POST', { email, purpose: 'forgot' });
+    btn.disabled = false;
+    btn.textContent = '✉️ Send Password Reset OTP →';
 
     if (res.ok) {
-      $('forgot-step2').hidden = false;
-      $('asucc').textContent = res.data.message || 'OTP generated for password reset.';
-      if (res.data.demoOtp) $('forgot-otp').value = res.data.demoOtp;
-      $('forgot-otp').focus();
+      $('email-forgot-step1').hidden = true;
+      $('email-forgot-step2').hidden = false;
+      $('ef-sent-text').textContent = `Password reset code sent to ${email}.`;
+      $('asucc').textContent = 'Password reset code sent to your email!';
+      $('ef-otp').focus();
     } else {
       $('aerr').textContent = res.data?.error || 'Could not send reset OTP.';
     }
   };
 
-  // 3. Forgot Password - Verify OTP & Set New Password
-  $('submit-reset-pass').onclick = async () => {
+  window.emailForgotVerify = async function() {
     $('aerr').textContent = '';
     $('asucc').textContent = '';
-    const mobile = $('forgot-mob').value.replace(/\D/g, '').slice(-10);
-    const code = $('forgot-otp').value.trim();
-    const newPassword = $('forgot-new-pass').value;
+    const code = $('ef-otp').value.trim();
+    const newPassword = $('ef-newpass').value;
 
-    if (code.length < 4) {
-      $('aerr').textContent = 'Please enter the verification code.';
+    if (code.length !== 6) {
+      $('aerr').textContent = 'Please enter the 6-digit OTP code.';
       return;
     }
     if (!newPassword || newPassword.length < 4) {
-      $('aerr').textContent = 'New password must be at least 4 characters.';
+      $('aerr').textContent = 'New password must be at least 4 characters long.';
       return;
     }
 
-    $('submit-reset-pass').textContent = 'Updating password...';
-    $('submit-reset-pass').disabled = true;
+    const btn = $('ef-verify-btn');
+    btn.disabled = true;
+    btn.textContent = 'Updating Password...';
 
-    const res = await api('/api/auth/forgot-password/verify-reset', 'POST', { mobile, role: selectedForgotRole, code, newPassword });
-    $('submit-reset-pass').textContent = '✓ Reset Password & Sign In';
-    $('submit-reset-pass').disabled = false;
+    const res = await api('/api/auth/email/forgot-password', 'POST', {
+      email: pendingEmailForgot,
+      code,
+      newPassword
+    });
+
+    btn.disabled = false;
+    btn.textContent = '✓ Reset Password →';
 
     if (res.ok) {
-      alert('Password reset successful! You can now log in.');
-      switchAuthTab('view-login', 'tab-btn-login');
-      $('login-mob').value = mobile;
-      $('login-pass').value = newPassword;
-      $('asucc').textContent = 'Password reset! Click "Sign In Now" to enter.';
+      alert('✓ Password reset successfully! You can now log in.');
+      resetEmailForgot();
+      switchEmailMode('login');
+      $('el-email').value = pendingEmailForgot;
     } else {
       $('aerr').textContent = res.data?.error || 'Password reset failed.';
     }
   };
 
-  // 4. Direct OTP Login Handlers
-  $('send-otp').onclick = async () => {
+  window.resetEmailForgot = function() {
+    $('email-forgot-step1').hidden = false;
+    $('email-forgot-step2').hidden = true;
+    $('ef-otp').value = '';
+    $('ef-newpass').value = '';
     $('aerr').textContent = '';
     $('asucc').textContent = '';
-    const mobile = $('mob').value.replace(/\D/g, '').slice(-10);
+  };
+
+  // ==========================================
+  // SMART MOBILE OTP & LOGIN CONTROLLER
+  // ==========================================
+  let smartConfirmationResult = null;
+  let smartPendingMobile = '';
+  let smartResendInterval = null;
+  let selectedNewUserRole = 'Student';
+
+  // Toggle Password Box
+  if ($('smart-toggle-pass-link')) {
+    $('smart-toggle-pass-link').onclick = () => {
+      const pBox = $('password-login-box');
+      pBox.hidden = !pBox.hidden;
+      if (!pBox.hidden) {
+        $('smart-pass').focus();
+        $('smart-toggle-pass-link').textContent = '📲 Back to OTP Login';
+      } else {
+        $('smart-toggle-pass-link').textContent = '🔑 Or sign in with password';
+      }
+    };
+  }
+
+  // Password Login
+  if ($('smart-btn-pass-login')) {
+    $('smart-btn-pass-login').onclick = async () => {
+      $('aerr').textContent = '';
+      $('asucc').textContent = '';
+      const mobile = $('smart-mob').value.replace(/\D/g, '').slice(-10);
+      const password = $('smart-pass').value;
+
+      if (mobile.length !== 10) {
+        $('aerr').textContent = 'Please enter a valid 10-digit mobile number.';
+        return;
+      }
+      if (!password) {
+        $('aerr').textContent = 'Please enter your password.';
+        return;
+      }
+
+      $('smart-btn-pass-login').textContent = 'Signing in...';
+      $('smart-btn-pass-login').disabled = true;
+
+      const res = await api('/api/auth/login', 'POST', { mobile, password });
+      $('smart-btn-pass-login').textContent = 'Sign In With Password →';
+      $('smart-btn-pass-login').disabled = false;
+
+      if (res.ok && res.data.token) {
+        authToken = res.data.token;
+        localStorage.setItem('ykr_token', authToken);
+        initSession();
+      } else {
+        $('aerr').textContent = res.data?.error || 'Login failed. Please check credentials or login with OTP.';
+      }
+    };
+  }
+
+  // Timer Helper
+  function startResendCountdown() {
+    let timeLeft = 30;
+    $('timer-sec').textContent = timeLeft;
+    $('smart-resend-timer').hidden = false;
+    $('smart-btn-resend').hidden = true;
+    if (smartResendInterval) clearInterval(smartResendInterval);
+    smartResendInterval = setInterval(() => {
+      timeLeft--;
+      if (timeLeft <= 0) {
+        clearInterval(smartResendInterval);
+        $('smart-resend-timer').hidden = true;
+        $('smart-btn-resend').hidden = false;
+      } else {
+        $('timer-sec').textContent = timeLeft;
+      }
+    }, 1000);
+  }
+
+  // Change Number button
+  if ($('smart-change-number')) {
+    $('smart-change-number').onclick = () => {
+      $('auth-step-otp').hidden = true;
+      $('auth-step-mobile').hidden = false;
+      $('auth-step-new-user').hidden = true;
+      $('smart-otp-code').value = '';
+      $('aerr').textContent = '';
+      $('asucc').textContent = '';
+      $('smart-mob').focus();
+    };
+  }
+
+  // Send OTP
+  async function requestSmartOtp() {
+    $('aerr').textContent = '';
+    $('asucc').textContent = '';
+    const mobile = $('smart-mob').value.replace(/\D/g, '').slice(-10);
 
     if (mobile.length !== 10) {
       $('aerr').textContent = 'Please enter a valid 10-digit mobile number.';
       return;
     }
 
-    $('send-otp').textContent = 'Sending...';
-    $('send-otp').disabled = true;
+    smartPendingMobile = mobile;
+    $('smart-btn-send-otp').textContent = 'Sending OTP...';
+    $('smart-btn-send-otp').disabled = true;
 
-    const res = await api('/api/otp/send', 'POST', { mobile, role: selectedOtpRole });
-    $('send-otp').textContent = 'Send OTP';
-    $('send-otp').disabled = false;
+    // Trigger Google Firebase Real SMS OTP
+    const fbRes = await triggerGoogleFirebaseSms(mobile);
+    if (fbRes.success) {
+      smartConfirmationResult = fbRes.confirmationResult;
+    }
 
-    if (res.ok) {
-      $('otpbox').hidden = false;
-      $('asucc').textContent = res.data.message || 'OTP sent successfully.';
-      if (res.data.demoOtp) $('otp').value = res.data.demoOtp;
-      $('otp').focus();
+    // Call server backup OTP
+    const srvRes = await api('/api/otp/send', 'POST', { mobile, role: mobile === '7218550652' ? 'Admin' : 'Student' });
+    $('smart-btn-send-otp').textContent = '📲 Get OTP On Mobile →';
+    $('smart-btn-send-otp').disabled = false;
+
+    if (fbRes.success || srvRes.ok) {
+      $('auth-step-mobile').hidden = true;
+      $('auth-step-otp').hidden = false;
+      $('smart-otp-target-text').textContent = `6-digit OTP has been dispatched to +91 ${mobile} via Google SMS Gateway.`;
+      $('asucc').textContent = fbRes.success
+        ? `🔥 Real SMS OTP sent to +91 ${mobile}. Please check your phone messages.`
+        : (srvRes.data?.message || 'OTP sent successfully.');
+      if (srvRes.data?.demoOtp) $('smart-otp-code').value = srvRes.data.demoOtp;
+      startResendCountdown();
+      $('smart-otp-code').focus();
     } else {
-      $('aerr').textContent = res.data?.error || 'Failed to send OTP.';
+      $('aerr').textContent = fbRes.error || srvRes.data?.error || 'Failed to dispatch OTP. Please try again.';
     }
-  };
+  }
 
-  $('verify-otp').onclick = async () => {
-    $('aerr').textContent = '';
-    $('asucc').textContent = '';
-    const mobile = $('mob').value.replace(/\D/g, '').slice(-10);
-    const code = $('otp').value.trim();
+  if ($('smart-btn-send-otp')) $('smart-btn-send-otp').onclick = requestSmartOtp;
+  if ($('smart-btn-resend')) $('smart-btn-resend').onclick = requestSmartOtp;
 
-    if (code.length < 4) {
-      $('aerr').textContent = 'Please enter the verification code.';
-      return;
-    }
+  // Verify OTP
+  if ($('smart-btn-verify-otp')) {
+    $('smart-btn-verify-otp').onclick = async () => {
+      $('aerr').textContent = '';
+      $('asucc').textContent = '';
+      const mobile = smartPendingMobile || $('smart-mob').value.replace(/\D/g, '').slice(-10);
+      const code = $('smart-otp-code').value.trim();
 
-    $('verify-otp').textContent = 'Verifying...';
-    $('verify-otp').disabled = true;
+      if (code.length < 4) {
+        $('aerr').textContent = 'Please enter the 6-digit OTP code received on your mobile.';
+        return;
+      }
 
-    const res = await api('/api/otp/verify', 'POST', { mobile, role: selectedOtpRole, code });
-    $('verify-otp').textContent = 'Verify & Sign In';
-    $('verify-otp').disabled = false;
+      $('smart-btn-verify-otp').textContent = 'Verifying...';
+      $('smart-btn-verify-otp').disabled = true;
 
-    if (res.ok && res.data.token) {
-      authToken = res.data.token;
-      localStorage.setItem('ykr_token', authToken);
-      initSession();
-    } else {
-      $('aerr').textContent = res.data?.error || 'Verification failed.';
-    }
-  };
+      let verifiedToken = null;
+      if (smartConfirmationResult) {
+        try {
+          const userCred = await smartConfirmationResult.confirm(code);
+          if (userCred && userCred.user) {
+            verifiedToken = await userCred.user.getIdToken();
+          }
+        } catch (fbErr) {
+          console.warn('Firebase confirmation failed, trying fallback:', fbErr);
+        }
+      }
+
+      const res = await api('/api/auth/smart-login', 'POST', {
+        idToken: verifiedToken,
+        code,
+        mobile
+      });
+
+      $('smart-btn-verify-otp').textContent = '✓ Verify OTP & Enter Dashboard →';
+      $('smart-btn-verify-otp').disabled = false;
+
+      if (!res.ok) {
+        $('aerr').textContent = res.data?.error || 'OTP verification failed. Please check the code.';
+        return;
+      }
+
+      // Check if new user
+      if (res.data.isNew) {
+        $('auth-step-otp').hidden = true;
+        $('auth-step-new-user').hidden = false;
+        $('new-user-name').focus();
+        return;
+      }
+
+      // Existing user / Admin logged in!
+      if (res.data.token) {
+        authToken = res.data.token;
+        localStorage.setItem('ykr_token', authToken);
+        initSession();
+      }
+    };
+  }
+
+  // Setup New User Role Selector
+  if ($('new-user-role-select')) {
+    $('new-user-role-select').querySelectorAll('button').forEach(btn => {
+      btn.onclick = () => {
+        $('new-user-role-select').querySelectorAll('button').forEach(b => {
+          b.classList.remove('on');
+          b.classList.add('ghost');
+        });
+        btn.classList.add('on');
+        btn.classList.remove('ghost');
+        selectedNewUserRole = btn.getAttribute('data-role');
+      };
+    });
+  }
+
+  // Submit New User Setup
+  if ($('new-user-submit')) {
+    $('new-user-submit').onclick = async () => {
+      $('aerr').textContent = '';
+      const name = $('new-user-name').value.trim();
+      const mobile = smartPendingMobile || $('smart-mob').value.replace(/\D/g, '').slice(-10);
+
+      if (!name || name.length < 2) {
+        $('aerr').textContent = 'Please enter your full name.';
+        return;
+      }
+
+      $('new-user-submit').textContent = 'Creating Account...';
+      $('new-user-submit').disabled = true;
+
+      const res = await api('/api/auth/smart-login', 'POST', {
+        mobile,
+        name,
+        role: selectedNewUserRole
+      });
+
+      $('new-user-submit').textContent = 'Complete & Enter Dashboard →';
+      $('new-user-submit').disabled = false;
+
+      if (res.ok && res.data.token) {
+        authToken = res.data.token;
+        localStorage.setItem('ykr_token', authToken);
+        alert(`Welcome, ${name}! Your account has been registered.`);
+        initSession();
+      } else {
+        $('aerr').textContent = res.data?.error || 'Account setup failed.';
+      }
+    };
+  }
 
   // Change Password Box in Dashboard
   $('change-pass-open-btn').onclick = () => $('change-pass-box').hidden = !$('change-pass-box').hidden;

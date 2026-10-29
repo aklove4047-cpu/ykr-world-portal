@@ -9,6 +9,8 @@ run_worker_first = ["/api/*"]
 
 [vars]
 DEMO_OTP = "123456"
+FIREBASE_PROJECT_ID = "ykr-world"
+FIREBASE_API_KEY = "REDACTED_FIREBASE_KEY"
 TWOFACTOR_API_KEY = ""
 SMS_GATEWAY_URL = ""
 

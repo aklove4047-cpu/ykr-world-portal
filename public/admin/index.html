@@ -1,0 +1,1502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>YKR World — Executive Admin Portal</title>
+  <meta name="description" content="Dedicated Executive Management System for YKR World administrators and managers.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #070d19;
+      --bg-surface: #0f1a30;
+      --bg-card: #142240;
+      --bg-card-hover: #192b52;
+      --border: #1e3258;
+      --border-light: #2c4475;
+      --blue: #3b82f6;
+      --blue-glow: rgba(59, 130, 246, 0.25);
+      --indigo: #6366f1;
+      --gold: #f59e0b;
+      --green: #10b981;
+      --red: #ef4444;
+      --text: #f8fafc;
+      --text-mut: #94a3b8;
+      --text-dim: #64748b;
+      --radius: 12px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      background: var(--bg-dark);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+    /* Scrollbars */
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: var(--bg-dark); }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--border-light); }
+
+    /* Layout */
+    .admin-layout {
+      display: flex;
+      min-height: 100vh;
+      width: 100%;
+    }
+    .sidebar {
+      width: 270px;
+      background: var(--bg-surface);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      transition: transform 0.3s ease;
+      z-index: 100;
+    }
+    .sidebar-header {
+      padding: 22px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .logo-badge {
+      width: 38px;
+      height: 38px;
+      background: linear-gradient(135deg, var(--blue), var(--indigo));
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      color: #fff;
+      font-size: 1.15rem;
+      box-shadow: 0 4px 14px var(--blue-glow);
+    }
+    .logo-text {
+      display: flex;
+      flex-direction: column;
+    }
+    .logo-text b { font-size: 1.05rem; letter-spacing: 0.5px; color: #fff; }
+    .logo-text span { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 1.5px; color: var(--gold); font-weight: 700; }
+
+    .nav-list {
+      list-style: none;
+      padding: 16px 12px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 14px;
+      border-radius: 10px;
+      color: var(--text-mut);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.92rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: 1px solid transparent;
+    }
+    .nav-item:hover {
+      background: rgba(59, 130, 246, 0.08);
+      color: #fff;
+      border-color: rgba(59, 130, 246, 0.2);
+    }
+    .nav-item.active {
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.18), rgba(99, 102, 241, 0.18));
+      color: #fff;
+      border-color: var(--blue);
+      box-shadow: 0 4px 14px rgba(59, 130, 246, 0.15);
+    }
+    .nav-item .icon { font-size: 1.15rem; width: 22px; text-align: center; }
+    .nav-badge {
+      margin-left: auto;
+      padding: 2px 8px;
+      border-radius: 20px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      background: var(--blue);
+      color: #fff;
+    }
+
+    .sidebar-footer {
+      padding: 16px;
+      border-top: 1px solid var(--border);
+      background: rgba(0,0,0,0.15);
+    }
+
+    /* Main Content Area */
+    .main-wrapper {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      background: var(--bg-dark);
+    }
+    .topbar {
+      height: 70px;
+      background: var(--bg-surface);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      position: sticky;
+      top: 0;
+      z-index: 90;
+    }
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .mobile-menu-btn {
+      display: none;
+      background: transparent;
+      border: 1px solid var(--border);
+      color: #fff;
+      padding: 8px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1.1rem;
+    }
+    .page-title {
+      font-size: 1.25rem;
+      font-weight: 800;
+      letter-spacing: -0.3px;
+    }
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .admin-pill {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      padding: 6px 14px;
+      border-radius: 30px;
+    }
+    .admin-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--gold);
+      color: #000;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.9rem;
+    }
+    .admin-info {
+      display: flex;
+      flex-direction: column;
+      line-height: 1.2;
+    }
+    .admin-info b { font-size: 0.88rem; color: #fff; }
+    .admin-info small { font-size: 0.72rem; color: var(--gold); font-weight: 700; text-transform: uppercase; }
+
+    /* Content Area */
+    .content-body {
+      padding: 24px;
+      flex: 1;
+      max-width: 1400px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    /* Cards & Stats */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 18px;
+      margin-bottom: 24px;
+    }
+    .stat-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+    .stat-card:hover {
+      transform: translateY(-2px);
+      border-color: var(--border-light);
+    }
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      background: var(--accent-gradient, linear-gradient(90deg, var(--blue), var(--indigo)));
+    }
+    .stat-card.blue { --accent-gradient: linear-gradient(90deg, #3b82f6, #60a5fa); }
+    .stat-card.gold { --accent-gradient: linear-gradient(90deg, #f59e0b, #fbbf24); }
+    .stat-card.green { --accent-gradient: linear-gradient(90deg, #10b981, #34d399); }
+    .stat-card.purple { --accent-gradient: linear-gradient(90deg, #8b5cf6, #a78bfa); }
+
+    .stat-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .stat-title {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--text-mut);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+    .stat-icon {
+      font-size: 1.3rem;
+      padding: 8px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 8px;
+    }
+    .stat-val {
+      font-size: 2.1rem;
+      font-weight: 800;
+      color: #fff;
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+    .stat-sub {
+      font-size: 0.8rem;
+      color: var(--text-dim);
+    }
+
+    /* Section Cards */
+    .card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 22px;
+      margin-bottom: 24px;
+    }
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 14px;
+      margin-bottom: 18px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+    }
+    .card-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.88rem;
+      cursor: pointer;
+      text-decoration: none;
+      border: none;
+      transition: all 0.2s;
+      font-family: inherit;
+    }
+    .btn.primary {
+      background: linear-gradient(135deg, var(--blue), var(--indigo));
+      color: #fff;
+      box-shadow: 0 4px 12px var(--blue-glow);
+    }
+    .btn.primary:hover {
+      opacity: 0.95;
+      transform: translateY(-1px);
+    }
+    .btn.green {
+      background: var(--green);
+      color: #fff;
+    }
+    .btn.ghost {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-mut);
+    }
+    .btn.ghost:hover {
+      background: rgba(255,255,255,0.05);
+      color: #fff;
+      border-color: var(--border-light);
+    }
+    .btn.sm {
+      padding: 6px 12px;
+      font-size: 0.8rem;
+      border-radius: 6px;
+    }
+    .btn.danger {
+      background: rgba(239, 68, 68, 0.15);
+      color: var(--red);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+    .btn.danger:hover {
+      background: var(--red);
+      color: #fff;
+    }
+
+    /* Tables */
+    .table-container {
+      width: 100%;
+      overflow-x: auto;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+      text-align: left;
+    }
+    th {
+      background: var(--bg-card);
+      color: var(--text-mut);
+      font-weight: 700;
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      letter-spacing: 0.8px;
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+    td {
+      padding: 14px;
+      border-bottom: 1px solid var(--border);
+      color: #e2e8f0;
+      vertical-align: middle;
+    }
+    tr:last-child td { border-bottom: none; }
+    tbody tr:hover { background: rgba(255,255,255,0.02); }
+
+    /* Pills & Badges */
+    .badge {
+      display: inline-block;
+      padding: 3px 9px;
+      border-radius: 12px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .badge.blue { background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); }
+    .badge.green { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
+    .badge.gold { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
+    .badge.red { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+
+    /* Inputs */
+    input, select, textarea {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: #fff;
+      padding: 10px 14px;
+      font-size: 0.9rem;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+    }
+    select option { background: var(--bg-surface); color: #fff; }
+
+    /* Login Modal Overlay */
+    .login-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(7, 13, 25, 0.94);
+      backdrop-filter: blur(8px);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .login-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      max-width: 440px;
+      width: 100%;
+      padding: 32px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.5), 0 0 0 1px rgba(59, 130, 246, 0.15);
+      border-top: 4px solid var(--blue);
+    }
+
+    /* Tabs */
+    .tab-content { display: none; }
+    .tab-content.active { display: block; animation: fadeIn 0.25s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* Responsiveness */
+    @media (max-width: 900px) {
+      .sidebar {
+        position: fixed;
+        top: 0; bottom: 0; left: 0;
+        transform: translateX(-100%);
+      }
+      .sidebar.open { transform: translateX(0); }
+      .mobile-menu-btn { display: inline-flex; }
+      .content-body { padding: 16px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ADMIN AUTH GATE OVERLAY -->
+  <div class="login-overlay" id="admin-auth-overlay">
+    <div class="login-card">
+      <div style="text-align:center; margin-bottom: 24px;">
+        <div style="display:inline-flex; align-items:center; justify-content:center; width:52px; height:52px; background:linear-gradient(135deg, var(--blue), var(--indigo)); border-radius:14px; font-size:1.6rem; margin-bottom:12px; box-shadow:0 8px 24px var(--blue-glow);">
+          🛡️
+        </div>
+        <h2 style="font-size:1.5rem; font-weight:800; color:#fff; margin-bottom:4px;">Executive Admin Portal</h2>
+        <p style="font-size:0.85rem; color:var(--text-mut);">Authorized YKR World Administrators &amp; Staff Only</p>
+      </div>
+
+      <!-- Auth Method Selector -->
+      <div style="display:flex; background:var(--bg-card); border-radius:10px; padding:4px; margin-bottom:20px;">
+        <button id="auth-method-pass-btn" onclick="switchAdminAuthMethod('password')" style="flex:1; padding:8px; border:none; border-radius:7px; font-weight:700; font-size:0.82rem; cursor:pointer; background:var(--blue); color:#fff; font-family:inherit;">🔑 Master Password</button>
+        <button id="auth-method-otp-btn" onclick="switchAdminAuthMethod('otp')" style="flex:1; padding:8px; border:none; border-radius:7px; font-weight:700; font-size:0.82rem; cursor:pointer; background:transparent; color:var(--text-mut); font-family:inherit;">📲 Instant OTP</button>
+      </div>
+
+      <!-- Option 1: Password Login -->
+      <div id="admin-login-pass-box">
+        <div style="margin-bottom:14px;">
+          <label style="font-size:0.8rem; font-weight:700; color:var(--text-mut); margin-bottom:6px; display:block;">Admin Mobile Number or Email</label>
+          <input id="admin-user-input" placeholder="e.g. 7218550652" value="7218550652" style="width:100%;">
+        </div>
+        <div style="margin-bottom:18px;">
+          <label style="font-size:0.8rem; font-weight:700; color:var(--text-mut); margin-bottom:6px; display:block;">Password</label>
+          <input id="admin-pass-input" type="password" placeholder="Enter admin password" value="Admin@123" style="width:100%;">
+        </div>
+        <button class="btn primary" id="admin-login-submit" onclick="submitAdminPasswordLogin()" style="width:100%; padding:12px; font-size:0.95rem;">
+          Sign In to Admin Portal →
+        </button>
+      </div>
+
+      <!-- Option 2: OTP Login -->
+      <div id="admin-login-otp-box" style="display:none;">
+        <div id="admin-otp-step1">
+          <div style="margin-bottom:14px;">
+            <label style="font-size:0.8rem; font-weight:700; color:var(--text-mut); margin-bottom:6px; display:block;">Admin Registered Mobile (+91)</label>
+            <input id="admin-otp-mob" placeholder="7218550652" value="7218550652" maxlength="10" style="width:100%;">
+          </div>
+          <button class="btn primary" onclick="sendAdminOtp()" id="admin-otp-send-btn" style="width:100%; padding:12px;">
+            Send Admin Verification OTP →
+          </button>
+        </div>
+        <div id="admin-otp-step2" style="display:none;">
+          <div style="background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.3); border-radius:8px; padding:10px; margin-bottom:14px;">
+            <span style="color:var(--green); font-size:0.82rem; font-weight:700;">✓ OTP dispatched to +91 7218550652 (Test: 123456)</span>
+          </div>
+          <div style="margin-bottom:14px;">
+            <label style="font-size:0.8rem; font-weight:700; color:var(--text-mut); margin-bottom:6px; display:block;">Enter 6-Digit OTP</label>
+            <input id="admin-otp-code" maxlength="6" placeholder="• • • • • •" style="width:100%; text-align:center; letter-spacing:6px; font-weight:800; font-size:1.3rem;">
+          </div>
+          <button class="btn green" onclick="verifyAdminOtp()" id="admin-otp-verify-btn" style="width:100%; padding:12px;">
+            Verify &amp; Enter Portal →
+          </button>
+        </div>
+      </div>
+
+      <p id="admin-login-err" style="color:var(--red); font-size:0.85rem; font-weight:600; margin-top:14px; text-align:center;"></p>
+      
+      <div style="margin-top:20px; text-align:center; border-top:1px solid var(--border); padding-top:14px;">
+        <a href="/" style="color:var(--text-dim); text-decoration:none; font-size:0.82rem;">← Back to Main YKR Website</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN ADMIN APP LAYOUT -->
+  <div class="admin-layout" id="admin-app" style="display:none;">
+    
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="admin-sidebar">
+      <div class="sidebar-header">
+        <div class="logo-badge">Y</div>
+        <div class="logo-text">
+          <b>YKR WORLD</b>
+          <span>ADMIN PANEL</span>
+        </div>
+      </div>
+
+      <ul class="nav-list">
+        <li>
+          <a class="nav-item active" onclick="showTab('tab-dashboard')" id="nav-tab-dashboard">
+            <span class="icon">📊</span>
+            <span>Dashboard</span>
+          </a>
+        </li>
+        <li>
+          <a class="nav-item" onclick="showTab('tab-leads')" id="nav-tab-leads">
+            <span class="icon">📥</span>
+            <span>Leads CRM</span>
+            <span class="nav-badge" id="sidebar-leads-badge">0</span>
+          </a>
+        </li>
+        <li>
+          <a class="nav-item" onclick="showTab('tab-candidates')" id="nav-tab-candidates">
+            <span class="icon">🎓</span>
+            <span>Candidates Pool</span>
+            <span class="nav-badge" id="sidebar-cands-badge">0</span>
+          </a>
+        </li>
+        <li>
+          <a class="nav-item" onclick="showTab('tab-users')" id="nav-tab-users">
+            <span class="icon">👥</span>
+            <span>Users &amp; Roles</span>
+          </a>
+        </li>
+        <li>
+          <a class="nav-item" onclick="showTab('tab-gateway')" id="nav-tab-gateway">
+            <span class="icon">⚡</span>
+            <span>SMS &amp; Email Gateway</span>
+          </a>
+        </li>
+        <li>
+          <a class="nav-item" onclick="showTab('tab-export')" id="nav-tab-export">
+            <span class="icon">📁</span>
+            <span>Export &amp; Reports</span>
+          </a>
+        </li>
+      </ul>
+
+      <div class="sidebar-footer">
+        <a href="/" target="_blank" class="btn ghost sm" style="width:100%; margin-bottom:8px;">
+          🌐 View Public Website ↗
+        </a>
+        <button class="btn danger sm" onclick="adminSignOut()" style="width:100%;">
+          🚪 Sign Out
+        </button>
+      </div>
+    </aside>
+
+    <!-- WRAPPER -->
+    <div class="main-wrapper">
+      
+      <!-- TOPBAR -->
+      <header class="topbar">
+        <div class="topbar-left">
+          <button class="mobile-menu-btn" onclick="toggleMobileSidebar()">☰</button>
+          <div class="page-title" id="page-title-text">Executive Dashboard</div>
+        </div>
+        <div class="topbar-right">
+          <div class="admin-pill">
+            <div class="admin-avatar" id="admin-user-avatar">A</div>
+            <div class="admin-info">
+              <b id="admin-user-display-name">Super Admin</b>
+              <small id="admin-user-display-role">ADMIN</small>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- CONTENT BODY -->
+      <main class="content-body">
+
+        <!-- 1. DASHBOARD OVERVIEW TAB -->
+        <section id="tab-dashboard" class="tab-content active">
+          <div class="stats-grid">
+            <div class="stat-card blue">
+              <div class="stat-top">
+                <span class="stat-title">Total Enquiries</span>
+                <span class="stat-icon">📥</span>
+              </div>
+              <div class="stat-val" id="stat-leads-count">0</div>
+              <div class="stat-sub" id="stat-leads-new">0 new today</div>
+            </div>
+
+            <div class="stat-card gold">
+              <div class="stat-top">
+                <span class="stat-title">Candidates Pool</span>
+                <span class="stat-icon">🎓</span>
+              </div>
+              <div class="stat-val" id="stat-cands-count">0</div>
+              <div class="stat-sub">Screened &amp; Verified</div>
+            </div>
+
+            <div class="stat-card green">
+              <div class="stat-top">
+                <span class="stat-title">Portal Users</span>
+                <span class="stat-icon">👥</span>
+              </div>
+              <div class="stat-val" id="stat-users-count">0</div>
+              <div class="stat-sub">Clients, Students, Staff</div>
+            </div>
+
+            <div class="stat-card purple">
+              <div class="stat-top">
+                <span class="stat-title">Active Verticals</span>
+                <span class="stat-icon">🏢</span>
+              </div>
+              <div class="stat-val">4</div>
+              <div class="stat-sub">Training, Consult, HR, IT</div>
+            </div>
+          </div>
+
+          <!-- Quick Action Bar -->
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">⚡ Quick Management Actions</span>
+            </div>
+            <div style="display:flex; gap:12px; flex-wrap:wrap;">
+              <button class="btn primary sm" onclick="showTab('tab-leads')">📥 View New Leads</button>
+              <button class="btn ghost sm" onclick="openAddCandidateModal()">➕ Add New Candidate</button>
+              <button class="btn ghost sm" onclick="showTab('tab-users')">🔑 Reset User Password</button>
+              <button class="btn ghost sm" onclick="showTab('tab-gateway')">🧪 Test SMS / Email OTP</button>
+              <button class="btn ghost sm" onclick="exportData('leads')">📥 Export Leads CSV</button>
+            </div>
+          </div>
+
+          <!-- Recent Leads Snippet -->
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">🔥 Latest Inquiries</span>
+              <button class="btn ghost sm" onclick="showTab('tab-leads')">View All →</button>
+            </div>
+            <div class="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Name</th>
+                    <th>Mobile</th>
+                    <th>Vertical</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="dash-recent-leads-tbody">
+                  <tr><td colspan="6" style="text-align:center; color:var(--text-dim);">Loading inquiries...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- 2. LEADS CRM TAB -->
+        <section id="tab-leads" class="tab-content">
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">📥 Leads &amp; Inquiry CRM</span>
+              <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+                <select id="lead-filter-vertical" onchange="renderLeadsTable()">
+                  <option value="">All Verticals</option>
+                  <option value="Individual Training">Individual Training</option>
+                  <option value="Business Consultancy">Business Consultancy</option>
+                  <option value="HR Placement">HR Placement</option>
+                  <option value="Digital &amp; IT">Digital &amp; IT</option>
+                  <option value="Political Leadership Programme">Political Leadership</option>
+                </select>
+                <select id="lead-filter-status" onchange="renderLeadsTable()">
+                  <option value="">All Statuses</option>
+                  <option value="new">New</option>
+                  <option value="contacted">Contacted</option>
+                  <option value="converted">Converted</option>
+                </select>
+                <button class="btn ghost sm" onclick="loadAdminLeads()">↻ Refresh</button>
+                <button class="btn primary sm" onclick="exportData('leads')">Export CSV</button>
+              </div>
+            </div>
+
+            <div class="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Received</th>
+                    <th>Client Name</th>
+                    <th>Contact</th>
+                    <th>Vertical</th>
+                    <th>Requirements / Message</th>
+                    <th>Status</th>
+                    <th>Quick Contact &amp; Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="admin-leads-tbody">
+                  <tr><td colspan="7" style="text-align:center; color:var(--text-dim);">Loading inquiries...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- 3. CANDIDATES POOL TAB -->
+        <section id="tab-candidates" class="tab-content">
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">🎓 Candidate Directory &amp; Talent Vault</span>
+              <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+                <input id="cand-search-input" placeholder="Search skills, qualification..." oninput="filterCandidates()" style="width:220px;">
+                <button class="btn primary sm" onclick="openAddCandidateModal()">➕ Add Candidate</button>
+                <button class="btn ghost sm" onclick="loadAdminCandidates()">↻ Refresh</button>
+              </div>
+            </div>
+
+            <div class="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Candidate Name</th>
+                    <th>Qualification</th>
+                    <th>Experience</th>
+                    <th>Location / Area</th>
+                    <th>Key Skills</th>
+                    <th>Public Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="admin-candidates-tbody">
+                  <tr><td colspan="8" style="text-align:center; color:var(--text-dim);">Loading candidate directory...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Add Candidate Modal/Box -->
+          <div id="add-candidate-modal" style="display:none;" class="card">
+            <h4 style="margin-bottom:14px; color:#fff;">➕ Register New Candidate to Talent Vault</h4>
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:12px; margin-bottom:14px;">
+              <div>
+                <label style="font-size:0.8rem; font-weight:700; color:var(--text-mut); display:block; margin-bottom:4px;">Candidate Name *</label>
+                <input id="ac-name" placeholder="e.g. Aditi Sharma" style="width:100%;">
+              </div>
+              <div>
+                <label style="font-size:0.8rem; font-weight:700; color:var(--text-mut); display:block; margin-bottom:4px;">Qualification</label>
+                <input id="ac-qual" placeholder="e.g. B.Tech / MBA / B.Com" style="width:100%;">
+              </div>
+              <div>
+                <label style="font-size:0.8rem; font-weight:700; color:var(--text-mut); display:block; margin-bottom:4px;">Experience</label>
+                <input id="ac-exp" placeholder="e.g. Fresher / 2 yrs" style="width:100%;">
+              </div>
+              <div>
+                <label style="font-size:0.8rem; font-weight:700; color:var(--text-mut); display:block; margin-bottom:4px;">Location / Area</label>
+                <input id="ac-area" placeholder="e.g. Pune / PCMC / Talwade" style="width:100%;">
+              </div>
+            </div>
+            <div style="margin-bottom:16px;">
+              <label style="font-size:0.8rem; font-weight:700; color:var(--text-mut); display:block; margin-bottom:4px;">Skills (Comma separated) *</label>
+              <input id="ac-skills" placeholder="e.g. Sales, Communication, Digital Marketing" style="width:100%;">
+            </div>
+            <div style="display:flex; gap:10px;">
+              <button class="btn green sm" onclick="submitNewCandidate()">Save &amp; Publish Candidate</button>
+              <button class="btn ghost sm" onclick="closeAddCandidateModal()">Cancel</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- 4. USERS & ROLES TAB -->
+        <section id="tab-users" class="tab-content">
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">👥 Registered Portal Accounts</span>
+              <div style="display:flex; gap:10px; align-items:center;">
+                <select id="user-role-filter" onchange="filterUsersTable()">
+                  <option value="">All Roles</option>
+                  <option value="Admin">Admin</option>
+                  <option value="Student">Student</option>
+                  <option value="Business client">Business client</option>
+                  <option value="Employer / recruiter">Employer / recruiter</option>
+                  <option value="Job seeker">Job seeker</option>
+                  <option value="Digital / IT client">Digital / IT client</option>
+                  <option value="Manager">Manager</option>
+                  <option value="HR">HR</option>
+                </select>
+                <button class="btn ghost sm" onclick="loadAdminUsers()">↻ Refresh</button>
+              </div>
+            </div>
+
+            <div class="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>User Name</th>
+                    <th>Mobile / Identity</th>
+                    <th>Assigned Role</th>
+                    <th>Registered On</th>
+                    <th>Administrative Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="admin-users-tbody">
+                  <tr><td colspan="6" style="text-align:center; color:var(--text-dim);">Loading registered users...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- 5. GATEWAY & VERIFICATION CENTER TAB -->
+        <section id="tab-gateway" class="tab-content">
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">⚡ Google Firebase &amp; Delivery Gateways</span>
+              <button class="btn primary sm" onclick="refreshGatewayStatus()">↻ Check Live Gateway Health</button>
+            </div>
+
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:14px; margin-bottom:20px;">
+              <div style="background:var(--bg-card); padding:16px; border-radius:10px; border-left:4px solid var(--blue);">
+                <small style="color:var(--text-mut); font-weight:700;">AUTHENTICATION PLATFORM</small>
+                <div style="font-size:1.15rem; font-weight:800; color:#fff; margin:4px 0;">Google Firebase Cloud Identity</div>
+                <small style="color:var(--green); font-weight:700;">● Connected (ykr-world)</small>
+              </div>
+
+              <div style="background:var(--bg-card); padding:16px; border-radius:10px; border-left:4px solid var(--green);">
+                <small style="color:var(--text-mut); font-weight:700;">PRE-WHITELISTED NUMBER</small>
+                <div style="font-size:1.15rem; font-weight:800; color:var(--green); margin:4px 0;">+91 7218550652</div>
+                <small style="color:#fff; font-weight:600;">Default Test Passcode: 123456</small>
+              </div>
+
+              <div style="background:var(--bg-card); padding:16px; border-radius:10px; border-left:4px solid var(--gold);">
+                <small style="color:var(--text-mut); font-weight:700;">EMAIL &amp; SMS DISPATCH</small>
+                <div style="font-size:1.15rem; font-weight:800; color:#fff; margin:4px 0;" id="gateway-provider-label">Google Identity + Direct</div>
+                <small style="color:var(--gold); font-weight:600;" id="gateway-sms-bal">Active &amp; Ready</small>
+              </div>
+            </div>
+
+            <!-- Live Direct Tester -->
+            <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:12px; padding:20px;">
+              <h4 style="margin-bottom:8px; color:#fff;">Live OTP Dispatch Tester</h4>
+              <p style="font-size:0.85rem; color:var(--text-mut); margin-bottom:14px;">Directly verify OTP delivery to any 10-digit Indian mobile or registered email address:</p>
+              
+              <div style="display:flex; gap:10px; max-width:480px; margin-bottom:10px;">
+                <input id="test-dispatch-target" placeholder="Enter 10-digit phone or email" style="flex:1;">
+                <button class="btn primary" onclick="sendTestOtpDispatch()">Dispatch OTP</button>
+              </div>
+              <p id="test-dispatch-result" style="font-size:0.88rem; font-weight:600;"></p>
+            </div>
+          </div>
+        </section>
+
+        <!-- 6. EXPORT & REPORTS TAB -->
+        <section id="tab-export" class="tab-content">
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">📁 Data Export &amp; Backup Center</span>
+            </div>
+            <p style="color:var(--text-mut); font-size:0.9rem; margin-bottom:20px;">
+              Download up-to-date CSV records of your leads, candidates pool, and registered users for offline reporting and CRM integration.
+            </p>
+
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:16px;">
+              <div style="background:var(--bg-card); padding:20px; border-radius:12px; border:1px solid var(--border);">
+                <div style="font-size:1.6rem; margin-bottom:8px;">📥</div>
+                <h4 style="color:#fff; margin-bottom:4px;">Inquiry Leads</h4>
+                <p style="font-size:0.82rem; color:var(--text-mut); margin-bottom:14px;">All inquiries with contact details, verticals and status.</p>
+                <button class="btn primary sm" onclick="exportData('leads')">Download Leads CSV</button>
+              </div>
+
+              <div style="background:var(--bg-card); padding:20px; border-radius:12px; border:1px solid var(--border);">
+                <div style="font-size:1.6rem; margin-bottom:8px;">🎓</div>
+                <h4 style="color:#fff; margin-bottom:4px;">Candidate Vault</h4>
+                <p style="font-size:0.82rem; color:var(--text-mut); margin-bottom:14px;">Complete candidate directory with qualifications and skills.</p>
+                <button class="btn primary sm" onclick="exportData('candidates')">Download Candidates CSV</button>
+              </div>
+
+              <div style="background:var(--bg-card); padding:20px; border-radius:12px; border:1px solid var(--border);">
+                <div style="font-size:1.6rem; margin-bottom:8px;">👥</div>
+                <h4 style="color:#fff; margin-bottom:4px;">Portal Accounts</h4>
+                <p style="font-size:0.82rem; color:var(--text-mut); margin-bottom:14px;">All registered accounts, student profiles, and assigned roles.</p>
+                <button class="btn primary sm" onclick="exportData('users')">Download Users CSV</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- JavaScript Application Controller -->
+  <script>
+    const $ = id => document.getElementById(id);
+    const esc = s => String(s || '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+    let currentAdminUser = null;
+    let allLeads = [];
+    let allCandidates = [];
+    let allUsers = [];
+
+    // Utility API fetcher
+    async function api(url, method = 'GET', body = null) {
+      const token = localStorage.getItem('ykr_token');
+      const opts = {
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { 'Authorization': 'Bearer ' + token } : {})
+        }
+      };
+      if (body) opts.body = JSON.stringify(body);
+      try {
+        const res = await fetch(url, opts);
+        const data = await res.json().catch(() => ({}));
+        return { ok: res.ok, status: res.status, data };
+      } catch (err) {
+        return { ok: false, error: err.message };
+      }
+    }
+
+    // Switch between Password and OTP Auth on Login Gate
+    function switchAdminAuthMethod(method) {
+      $('admin-login-err').textContent = '';
+      if (method === 'otp') {
+        $('admin-login-pass-box').style.display = 'none';
+        $('admin-login-otp-box').style.display = 'block';
+        $('auth-method-pass-btn').style.background = 'transparent';
+        $('auth-method-pass-btn').style.color = 'var(--text-mut)';
+        $('auth-method-otp-btn').style.background = 'var(--blue)';
+        $('auth-method-otp-btn').style.color = '#fff';
+      } else {
+        $('admin-login-pass-box').style.display = 'block';
+        $('admin-login-otp-box').style.display = 'none';
+        $('auth-method-otp-btn').style.background = 'transparent';
+        $('auth-method-otp-btn').style.color = 'var(--text-mut)';
+        $('auth-method-pass-btn').style.background = 'var(--blue)';
+        $('auth-method-pass-btn').style.color = '#fff';
+      }
+    }
+
+    // Submit Password Login
+    async function submitAdminPasswordLogin() {
+      const errEl = $('admin-login-err');
+      errEl.textContent = '';
+      const input = $('admin-user-input').value.trim();
+      const password = $('admin-pass-input').value;
+
+      if (!input || !password) {
+        errEl.textContent = 'Please enter mobile/email and password.';
+        return;
+      }
+
+      const mobile = input.replace(/\D/g, '').slice(-10);
+      const btn = $('admin-login-submit');
+      btn.disabled = true;
+      btn.textContent = 'Authenticating...';
+
+      const res = await api('/api/auth/login', 'POST', { mobile, password });
+      btn.disabled = false;
+      btn.textContent = 'Sign In to Admin Portal →';
+
+      if (res.ok && res.data.token) {
+        localStorage.setItem('ykr_token', res.data.token);
+        verifyAndInitAdminSession();
+      } else {
+        errEl.textContent = res.data?.error || 'Invalid credentials or user not authorized.';
+      }
+    }
+
+    // Send Admin OTP
+    async function sendAdminOtp() {
+      const errEl = $('admin-login-err');
+      errEl.textContent = '';
+      const mobile = $('admin-otp-mob').value.replace(/\D/g, '').slice(-10);
+      if (mobile.length !== 10) {
+        errEl.textContent = 'Please enter a valid 10-digit mobile number.';
+        return;
+      }
+
+      const btn = $('admin-otp-send-btn');
+      btn.disabled = true;
+      btn.textContent = 'Sending OTP...';
+
+      const res = await api('/api/otp/send', 'POST', { mobile, role: 'Admin' });
+      btn.disabled = false;
+      btn.textContent = 'Send Admin Verification OTP →';
+
+      if (res.ok) {
+        $('admin-otp-step1').style.display = 'none';
+        $('admin-otp-step2').style.display = 'block';
+        $('admin-otp-code').focus();
+      } else {
+        errEl.textContent = res.data?.error || 'Could not send OTP.';
+      }
+    }
+
+    // Verify Admin OTP
+    async function verifyAdminOtp() {
+      const errEl = $('admin-login-err');
+      errEl.textContent = '';
+      const mobile = $('admin-otp-mob').value.replace(/\D/g, '').slice(-10);
+      const code = $('admin-otp-code').value.trim();
+
+      if (code.length !== 6) {
+        errEl.textContent = 'Please enter the 6-digit verification code.';
+        return;
+      }
+
+      const btn = $('admin-otp-verify-btn');
+      btn.disabled = true;
+      btn.textContent = 'Verifying...';
+
+      const res = await api('/api/auth/smart-login', 'POST', { mobile, code });
+      btn.disabled = false;
+      btn.textContent = 'Verify & Enter Portal →';
+
+      if (res.ok && res.data.token) {
+        localStorage.setItem('ykr_token', res.data.token);
+        verifyAndInitAdminSession();
+      } else {
+        errEl.textContent = res.data?.error || 'Invalid or expired OTP.';
+      }
+    }
+
+    // Verify session & check Admin privileges
+    async function verifyAndInitAdminSession() {
+      const token = localStorage.getItem('ykr_token');
+      if (!token) {
+        showLoginOverlay();
+        return;
+      }
+
+      const res = await api('/api/me');
+      if (!res.ok) {
+        localStorage.removeItem('ykr_token');
+        showLoginOverlay();
+        return;
+      }
+
+      const user = res.data.user;
+      const isAdminOrStaff = ['Admin', 'Manager', 'HR'].includes(user.role);
+
+      if (!isAdminOrStaff) {
+        $('admin-login-err').textContent = `Access Denied: Account role "${user.role}" does not have executive admin privileges.`;
+        showLoginOverlay();
+        return;
+      }
+
+      currentAdminUser = user;
+      $('admin-auth-overlay').style.display = 'none';
+      $('admin-app').style.display = 'flex';
+      $('admin-user-display-name').textContent = user.name || 'Super Admin';
+      $('admin-user-display-role').textContent = user.role.toUpperCase();
+      $('admin-user-avatar').textContent = (user.name || 'A')[0].toUpperCase();
+
+      // Load all data
+      loadDashboardStats();
+      loadAdminLeads();
+      loadAdminCandidates();
+      loadAdminUsers();
+      refreshGatewayStatus();
+    }
+
+    function showLoginOverlay() {
+      $('admin-auth-overlay').style.display = 'flex';
+      $('admin-app').style.display = 'none';
+    }
+
+    // Sign out
+    function adminSignOut() {
+      localStorage.removeItem('ykr_token');
+      location.reload();
+    }
+
+    // Navigation Tabs
+    function showTab(tabId) {
+      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+
+      const activeTab = $(tabId);
+      const activeNav = $('nav-' + tabId);
+
+      if (activeTab) activeTab.classList.add('active');
+      if (activeNav) activeNav.classList.add('active');
+
+      const titles = {
+        'tab-dashboard': 'Executive Dashboard',
+        'tab-leads': 'Leads & Inquiry CRM',
+        'tab-candidates': 'Candidate Directory & Vault',
+        'tab-users': 'User Accounts & Roles',
+        'tab-gateway': 'SMS & Email Delivery Center',
+        'tab-export': 'Data Export & Reports'
+      };
+      $('page-title-text').textContent = titles[tabId] || 'Admin Portal';
+
+      // Close mobile sidebar if open
+      $('admin-sidebar').classList.remove('open');
+    }
+
+    function toggleMobileSidebar() {
+      $('admin-sidebar').classList.toggle('open');
+    }
+
+    // Load Dashboard Stats
+    async function loadDashboardStats() {
+      const res = await api('/api/me');
+      if (!res.ok) return;
+      const stats = res.data.adminStats || {};
+      $('stat-leads-count').textContent = stats.totalLeads || 0;
+      $('stat-leads-new').textContent = `${stats.newLeads || 0} new today`;
+      $('stat-cands-count').textContent = stats.totalCandidates || 0;
+      $('stat-users-count').textContent = stats.totalUsers || 0;
+
+      $('sidebar-leads-badge').textContent = stats.newLeads || stats.totalLeads || 0;
+      $('sidebar-cands-badge').textContent = stats.totalCandidates || 0;
+    }
+
+    // Load Leads
+    async function loadAdminLeads() {
+      const res = await api('/api/leads');
+      if (!res.ok) return;
+      allLeads = res.data || [];
+      renderLeadsTable();
+      renderRecentLeadsSnippet();
+    }
+
+    function renderLeadsTable() {
+      const vFilter = $('lead-filter-vertical').value;
+      const sFilter = $('lead-filter-status').value;
+
+      let filtered = allLeads;
+      if (vFilter) filtered = filtered.filter(l => l.vertical === vFilter);
+      if (sFilter) filtered = filtered.filter(l => l.status === sFilter);
+
+      const tbody = $('admin-leads-tbody');
+      if (!filtered.length) {
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:var(--text-dim); padding:24px;">No inquiries found matching criteria.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = filtered.map(l => {
+        const cleanMob = String(l.mobile || '').replace(/\D/g, '').slice(-10);
+        const waMsg = encodeURIComponent(`Hello ${l.name}, thank you for contacting YKR World regarding ${l.vertical || 'our programmes'}. How can we assist you today?`);
+        
+        let statusBadge = '<span class="badge gold">New</span>';
+        if (l.status === 'contacted') statusBadge = '<span class="badge blue">Contacted</span>';
+        if (l.status === 'converted') statusBadge = '<span class="badge green">Converted</span>';
+
+        return `
+          <tr>
+            <td style="font-size:0.8rem; color:var(--text-dim);">${esc((l.created || '').slice(0, 16))}</td>
+            <td><b style="color:#fff;">${esc(l.name)}</b></td>
+            <td>+91 ${esc(cleanMob)}</td>
+            <td><span class="badge blue">${esc(l.vertical || 'General')}</span></td>
+            <td style="max-width:240px; font-size:0.85rem; color:var(--text-mut);">${esc(l.message || '—')}</td>
+            <td>${statusBadge}</td>
+            <td>
+              <div style="display:flex; gap:6px;">
+                <a class="btn sm ghost" href="https://wa.me/91${cleanMob}?text=${waMsg}" target="_blank" title="Open WhatsApp">💬 WA</a>
+                <a class="btn sm ghost" href="tel:+91${cleanMob}" title="Call Mobile">📞 Call</a>
+                <button class="btn sm ${l.status === 'new' ? 'primary' : 'ghost'}" onclick="cycleLeadStatus(${l.id}, '${l.status}')">
+                  ${l.status === 'new' ? 'Mark Contacted' : (l.status === 'contacted' ? 'Mark Converted' : 'Reset')}
+                </button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function renderRecentLeadsSnippet() {
+      const tbody = $('dash-recent-leads-tbody');
+      const recent = allLeads.slice(0, 5);
+      if (!recent.length) {
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--text-dim);">No inquiries yet.</td></tr>`;
+        return;
+      }
+      tbody.innerHTML = recent.map(l => `
+        <tr>
+          <td style="font-size:0.8rem; color:var(--text-dim);">${esc((l.created || '').slice(0, 16))}</td>
+          <td><b>${esc(l.name)}</b></td>
+          <td>+91 ${esc(String(l.mobile || '').slice(-10))}</td>
+          <td><span class="badge blue">${esc(l.vertical || 'General')}</span></td>
+          <td><span class="badge ${l.status === 'converted' ? 'green' : (l.status === 'contacted' ? 'blue' : 'gold')}">${esc(l.status)}</span></td>
+          <td><button class="btn sm ghost" onclick="showTab('tab-leads')">Manage →</button></td>
+        </tr>
+      `).join('');
+    }
+
+    async function cycleLeadStatus(id, currentStatus) {
+      let nextStatus = 'contacted';
+      if (currentStatus === 'contacted') nextStatus = 'converted';
+      if (currentStatus === 'converted') nextStatus = 'new';
+      await api('/api/leads/' + id, 'PATCH', { status: nextStatus });
+      loadAdminLeads();
+      loadDashboardStats();
+    }
+
+    // Load Candidates
+    async function loadAdminCandidates() {
+      const res = await api('/api/candidates?all=true');
+      if (!res.ok) return;
+      allCandidates = res.data || [];
+      renderCandidatesTable(allCandidates);
+    }
+
+    function renderCandidatesTable(cands) {
+      const tbody = $('admin-candidates-tbody');
+      if (!cands.length) {
+        tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; color:var(--text-dim); padding:24px;">No candidates found.</td></tr>`;
+        return;
+      }
+      tbody.innerHTML = cands.map(c => `
+        <tr>
+          <td>#${c.id}</td>
+          <td><b style="color:#fff;">${esc(c.name)}</b></td>
+          <td>${esc(c.qualification || '—')}</td>
+          <td>${esc(c.experience || '—')}</td>
+          <td>${esc(c.area || '—')}</td>
+          <td>${(c.skills || '').split(',').map(s => `<span class="badge blue" style="margin:2px;">${esc(s.trim())}</span>`).join('')}</td>
+          <td>${c.approved ? '<span class="badge green">Visible</span>' : '<span class="badge gold">Hidden</span>'}</td>
+          <td>
+            <div style="display:flex; gap:6px;">
+              <button class="btn sm ${c.approved ? 'ghost' : 'green'}" onclick="toggleCandidateVisibility(${c.id})">
+                ${c.approved ? 'Hide' : 'Approve'}
+              </button>
+              <button class="btn sm danger" onclick="deleteCandidate(${c.id})">Delete</button>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function filterCandidates() {
+      const q = $('cand-search-input').value.toLowerCase().trim();
+      if (!q) {
+        renderCandidatesTable(allCandidates);
+        return;
+      }
+      const filtered = allCandidates.filter(c =>
+        (c.name || '').toLowerCase().includes(q) ||
+        (c.skills || '').toLowerCase().includes(q) ||
+        (c.qualification || '').toLowerCase().includes(q) ||
+        (c.area || '').toLowerCase().includes(q)
+      );
+      renderCandidatesTable(filtered);
+    }
+
+    function openAddCandidateModal() { $('add-candidate-modal').style.display = 'block'; }
+    function closeAddCandidateModal() { $('add-candidate-modal').style.display = 'none'; }
+
+    async function submitNewCandidate() {
+      const name = $('ac-name').value.trim();
+      const qualification = $('ac-qual').value.trim();
+      const experience = $('ac-exp').value.trim();
+      const area = $('ac-area').value.trim();
+      const skills = $('ac-skills').value.trim();
+
+      if (!name || !skills) {
+        alert('Please fill candidate name and skills.');
+        return;
+      }
+
+      const res = await api('/api/candidates', 'POST', { name, qualification, experience, area, skills, approved: 1 });
+      if (res.ok) {
+        closeAddCandidateModal();
+        $('ac-name').value = '';
+        $('ac-qual').value = '';
+        $('ac-exp').value = '';
+        $('ac-area').value = '';
+        $('ac-skills').value = '';
+        loadAdminCandidates();
+        loadDashboardStats();
+      } else {
+        alert(res.data?.error || 'Could not save candidate.');
+      }
+    }
+
+    async function toggleCandidateVisibility(id) {
+      await api('/api/candidates/' + id + '/approve', 'PATCH');
+      loadAdminCandidates();
+    }
+
+    async function deleteCandidate(id) {
+      if (!confirm('Are you sure you want to remove this candidate?')) return;
+      await api('/api/candidates/' + id, 'DELETE');
+      loadAdminCandidates();
+      loadDashboardStats();
+    }
+
+    // Load Users
+    async function loadAdminUsers() {
+      const res = await api('/api/users');
+      if (!res.ok) return;
+      allUsers = res.data || [];
+      renderUsersTable(allUsers);
+    }
+
+    function renderUsersTable(users) {
+      const tbody = $('admin-users-tbody');
+      if (!users.length) {
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--text-dim); padding:24px;">No users found.</td></tr>`;
+        return;
+      }
+      tbody.innerHTML = users.map(u => `
+        <tr>
+          <td>#${u.id}</td>
+          <td><b style="color:#fff;">${esc(u.name || 'Member')}</b></td>
+          <td>${u.email ? `✉️ ${esc(u.email)}<br>` : ''}+91 ${esc(u.mobile || '—')}</td>
+          <td><span class="badge gold">${esc(u.role)}</span></td>
+          <td style="font-size:0.8rem; color:var(--text-dim);">${esc((u.created || '').slice(0, 16))}</td>
+          <td>
+            <button class="btn sm ghost" onclick="adminResetPassword(${u.id}, '${esc(u.name)}')">🔑 Reset Password</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function filterUsersTable() {
+      const role = $('user-role-filter').value;
+      if (!role) {
+        renderUsersTable(allUsers);
+        return;
+      }
+      renderUsersTable(allUsers.filter(u => u.role === role));
+    }
+
+    async function adminResetPassword(id, name) {
+      const newPass = prompt(`Enter new password for ${name}:`, 'User@123');
+      if (!newPass) return;
+      const res = await api(`/api/users/${id}/reset-password`, 'POST', { newPassword: newPass });
+      if (res.ok) {
+        alert(res.data.message || 'Password reset successfully!');
+      } else {
+        alert(res.data?.error || 'Could not reset password.');
+      }
+    }
+
+    // Gateway status
+    async function refreshGatewayStatus() {
+      const res = await api('/api/sms/status');
+      if (res.ok) {
+        $('gateway-provider-label').textContent = res.data.provider || 'Active';
+        if (res.data.wallet && res.data.wallet.wallet !== undefined) {
+          $('gateway-sms-bal').textContent = `Wallet: ₹${res.data.wallet.wallet} (${res.data.wallet.sms_count} SMS)`;
+        } else {
+          $('gateway-sms-bal').textContent = 'Google SMS & Email Ready';
+        }
+      }
+    }
+
+    // Direct OTP Tester
+    async function sendTestOtpDispatch() {
+      const target = $('test-dispatch-target').value.trim();
+      const resEl = $('test-dispatch-result');
+      if (!target) {
+        resEl.textContent = 'Please enter a target mobile or email.';
+        resEl.style.color = 'var(--red)';
+        return;
+      }
+
+      resEl.textContent = 'Dispatching test OTP...';
+      resEl.style.color = 'var(--blue)';
+
+      if (target.includes('@')) {
+        const res = await api('/api/auth/email/send-otp', 'POST', { email: target, purpose: 'login' });
+        if (res.ok) {
+          resEl.textContent = `✓ Email OTP dispatched successfully to ${target}!`;
+          resEl.style.color = 'var(--green)';
+        } else {
+          resEl.textContent = res.data?.error || 'Failed to dispatch email.';
+          resEl.style.color = 'var(--red)';
+        }
+      } else {
+        const mobile = target.replace(/\D/g, '').slice(-10);
+        const res = await api('/api/test-sms', 'POST', { mobile });
+        if (res.ok) {
+          resEl.textContent = `✓ SMS OTP (${res.data.code}) dispatched successfully to +91 ${mobile}!`;
+          resEl.style.color = 'var(--green)';
+        } else {
+          resEl.textContent = res.data?.error || 'Failed to dispatch SMS.';
+          resEl.style.color = 'var(--red)';
+        }
+      }
+    }
+
+    // Export CSV Helper
+    function exportData(type) {
+      let data = [];
+      let filename = 'ykr_export.csv';
+
+      if (type === 'leads') {
+        filename = 'ykr_leads_' + new Date().toISOString().slice(0,10) + '.csv';
+        data = allLeads.map(l => ({
+          ID: l.id,
+          Date: l.created,
+          Name: l.name,
+          Mobile: l.mobile,
+          Vertical: l.vertical,
+          Status: l.status,
+          Message: (l.message || '').replace(/"/g, '""')
+        }));
+      } else if (type === 'candidates') {
+        filename = 'ykr_candidates_' + new Date().toISOString().slice(0,10) + '.csv';
+        data = allCandidates.map(c => ({
+          ID: c.id,
+          Name: c.name,
+          Qualification: c.qualification,
+          Experience: c.experience,
+          Area: c.area,
+          Skills: c.skills,
+          Approved: c.approved ? 'Yes' : 'No'
+        }));
+      } else if (type === 'users') {
+        filename = 'ykr_users_' + new Date().toISOString().slice(0,10) + '.csv';
+        data = allUsers.map(u => ({
+          ID: u.id,
+          Name: u.name,
+          Mobile: u.mobile,
+          Email: u.email || '',
+          Role: u.role,
+          Created: u.created
+        }));
+      }
+
+      if (!data.length) {
+        alert('No data available to export.');
+        return;
+      }
+
+      const headers = Object.keys(data[0]);
+      const csvRows = [headers.join(',')];
+      data.forEach(row => {
+        csvRows.push(headers.map(h => `"${String(row[h] || '')}"`).join(','));
+      });
+
+      const blob = new Blob([csvRows.join('\n')], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }
+
+    // Boot
+    verifyAndInitAdminSession();
+  </script>
+</body>
+</html>
