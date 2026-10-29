@@ -437,7 +437,7 @@ input,select,textarea{width:100%;padding:12px;border:1.5px solid #cdd7ea;border-
 </section>
 
 <footer id="contact"><b>YKR World</b><br>Transforming businesses, empowering people.
-<h5>Contact</h5>+91 7218550652<br>ykrtraininginstitute@gmail.com
+<h5>Contact</h5>+91 7218550652<br>aklove4047@gmail.com
 <h5>Locations</h5>HQ Talwade IT Park. Branches: Dehugaon, Talwade, Chikhali, Sane Chowk, Chinchwad, Bhosari.</footer>
 
 <script>
