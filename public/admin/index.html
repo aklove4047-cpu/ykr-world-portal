@@ -494,12 +494,12 @@
       <!-- Option 1: Password Login -->
       <div id="admin-login-pass-box">
         <div style="margin-bottom:14px;">
-          <label style="font-size:0.8rem; font-weight:700; color:var(--text-mut); margin-bottom:6px; display:block;">Admin Mobile Number or Email</label>
-          <input id="admin-user-input" placeholder="e.g. 7218550652" value="7218550652" style="width:100%;">
+          <label style="font-size:0.8rem; font-weight:700; color:var(--text-mut); margin-bottom:6px; display:block;">Admin Email or Mobile Number</label>
+          <input id="admin-user-input" placeholder="aklove4047@gmail.com or 7218550652" value="aklove4047@gmail.com" style="width:100%;">
         </div>
         <div style="margin-bottom:18px;">
           <label style="font-size:0.8rem; font-weight:700; color:var(--text-mut); margin-bottom:6px; display:block;">Password</label>
-          <input id="admin-pass-input" type="password" placeholder="Enter admin password" value="Admin@123" style="width:100%;">
+          <input id="admin-pass-input" type="password" placeholder="Enter admin password (e.g. YkrAdmin@2026)" value="" style="width:100%;">
         </div>
         <button class="btn primary" id="admin-login-submit" onclick="submitAdminPasswordLogin()" style="width:100%; padding:12px; font-size:0.95rem;">
           Sign In to Admin Portal →
@@ -594,6 +594,9 @@
       </ul>
 
       <div class="sidebar-footer">
+        <button class="btn ghost sm" onclick="openAdminChangePassModal()" style="width:100%; margin-bottom:8px; display:flex; align-items:center; justify-content:center; gap:6px; color:var(--gold); border-color:rgba(234,179,8,0.3);">
+          <span>🔑</span> Change Password
+        </button>
         <a href="/" target="_blank" class="btn ghost sm" style="width:100%; margin-bottom:8px;">
           🌐 View Public Website ↗
         </a>
@@ -613,6 +616,9 @@
           <div class="page-title" id="page-title-text">Executive Dashboard</div>
         </div>
         <div class="topbar-right">
+          <button class="btn ghost sm" onclick="openAdminChangePassModal()" style="display:flex; align-items:center; gap:6px; border-color:rgba(234,179,8,0.3); color:var(--gold); padding:6px 12px; font-weight:700;">
+            <span>🔑</span> Change Password
+          </button>
           <div class="admin-pill">
             <div class="admin-avatar" id="admin-user-avatar">A</div>
             <div class="admin-info">
@@ -620,6 +626,9 @@
               <small id="admin-user-display-role">ADMIN</small>
             </div>
           </div>
+          <button class="btn danger sm" onclick="adminSignOut()" style="padding:6px 10px; font-size:0.8rem;" title="Sign Out">
+            🚪
+          </button>
         </div>
       </header>
 
@@ -989,7 +998,7 @@
       }
     }
 
-    // Submit Password Login
+    // Submit Password Login (Supports Email and Mobile)
     async function submitAdminPasswordLogin() {
       const errEl = $('admin-login-err');
       errEl.textContent = '';
@@ -997,16 +1006,19 @@
       const password = $('admin-pass-input').value;
 
       if (!input || !password) {
-        errEl.textContent = 'Please enter mobile/email and password.';
+        errEl.textContent = 'Please enter email or mobile and password.';
         return;
       }
 
-      const mobile = input.replace(/\D/g, '').slice(-10);
+      const payload = input.includes('@')
+        ? { email: input.toLowerCase(), password }
+        : { mobile: input.replace(/\D/g, '').slice(-10), password };
+
       const btn = $('admin-login-submit');
       btn.disabled = true;
       btn.textContent = 'Authenticating...';
 
-      const res = await api('/api/auth/login', 'POST', { mobile, password });
+      const res = await api('/api/auth/login', 'POST', payload);
       btn.disabled = false;
       btn.textContent = 'Sign In to Admin Portal →';
 
@@ -1495,8 +1507,109 @@
       document.body.removeChild(a);
     }
 
+    // ====================================================
+    // ADMIN CHANGE PASSWORD MODAL & API HANDLERS
+    // ====================================================
+    function openAdminChangePassModal() {
+      const modal = $('admin-change-pass-modal');
+      if (!modal) return;
+      $('cp-current').value = '';
+      $('cp-new').value = '';
+      $('cp-confirm').value = '';
+      const msg = $('cp-msg');
+      msg.style.display = 'none';
+      msg.textContent = '';
+      modal.style.display = 'flex';
+      setTimeout(() => $('cp-current').focus(), 100);
+    }
+
+    function closeAdminChangePassModal() {
+      const modal = $('admin-change-pass-modal');
+      if (modal) modal.style.display = 'none';
+    }
+
+    async function submitAdminChangePassword() {
+      const currentPassword = $('cp-current').value;
+      const newPassword = $('cp-new').value;
+      const confirmPassword = $('cp-confirm').value;
+      const msg = $('cp-msg');
+
+      if (!newPassword || newPassword.length < 4) {
+        msg.style.display = 'block';
+        msg.style.color = 'var(--red)';
+        msg.textContent = '❌ Naya password kam se kam 4 characters ka hona chahiye.';
+        return;
+      }
+
+      if (newPassword !== confirmPassword) {
+        msg.style.display = 'block';
+        msg.style.color = 'var(--red)';
+        msg.textContent = '❌ Naya password aur confirm password match nahi ho rahe.';
+        return;
+      }
+
+      const btn = $('cp-submit-btn');
+      btn.disabled = true;
+      btn.textContent = 'Updating...';
+
+      const res = await api('/api/auth/change-password', 'POST', { currentPassword, newPassword, confirmPassword });
+      btn.disabled = false;
+      btn.textContent = '✓ Update Password';
+
+      if (res.ok) {
+        msg.style.display = 'block';
+        msg.style.color = 'var(--green)';
+        msg.textContent = res.data?.message || '✓ Password successfully changed!';
+        setTimeout(() => {
+          closeAdminChangePassModal();
+        }, 1500);
+      } else {
+        msg.style.display = 'block';
+        msg.style.color = 'var(--red)';
+        msg.textContent = res.data?.error || 'Password update nahi ho saka.';
+      }
+    }
+
     // Boot
     verifyAndInitAdminSession();
   </script>
+
+  <!-- CHANGE PASSWORD MODAL DIALOG -->
+  <div id="admin-change-pass-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.75); backdrop-filter:blur(6px); z-index:9999; align-items:center; justify-content:center; padding:16px;">
+    <div style="background:var(--bg-surface); border:1px solid var(--border); border-radius:16px; width:100%; max-width:440px; box-shadow:0 20px 40px rgba(0,0,0,0.6); overflow:hidden; animation:modalPop 0.2s ease;">
+      <div style="padding:20px 24px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; background:linear-gradient(135deg, rgba(234,179,8,0.1), rgba(59,130,246,0.1));">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <span style="font-size:1.5rem;">🔑</span>
+          <div>
+            <h3 style="font-size:1.1rem; color:#fff; font-weight:800; margin:0;">Change Password</h3>
+            <small style="color:var(--text-mut);">Update your master admin password</small>
+          </div>
+        </div>
+        <button onclick="closeAdminChangePassModal()" style="background:none; border:none; color:var(--text-dim); font-size:1.4rem; cursor:pointer; line-height:1;" title="Close">✕</button>
+      </div>
+      <div style="padding:24px;">
+        <div style="margin-bottom:14px;">
+          <label style="font-size:0.8rem; font-weight:700; color:var(--text-mut); margin-bottom:6px; display:block;">Current Password *</label>
+          <input id="cp-current" type="password" placeholder="Enter current admin password" style="width:100%;">
+        </div>
+        <div style="margin-bottom:14px;">
+          <label style="font-size:0.8rem; font-weight:700; color:var(--text-mut); margin-bottom:6px; display:block;">New Password *</label>
+          <input id="cp-new" type="password" placeholder="Min. 4 characters" style="width:100%;">
+        </div>
+        <div style="margin-bottom:16px;">
+          <label style="font-size:0.8rem; font-weight:700; color:var(--text-mut); margin-bottom:6px; display:block;">Confirm New Password *</label>
+          <input id="cp-confirm" type="password" placeholder="Re-enter new password" style="width:100%;">
+        </div>
+        <div id="cp-msg" style="margin-bottom:14px; font-size:0.85rem; font-weight:600; display:none; padding:10px; border-radius:8px; background:rgba(0,0,0,0.3); border:1px solid var(--border);"></div>
+        <div style="display:flex; gap:10px;">
+          <button class="btn gold" id="cp-submit-btn" onclick="submitAdminChangePassword()" style="flex:1; padding:12px; font-weight:800;">
+            ✓ Update Password
+          </button>
+          <button class="btn ghost" onclick="closeAdminChangePassModal()" style="padding:12px;">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
 </body>
 </html>

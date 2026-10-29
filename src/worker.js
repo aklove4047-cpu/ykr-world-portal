@@ -233,7 +233,7 @@ export default {
       const token = authHeader.replace(/^Bearer\s+/i, '');
       const decoded = await verifyToken(secret, token);
       if (!decoded) return null;
-      return await db.prepare('SELECT id, mobile, role, name FROM users WHERE id=?').bind(decoded.id).first();
+      return await db.prepare('SELECT id, mobile, email, role, name FROM users WHERE id=?').bind(decoded.id).first();
     };
 
     try {
@@ -305,6 +305,49 @@ export default {
           token,
           user: { id: user.id, mobile: user.mobile, email: user.email, role: user.role, name: user.name },
           modules: MODULES[user.role] || []
+        });
+      }
+
+      // ====================================================
+      // 2.2 CHANGE PASSWORD (Authenticated Admin & Users)
+      // ====================================================
+      if (url.pathname === '/api/auth/change-password' && req.method === 'POST') {
+        const authUser = await getAuthUser();
+        if (!authUser) {
+          return json({ error: 'Unauthorized. Kripya pehle login karein.' }, 401);
+        }
+
+        const { currentPassword, newPassword, confirmPassword } = await body();
+
+        if (!newPassword || newPassword.trim().length < 4) {
+          return json({ error: 'Naya password kam se kam 4 characters ka hona chahiye.' }, 400);
+        }
+        if (confirmPassword && newPassword.trim() !== confirmPassword.trim()) {
+          return json({ error: 'Naya password aur confirm password match nahi ho rahe.' }, 400);
+        }
+
+        const userRow = await db.prepare('SELECT id, password_hash FROM users WHERE id=?').bind(authUser.id).first();
+        if (!userRow) {
+          return json({ error: 'Account not found.' }, 404);
+        }
+
+        // If existing password exists, verify current password
+        if (userRow.password_hash) {
+          if (!currentPassword) {
+            return json({ error: 'Kripya apna Current Password enter karein.' }, 400);
+          }
+          const isMatch = await verifyPassword(currentPassword, userRow.password_hash);
+          if (!isMatch) {
+            return json({ error: 'Current password galat hai! Kripya sahi password enter karein.' }, 400);
+          }
+        }
+
+        const newHash = await hashPassword(newPassword.trim());
+        await db.prepare('UPDATE users SET password_hash=? WHERE id=?').bind(newHash, authUser.id).run();
+
+        return json({
+          ok: true,
+          message: '✓ Password safaltapoorvak badal diya gaya hai! Naya password successfully update ho gaya.'
         });
       }
 
@@ -986,7 +1029,7 @@ export default {
           return json({ error: 'Unauthorized' }, 403);
         }
         if (req.method === 'GET') {
-          const users = await db.prepare('SELECT id, mobile, role, name, created FROM users ORDER BY id DESC').all();
+          const users = await db.prepare('SELECT id, mobile, email, role, name, created FROM users ORDER BY id DESC').all();
           return json(users.results || []);
         }
         if (req.method === 'POST') {
