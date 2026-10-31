@@ -12,13 +12,14 @@ run_worker_first = ["/api/*"]
 [vars]
 DEMO_OTP = "123456"
 FIREBASE_PROJECT_ID = "ykr-world"
-FIREBASE_API_KEY = "REDACTED_FIREBASE_KEY"
+FIREBASE_API_KEY = ""
 TWOFACTOR_API_KEY = ""
 SMS_GATEWAY_URL = ""
-GMAIL_USER = "aklove4047@gmail.com"
-GMAIL_APP_PASSWORD = "REDACTED_GMAIL_PASS"
+GMAIL_USER = ""
+GMAIL_APP_PASSWORD = ""
 
 [[d1_databases]]
 binding = "DB"
 database_name = "ykr-db"
 database_id = "f2360ca7-0b1a-4bd0-9be2-80956886ad71"
+

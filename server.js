@@ -246,13 +246,15 @@ async function sendEmailOtp(email, code, purpose) {
   // Also trigger Google Firebase password reset if purpose is 'forgot'
   if (purpose === 'forgot') {
     try {
-      const fbKey = 'REDACTED_FIREBASE_KEY';
-      await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key=${fbKey}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ requestType: 'PASSWORD_RESET', email })
-      });
-      console.log(`[YKR-EMAIL] Triggered Google Firebase email for ${email}`);
+      const fbKey = process.env.FIREBASE_API_KEY || '';
+      if (fbKey) {
+        await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key=${fbKey}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ requestType: 'PASSWORD_RESET', email })
+        });
+        console.log(`[YKR-EMAIL] Triggered Google Firebase email for ${email}`);
+      }
     } catch (_) {}
   }
 
@@ -496,17 +498,19 @@ app.post('/api/auth/smart-login', async (req, res) => {
   let cleanMobile = String(mobile || '').replace(/\D/g, '').slice(-10);
 
   if (idToken) {
-    const fbKey = process.env.FIREBASE_API_KEY || 'REDACTED_FIREBASE_KEY';
+    const fbKey = process.env.FIREBASE_API_KEY || '';
     try {
-      const fbRes = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=${fbKey}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ idToken })
-      });
-      const fbData = await fbRes.json();
-      if (fbData.users && fbData.users[0]) {
-        const verifiedPhone = fbData.users[0].phoneNumber ? fbData.users[0].phoneNumber.replace(/\D/g, '').slice(-10) : '';
-        if (verifiedPhone) cleanMobile = verifiedPhone;
+      if (fbKey) {
+        const fbRes = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=${fbKey}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ idToken })
+        });
+        const fbData = await fbRes.json();
+        if (fbData.users && fbData.users[0]) {
+          const verifiedPhone = fbData.users[0].phoneNumber ? fbData.users[0].phoneNumber.replace(/\D/g, '').slice(-10) : '';
+          if (verifiedPhone) cleanMobile = verifiedPhone;
+        }
       }
     } catch (_) { }
   } else if (code) {
@@ -804,9 +808,12 @@ app.post('/api/auth/firebase-verify', async (req, res) => {
     return res.status(400).json({ error: 'Firebase ID token is required for verification.' });
   }
 
-  const fbKey = process.env.FIREBASE_API_KEY || 'REDACTED_FIREBASE_KEY';
+  const fbKey = process.env.FIREBASE_API_KEY || '';
   let fbUser = null;
   try {
+    if (!fbKey) {
+      return res.status(500).json({ error: 'Firebase API key is not configured.' });
+    }
     const fbRes = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=${fbKey}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

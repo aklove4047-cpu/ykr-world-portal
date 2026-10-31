@@ -146,8 +146,8 @@ async function sendSmsOtp(env, mobile, code, role) {
 
 // WorkerMailer Gmail SMTP Dispatcher
 async function sendWorkerEmailOtp(env, email, code, purpose) {
-  const gmailUser = env.GMAIL_USER || 'aklove4047@gmail.com';
-  const gmailPass = env.GMAIL_APP_PASSWORD || 'REDACTED_GMAIL_PASS';
+  const gmailUser = env.GMAIL_USER || '';
+  const gmailPass = env.GMAIL_APP_PASSWORD || '';
 
   const subjects = {
     login: 'Your YKR World Login Verification Code',
@@ -393,12 +393,14 @@ export default {
         // If forgot, trigger Google Firebase Password Reset email
         if (actPurpose === 'forgot') {
           try {
-            const fbKey = env.FIREBASE_API_KEY || 'REDACTED_FIREBASE_KEY';
-            await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key=${fbKey}`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ requestType: 'PASSWORD_RESET', email: cleanEmail })
-            });
+            const fbKey = env.FIREBASE_API_KEY || '';
+            if (fbKey) {
+              await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key=${fbKey}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ requestType: 'PASSWORD_RESET', email: cleanEmail })
+              });
+            }
           } catch (_) {}
         }
 
@@ -525,17 +527,19 @@ export default {
         let cleanMobile = String(mobile || '').replace(/\D/g, '').slice(-10);
 
         if (idToken) {
-          const fbKey = env.FIREBASE_API_KEY || 'REDACTED_FIREBASE_KEY';
+          const fbKey = env.FIREBASE_API_KEY || '';
           try {
-            const fbRes = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=${fbKey}`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ idToken })
-            });
-            const fbData = await fbRes.json();
-            if (fbData.users && fbData.users[0]) {
-              const verifiedPhone = fbData.users[0].phoneNumber ? fbData.users[0].phoneNumber.replace(/\D/g, '').slice(-10) : '';
-              if (verifiedPhone) cleanMobile = verifiedPhone;
+            if (fbKey) {
+              const fbRes = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=${fbKey}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ idToken })
+              });
+              const fbData = await fbRes.json();
+              if (fbData.users && fbData.users[0]) {
+                const verifiedPhone = fbData.users[0].phoneNumber ? fbData.users[0].phoneNumber.replace(/\D/g, '').slice(-10) : '';
+                if (verifiedPhone) cleanMobile = verifiedPhone;
+              }
             }
           } catch (_) {}
         } else if (code) {
@@ -846,9 +850,12 @@ export default {
           return json({ error: 'Firebase ID token is required for verification.' }, 400);
         }
 
-        const fbKey = env.FIREBASE_API_KEY || 'REDACTED_FIREBASE_KEY';
+        const fbKey = env.FIREBASE_API_KEY || '';
         let fbUser = null;
         try {
+          if (!fbKey) {
+            return json({ error: 'Firebase API key is not configured.' }, 500);
+          }
           const fbRes = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=${fbKey}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
